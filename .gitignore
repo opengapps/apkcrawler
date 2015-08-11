@@ -1,0 +1,9 @@
+# Downloaded APKs
+*.apk
+
+# Log Files
+*.log
+
+#Temporary editor files
+*.bak
+*~
