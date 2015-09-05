@@ -23,7 +23,7 @@ APK Crawler emits the downloaded filename so it can be used inline
 - ~~Google Play~~ (Not yet added)
 
 ## Requirements
-- [python (make sure you have Python 2 (for now) or it won't work!)](https://www.python.org/downloads/)
+- [python](https://www.python.org/downloads/)
 - [requests](https://pypi.python.org/pypi/requests)
 - [beautifulsoup4](https://pypi.python.org/pypi/beautifulsoup4/)
 - [html5lib](https://pypi.python.org/pypi/html5lib)

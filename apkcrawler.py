@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 #
 # Required Modules
@@ -41,6 +41,12 @@ class ApkVersionInfo(object):
         self.apk_name     = ''
         self.download_url = ''
 
+    def __lt__(self, other):
+        if self.version == '' or other.version == '':
+            return self.name < other.name
+        else:
+            return self.version < other.version
+
     def __cmp__(self, other):
         if self.version == '' or other.version == '':
             return cmp(self.name, other.name)
@@ -75,14 +81,16 @@ class ApkInfo(object):
         self.versions  = []
 
     def __str__(self):
-        import urllib
-        import urlparse
+        try:
+            from urllib.parse import urlparse, urlencode
+        except ImportError:
+            from urlparse import urlparse, urlencode
         import json
         vArr = [str(v) for v in self.versions]
-        data = urllib.urlencode({'apkmirror_name': self.apkmirror_name,
-                                 'opengapps_name': self.opengapps_name,
-                                 'url':            self.url,
-                                 'versions':       vArr})
+        data = urlencode({'apkmirror_name': self.apkmirror_name,
+                          'opengapps_name': self.opengapps_name,
+                          'url':            self.url,
+                          'versions':       vArr})
         return json.dumps(urlparse.parse_qs(data))
 # END: class ApkInfo()
 
