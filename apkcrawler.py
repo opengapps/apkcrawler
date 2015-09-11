@@ -7,6 +7,8 @@
 # - requests
 #
 
+import sys
+import os
 import logging
 
 import requests
@@ -82,16 +84,18 @@ class ApkInfo(object):
 
     def __str__(self):
         try:
-            from urllib.parse import urlparse, urlencode
+            from urllib.parse import parse_qs
+            from urllib.parse import urlencode
         except ImportError:
-            from urlparse import urlparse, urlencode
+            from urlparse import parse_qs
+            from urllib   import urlencode
         import json
         vArr = [str(v) for v in self.versions]
         data = urlencode({'apkmirror_name': self.apkmirror_name,
                           'opengapps_name': self.opengapps_name,
                           'url':            self.url,
                           'versions':       vArr})
-        return json.dumps(urlparse.parse_qs(data))
+        return json.dumps(parse_qs(data))
 # END: class ApkInfo()
 
 ###################
@@ -110,6 +114,7 @@ sReVersionFmt = '(?P<VERSIONNAME>(([vR]?\d+[bQRS]?|arm|arm64|neon|x86|release|RE
 
 requestedApkInfo = []
 allApkInfo = [
+    ApkInfo('Android Pay',                  'androidpay'          ),
     ApkInfo('Android System WebView',       'webviewgoogle'       ),
     ApkInfo('Calendar',                     'calendargoogle'      ),
     ApkInfo('Camera',                       'cameragoogle'        ),
@@ -145,7 +150,6 @@ allApkInfo = [
     ApkInfo('Sound Search',                 'ears',           '', 'sound-search-for-google-play/'),
     ApkInfo('Street View',                  'street'              ),
     ApkInfo('TalkBack',                     'talkback'            ),
-    ApkInfo('Wallet',                       'wallet'              ),
     ApkInfo('YouTube',                      'youtube'             ) ]
 
 ###################
@@ -171,13 +175,12 @@ def downloadApkFromVersionInfo(apkVersionInfo):
     """
     downloadApkFromVersionInfo(apkVersionInfo): downloads the give APK
     """
-    import os
     try:
         if os.path.exists(apkVersionInfo.apk_name):
             logging.info('Downloaded APK already exists.')
             return
 
-        if os.path.exists(os.path.join('apkcrawler', apkVersionInfo.apk_name)):
+        if os.path.exists(os.path.join('./', 'apkcrawler', apkVersionInfo.apk_name)):
             logging.info('Downloaded APK already exists (in ./apkcrawler/).')
             return
 
@@ -197,7 +200,6 @@ def DEBUG_readFromHtml(html_name):
     """
     DEBUG_readFromHtml():
     """
-    import os
     if READFROMHTML and os.path.exists(html_name):
         with open(html_name, 'rb') as debug_file:
             return debug_file.read()
@@ -211,8 +213,12 @@ def DEBUG_writeToHtml(html_name, html, encoding):
     DEBUG_writeToHtml():
     """
     if SAVELASTHTML:
-        with codecs.open(html_name, 'w', encoding) as debug_file:
-            debug_file.write(html)
+        try:
+            with codecs.open(html_name, 'w', encoding) as debug_file:
+                debug_file.write(html)
+        except TypeError:
+            with open(html_name, '+ab') as debug_file:
+                debug_file.write(html)
 # END: def DEBUG_writeToHtml():
 
 
@@ -358,19 +364,22 @@ def main(param_list):
         logging.debug(ai)
 
         # Determine which versions to download
-        maxVersionByName = sorted(ai.versions)[-1]
+        if len(ai.versions) > 0:
+            maxVersionByName = sorted(ai.versions)[-1]
 
-        logging.debug('Max Version By Name: "{0}"'.format(maxVersionByName.name))
+            logging.debug('Max Version By Name: "{0}"'.format(maxVersionByName.name))
 
-        for v in ai.versions:
-            if v.name == maxVersionByName.name:
-                logging.info('Getting Info for: "{0}" ({1})'.format(v.name, v.scrape_url))
-                getVersionInfo(v)
-                logging.info('Downloading: "{0}"'.format(v.apk_name))
-                downloadApkFromVersionInfo(v)
-            else:
-                logging.debug('Skipping: "{0}" ({1})'.format(v.name, v.scrape_url))
-        # END: for v in ai.versions:
+            for v in ai.versions:
+                if v.name == maxVersionByName.name:
+                    logging.info('Getting Info for: "{0}" ({1})'.format(v.name, v.scrape_url))
+                    getVersionInfo(v)
+                    logging.info('Downloading: "{0}"'.format(v.apk_name))
+                    downloadApkFromVersionInfo(v)
+                else:
+                    logging.debug('Skipping: "{0}" ({1})'.format(v.name, v.scrape_url))
+            # END: for v in ai.versions:
+        else:
+            logging.info('No matching APKs found for: {0}'.format(ai.apkmirror_name))
         logging.debug('-'*80)
     # END: for ai in requestedApkInfo:
 # END: main():
@@ -380,14 +389,8 @@ def main(param_list):
 ###################
 
 if __name__ == "__main__":
-    import datetime
-    import os
-    import sys
-    dtstring = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    logfile = '{0}.{1}.log'.format(os.path.basename(sys.argv[0]), dtstring)
     logfile = '{0}.log'.format(os.path.basename(sys.argv[0]))
-
-    logging.basicConfig(filename = logfile,
+    logging.basicConfig(filename = logfile, filemode = 'w',
                         level    = (logging.DEBUG if DEBUG else logging.INFO),
                         format   ='%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s')
     logging.getLogger("requests").setLevel(logging.WARNING)
