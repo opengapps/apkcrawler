@@ -309,7 +309,7 @@ def getAppVersions(apkInfo):
     dVersions = {}
 
     for version in versions:
-        verText = '"{0}"'.format(version.get_text())
+        verText = '"{0}"'.format(version.get_text().encode('ascii', 'ignore'))
         dVersions[verText] = version['href']
 
         m = apkInfo.reVersion.search(verText)
