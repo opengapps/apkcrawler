@@ -44,16 +44,20 @@ class ApkVersionInfo(object):
         self.download_url = ''
 
     def __lt__(self, other):
+        from distutils.version import StrictVersion
+
         if self.version == '' or other.version == '':
             return self.name < other.name
         else:
-            return self.version < other.version
+            return StrictVersion(self.version) < StrictVersion(other.version)
 
     def __cmp__(self, other):
+        from distutils.version import StrictVersion
+
         if self.version == '' or other.version == '':
             return cmp(self.name, other.name)
         else:
-            return cmp(self.version, other.version)
+            return StrictVersion(self.version).__cmp__(other.version)
 
     def __str__(self):
         return str(self.__dict__)
@@ -110,25 +114,33 @@ APKMIRRORBASEURL    = 'http://www.apkmirror.com'
 APKMIRRORGOOGLEURL  = '/apk/google-inc/'
 
 # Version RegEx String
-sReVersionFmt = '(?P<VERSIONNAME>(([vR]?\d+[bQRS]?|arm|arm64|neon|x86|release|RELEASE|tv)[-.]?){0})'
+sReVersionFmt = '(?P<VERSIONNAME>(([vR]?([A-Z]|\d+)[bQRS]?|arm|arm64|neon|x86|release|RELEASE|tv)[-.]?){0})'
 
 requestedApkInfo = []
 allApkInfo = [
     ApkInfo('Android Pay',                  'androidpay'          ),
+    ### Android for Work App (not the core included in Open GApps)
+    # ApkInfo('Android for Work App',         'androidforwork'      ),
     ApkInfo('Android System WebView',       'webviewgoogle'       ),
+    ApkInfo('Calculator',                   'calculator',     '', 'google-calculator'            ),
     ApkInfo('Calendar',                     'calendargoogle'      ),
     ApkInfo('Camera',                       'cameragoogle'        ),
     ApkInfo('Chrome',                       'chrome'              ),
     ApkInfo('Clock',                        'clockgoogle'         ),
     ApkInfo('Cloud Print',                  'cloudprint'          ),
+    ApkInfo('Device Policy',                'dmagent'             ),
     ApkInfo('Docs',                         'docs',           4   ),
     ApkInfo('Drive',                        'drive',          4   ),
     ApkInfo('Earth',                        'earth'               ),
     ApkInfo('Exchange Services',            'exchangegoogle'      ),
     ApkInfo('Fit',                          'fitness'             ),
     ApkInfo('Gmail',                        'gmail'               ),
-    ApkInfo('Google Keyboard',              'keyboardgoogle'      ),
+    ApkInfo('Google Connectivity Services', 'gcs'                 ),
+    ApkInfo('Google Japanese Input',        'japanese',       4   ),
+    ApkInfo('Google Keyboard',              'keyboardgoogle', 2   ),
+    ApkInfo('Google Korean Input',          'korean',         4   ),
     ApkInfo('Google Now Launcher',          'googlenow'           ),
+    ApkInfo('Google Pinyin Input',          'pinyin',         4   ),
     ApkInfo('Google Play Books',            'books'               ),
     ApkInfo('Google Play Games',            'playgames',      3   ),
     ApkInfo('Google Play Newsstand',        'newsstand'           ),
@@ -137,7 +149,8 @@ allApkInfo = [
     ApkInfo('Google Play services',         'gmscore'             ),
     ApkInfo('Google Play Store',            'vending'             ),
     ApkInfo('Google App',                   'search',         4,  'google-search/'               ),
-    ApkInfo('Google Text-to-speech Engine', 'speech',         4   ),
+    ApkInfo('Google Text-to-speech Engine', 'googletts',      4   ),
+    ApkInfo('Google Zhuyin Input',          'zhuyin',         4   ),
     ApkInfo('Google+',                      'googleplus',     4   ),  # or 3?
     ApkInfo('Hangouts',                     'hangouts'            ),
     ApkInfo('Keep',                         'keep'                ),
@@ -145,12 +158,17 @@ allApkInfo = [
     ApkInfo('Messenger',                    'messenger',      '', 'messenger-google-inc/'        ),
     ApkInfo('News & Weather',               'newswidget'          ),
     ApkInfo('Photos',                       'photos'              ),
+    ApkInfo('Project Fi',                   'projectfi'           ),
     ApkInfo('Sheets',                       'sheets',         4   ),
     ApkInfo('Slides',                       'slides',         4   ),
-    ApkInfo('Sound Search',                 'ears',           '', 'sound-search-for-google-play/'),
+    ApkInfo('Sound Search for Google Play', 'ears',               ),
     ApkInfo('Street View',                  'street'              ),
+    ApkInfo('Tags',                         'taggoogle'           ),
     ApkInfo('TalkBack',                     'talkback'            ),
-    ApkInfo('YouTube',                      'youtube'             ) ]
+    ApkInfo('Translate',                    'translate'           ),
+    ### Trusted Face (facelock) is currently withheld for versioning reasons
+    # ApkInfo('Trusted Face',                 'faceunlock'          ),
+    ApkInfo('YouTube',                      'youtube'             )]
 
 ###################
 # END: Globals    #
@@ -180,8 +198,12 @@ def downloadApkFromVersionInfo(apkVersionInfo):
             logging.info('Downloaded APK already exists.')
             return
 
-        if os.path.exists(os.path.join('./', 'apkcrawler', apkVersionInfo.apk_name)):
+        if os.path.exists(os.path.join('.', 'apkcrawler', apkVersionInfo.apk_name)):
             logging.info('Downloaded APK already exists (in ./apkcrawler/).')
+            return
+
+        if os.path.exists(os.path.join('..', 'apkcrawler', apkVersionInfo.apk_name)):
+            logging.info('Downloaded APK already exists (in ../apkcrawler/).')
             return
 
         # Open the url
