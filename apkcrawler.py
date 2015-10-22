@@ -333,14 +333,17 @@ def getAppVersions(apkInfo):
 
     for version in versions:
         verText = '"{0}"'.format(version.get_text().encode('ascii', 'ignore'))
-        dVersions[verText] = version['href']
-
-        m = apkInfo.reVersion.search(verText)
-        if m:
-            avi = ApkVersionInfo(m.group('VERSIONNAME').rstrip('-.'), version['href'])
-            apkInfo.versions.append(avi)
+        if 'beta' in verText.lower() or 'preview' in verText.lower():
+            logging.info('!!! Beta or Preview Found: ' + verText)
         else:
-            logging.error('!!! No Matchy: ' + verText)
+            dVersions[verText] = version['href']
+
+            m = apkInfo.reVersion.search(verText)
+            if m:
+                avi = ApkVersionInfo(m.group('VERSIONNAME').rstrip('-.'), version['href'])
+                apkInfo.versions.append(avi)
+            else:
+                logging.error('!!! No Matchy: ' + verText)
     # END: for v in versions:
 
     printDictionary(dVersions)
