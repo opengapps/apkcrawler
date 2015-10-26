@@ -92,7 +92,7 @@ class ApkInfo(object):
             from urllib.parse import urlencode
         except ImportError:
             from urlparse import parse_qs
-            from urllib   import urlencode
+            from urllib import urlencode
         import json
         vArr = [str(v) for v in self.versions]
         data = urlencode({'apkmirror_name': self.apkmirror_name,
@@ -112,6 +112,7 @@ class ApkInfo(object):
 
 APKMIRRORBASEURL    = 'http://www.apkmirror.com'
 APKMIRRORGOOGLEURL  = '/apk/google-inc/'
+APKMIRRORGOOGLEURL2 = '/uploads/?app='
 
 # Version RegEx String
 sReVersionFmt = '(?P<VERSIONNAME>(([vR]?([A-Z]|\d+)[bQRS]?|arm|arm64|neon|x86|release|RELEASE|tv)[-.]?){0})'
@@ -315,7 +316,7 @@ def getAppVersions(apkInfo):
     getAppVersions(apkInfo): Collect all versions for an applicaiton
     """
     html_name = '{0}.html'.format(apkInfo.opengapps_name)
-    url       = APKMIRRORBASEURL + APKMIRRORGOOGLEURL + apkInfo.url
+    url       = APKMIRRORBASEURL + APKMIRRORGOOGLEURL2 + apkInfo.url
     html      = DEBUG_readFromHtml(html_name)
 
     if html == '':
