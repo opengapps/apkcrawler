@@ -10,6 +10,7 @@
 import sys
 import os
 import logging
+import multiprocessing
 
 import requests
 from bs4 import BeautifulSoup
@@ -116,6 +117,11 @@ APKMIRRORGOOGLEURL2 = '/uploads/?app='
 
 # Version RegEx String
 sReVersionFmt = '(?P<VERSIONNAME>(([vR]?([A-Z]|\d+)[bQRS]?|arm|arm64|neon|x86|release|RELEASE|tv)[-.]?){0})'
+
+# logging
+logFile   = '{0}.log'.format(os.path.basename(sys.argv[0]))
+logLevel  = (logging.DEBUG if DEBUG else logging.INFO)
+logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
 requestedApkInfo = []
 allApkInfo = [
@@ -315,6 +321,8 @@ def getAppVersions(apkInfo):
     """
     getAppVersions(apkInfo): Collect all versions for an applicaiton
     """
+    logging.info('Fetching Information for: {0}'.format(apkInfo.apkmirror_name))
+
     html_name = '{0}.html'.format(apkInfo.opengapps_name)
     url       = APKMIRRORBASEURL + APKMIRRORGOOGLEURL2 + apkInfo.url
     html      = DEBUG_readFromHtml(html_name)
@@ -348,6 +356,26 @@ def getAppVersions(apkInfo):
     # END: for v in versions:
 
     printDictionary(dVersions)
+
+    # Determine which versions to download
+    if len(apkInfo.versions) > 0:
+        maxVersionByName = sorted(apkInfo.versions)[-1]
+
+        logging.debug('Max Version By Name: "{0}"'.format(maxVersionByName.name))
+
+        for v in apkInfo.versions:
+            if v.name == maxVersionByName.name:
+                logging.info('Getting Info for: "{0}" ({1})'.format(v.name, v.scrape_url))
+                getVersionInfo(v)
+                logging.info('Downloading: "{0}"'.format(v.apk_name))
+                downloadApkFromVersionInfo(v)
+            else:
+                logging.debug('Skipping: "{0}" ({1})'.format(v.name, v.scrape_url))
+        # END: for v in apkInfo.versions:
+    else:
+        logging.info('No matching APKs found for: {0}'.format(apkInfo.apkmirror_name))
+    logging.debug('-'*80)
+
 # END: def getAppVersions(apkInfo):
 
 
@@ -384,31 +412,8 @@ def main(param_list):
 
     logging.debug([str(ai.apkmirror_name) for ai in requestedApkInfo])
 
-    for ai in requestedApkInfo:
-        logging.info('Fetching Information for: {0}'.format(ai.apkmirror_name))
-
-        getAppVersions(ai)
-        logging.debug(ai)
-
-        # Determine which versions to download
-        if len(ai.versions) > 0:
-            maxVersionByName = sorted(ai.versions)[-1]
-
-            logging.debug('Max Version By Name: "{0}"'.format(maxVersionByName.name))
-
-            for v in ai.versions:
-                if v.name == maxVersionByName.name:
-                    logging.info('Getting Info for: "{0}" ({1})'.format(v.name, v.scrape_url))
-                    getVersionInfo(v)
-                    logging.info('Downloading: "{0}"'.format(v.apk_name))
-                    downloadApkFromVersionInfo(v)
-                else:
-                    logging.debug('Skipping: "{0}" ({1})'.format(v.name, v.scrape_url))
-            # END: for v in ai.versions:
-        else:
-            logging.info('No matching APKs found for: {0}'.format(ai.apkmirror_name))
-        logging.debug('-'*80)
-    # END: for ai in requestedApkInfo:
+    p = multiprocessing.Pool(10)
+    p.map(getAppVersions, requestedApkInfo)
 # END: main():
 
 ###################
@@ -416,10 +421,7 @@ def main(param_list):
 ###################
 
 if __name__ == "__main__":
-    logfile = '{0}.log'.format(os.path.basename(sys.argv[0]))
-    logging.basicConfig(filename = logfile, filemode = 'w',
-                        level    = (logging.DEBUG if DEBUG else logging.INFO),
-                        format   ='%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s')
+    logging.basicConfig(filename = logFile, filemode = 'w', level = logLevel, format = logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
 
     main(sys.argv[1:])
