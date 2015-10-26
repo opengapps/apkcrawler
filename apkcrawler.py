@@ -220,7 +220,8 @@ def downloadApkFromVersionInfo(apkVersionInfo):
 
         with open(apkVersionInfo.apk_name, 'wb') as local_file:
             local_file.write(r.content)
-            print('{0}'.format(apkVersionInfo.apk_name)),
+        print('{0} '.format(apkVersionInfo.apk_name)),
+        sys.stdout.flush()
     except OSError:
         logging.exception('!!! Filename is not valid: "{0}"'.format(apkVersionInfo.apk_name))
 # END: def downloadApkFromVersionInfo(apkVersionInfo):
@@ -352,7 +353,7 @@ def getAppVersions(apkInfo):
                 avi = ApkVersionInfo(m.group('VERSIONNAME').rstrip('-.'), version['href'])
                 apkInfo.versions.append(avi)
             else:
-                logging.error('!!! No Matchy: ' + verText)
+                logging.info('!!! No Matchy: ' + verText)
     # END: for v in versions:
 
     printDictionary(dVersions)
