@@ -269,16 +269,19 @@ def DEBUG_getApkInfoFromMainGooglePage():
         html = resp.text
         DEBUG_writeToHtml(html_name, html, resp.encoding)
 
-    dom    = BeautifulSoup(html, 'html5lib')
-    latest = dom.findAll('div', {'class': 'latestWidget'})[2]
-    apps   = latest.findAll('a', {'class': 'fontBlack'})
+    try:
+        dom    = BeautifulSoup(html, 'html5lib')
+        latest = dom.findAll('div', {'class': 'latestWidget'})[2]
+        apps   = latest.findAll('a', {'class': 'fontBlack'})
 
-    dApk = {}
+        dApk = {}
 
-    for app in apps:
-        appText = unicodedata.normalize('NFKD', app.get_text()).encode('ascii', 'ignore')
-        dApk[appText] = app['href']
-    # END: for app in apps:
+        for app in apps:
+            appText = unicodedata.normalize('NFKD', app.get_text()).encode('ascii', 'ignore')
+            dApk[appText] = app['href']
+        # END: for app in apps:
+    except:
+        logging.exception('!!! Error parsing html from: "{0}"'.format(url))
 
     printDictionary(dApk)
 # END: def DEBUG_getApkInfoFromMainGooglePage():
@@ -335,46 +338,55 @@ def getAppVersions(apkInfo):
         html    = resp.text
         DEBUG_writeToHtml(html_name, html, resp.encoding)
 
-    dom      = BeautifulSoup(html, 'html5lib')
-    latest   = dom.findAll('div', {'class': 'latestWidget'})[1]
-    versions = latest.findAll('a', {'class': 'fontBlack'})
+    try:
+        dom      = BeautifulSoup(html, 'html5lib')
+        latest   = dom.findAll('div', {'class': 'latestWidget'})[1]
+        versions = latest.findAll('a', {'class': 'fontBlack'})
 
-    dVersions = {}
+        dVersions = {}
 
-    for version in versions:
-        verText = '"{0}"'.format(version.get_text().encode('ascii', 'ignore'))
-        if 'beta' in verText.lower() or 'preview' in verText.lower():
-            logging.info('!!! Beta or Preview Found: ' + verText)
+        for version in versions:
+            # Ignore duplicate entries (one 'hidden' is shown,
+            #   and the other 'visible', is not shown)
+            if 'visible-xs-block' in version.parent['class']:
+                continue
+
+            verText = '"{0}"'.format(version.get_text().encode('ascii', 'ignore'))
+            if 'beta' in verText.lower() or 'preview' in verText.lower():
+                logging.info('!!! Beta or Preview Found: ' + verText)
+            else:
+                dVersions[verText] = version['href']
+
+                m = apkInfo.reVersion.search(verText)
+                if m:
+                    avi = ApkVersionInfo(m.group('VERSIONNAME').rstrip('-.'), version['href'])
+                    apkInfo.versions.append(avi)
+                else:
+                    logging.info('!!! No Matchy: ' + verText)
+        # END: for v in versions:
+
+        printDictionary(dVersions)
+
+        # Determine which versions to download
+        if len(apkInfo.versions) > 0:
+            maxVersionByName = sorted(apkInfo.versions)[-1]
+
+            logging.debug('Max Version By Name: "{0}"'.format(maxVersionByName.name))
+
+            for v in apkInfo.versions:
+                if v.name == maxVersionByName.name:
+                    logging.info('Getting Info for: "{0}" ({1})'.format(v.name, v.scrape_url))
+                    getVersionInfo(v)
+                    logging.info('Downloading: "{0}"'.format(v.apk_name))
+                    downloadApkFromVersionInfo(v)
+                else:
+                    logging.debug('Skipping: "{0}" ({1})'.format(v.name, v.scrape_url))
+            # END: for v in apkInfo.versions:
         else:
-            dVersions[verText] = version['href']
+            logging.info('No matching APKs found for: {0}'.format(apkInfo.apkmirror_name))
+    except:
+        logging.exception('!!! Error parsing html from: "{0}"'.format(url))
 
-            m = apkInfo.reVersion.search(verText)
-            if m:
-                avi = ApkVersionInfo(m.group('VERSIONNAME').rstrip('-.'), version['href'])
-                apkInfo.versions.append(avi)
-            else:
-                logging.info('!!! No Matchy: ' + verText)
-    # END: for v in versions:
-
-    printDictionary(dVersions)
-
-    # Determine which versions to download
-    if len(apkInfo.versions) > 0:
-        maxVersionByName = sorted(apkInfo.versions)[-1]
-
-        logging.debug('Max Version By Name: "{0}"'.format(maxVersionByName.name))
-
-        for v in apkInfo.versions:
-            if v.name == maxVersionByName.name:
-                logging.info('Getting Info for: "{0}" ({1})'.format(v.name, v.scrape_url))
-                getVersionInfo(v)
-                logging.info('Downloading: "{0}"'.format(v.apk_name))
-                downloadApkFromVersionInfo(v)
-            else:
-                logging.debug('Skipping: "{0}" ({1})'.format(v.name, v.scrape_url))
-        # END: for v in apkInfo.versions:
-    else:
-        logging.info('No matching APKs found for: {0}'.format(apkInfo.apkmirror_name))
     logging.debug('-'*80)
 
 # END: def getAppVersions(apkInfo):
@@ -413,7 +425,7 @@ def main(param_list):
 
     logging.debug([str(ai.apkmirror_name) for ai in requestedApkInfo])
 
-    p = multiprocessing.Pool(10)
+    p = multiprocessing.Pool(5)
     p.map(getAppVersions, requestedApkInfo)
 # END: main():
 
