@@ -152,8 +152,8 @@ def main(param_list):
 
     repos = ['albrtkmxxo',
              'android777',
-             'aplicaciones-ceibal',
              'apk-s',
+             'aplicaciones-ceibal',
              'apps',
              'austroid',
              'bazar-canaima',
@@ -187,11 +187,11 @@ def main(param_list):
              'orgia82',
              'pentacore',
              'poulpe',
-             'rahullah'
+             'rahullah',
              'rodrivergara',
              'ryoma3ch1z3n',
              'sandro797',
-             'shotaro'
+             'shotaro',
              'slapchop',
              'snah',
              'speny',
@@ -237,7 +237,6 @@ def main(param_list):
                   "com.google.android.apps.docs.editors.docs|x86|16|nodpi|1.4.432.07.70",
                   "com.google.android.apps.docs.editors.sheets|arm|16|160|1.4.432.09.32",
                   "com.google.android.apps.docs.editors.sheets|arm|16|240|1.4.432.09.33",
-                  "com.google.android.apps.docs.editors.sheets|arm|16|640|1.4.432.09.36",
                   "com.google.android.apps.docs.editors.sheets|arm64|16|240|1.4.432.09.43",
                   "com.google.android.apps.docs.editors.sheets|x86|16|160|1.4.432.09.72",
                   "com.google.android.apps.docs.editors.sheets|x86|16|320|1.4.432.09.74",
