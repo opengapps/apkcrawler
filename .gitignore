@@ -3,6 +3,8 @@
 
 # Log Files
 *.log
+*.html
+*.json
 
 #Temporary editor files
 *.bak
