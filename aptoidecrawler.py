@@ -9,6 +9,7 @@
 
 import sys
 import os
+import re
 import logging
 
 import json
@@ -19,7 +20,7 @@ import codecs
 # DEBUG VARS      #
 ###################
 
-DEBUG        = True
+DEBUG        = False
 READFROMFILE = False  # Read from file for debugging
 SAVELASTFILE = False  # Write to file upon each request
 
@@ -27,6 +28,73 @@ SAVELASTFILE = False  # Write to file upon each request
 # END: DEBUG VARS #
 ###################
 
+###################
+# CLASSES         #
+###################
+
+
+class ApkVersionInfo(object):
+    """ApkVersionInfo"""
+    def __init__(self, name='', arch='', sdk='', dpi='', ver=''):
+        super(ApkVersionInfo, self).__init__()
+
+        sName  = '^(?P<name>.*)\.leanback$'
+        reName = re.compile(sName)
+
+        sVer  = '^(?P<ver>.*)(?P<extra>[-.](leanback|tv|arm|arm\.arm_neon|armeabi-v7a|arm64|arm64-v8a|x86|))$'
+        reVer = re.compile(sVer)
+
+        self.name     = name
+        self.maxname  = name  # used for max versions
+        self.arch     = arch
+        self.sdk      = sdk
+        self.dpi      = dpi
+        self.ver      = ver
+        self.realver  = None  # used for full versions
+
+        m = reName.match(self.maxname)
+        if m:
+            self.maxname = m.group('name')
+
+        if 'com.google.android.apps.docs' in self.name:
+            self.realver = self.ver[-3:]
+
+        m = reVer.match(self.ver)
+        if m:
+            self.ver     = m.group('ver')
+            self.realver = m.group('extra')
+
+    def fullString(self, max):
+        return '{0}|{1}|{2}|{3}|{4}{5}'.format(self.name,
+                                               self.arch,
+                                               self.sdk,
+                                               self.dpi,
+                                               max,
+                                               self.realver if self.realver else '' )
+
+    def __lt__(self, other):
+        from distutils.version import StrictVersion
+
+        if self.ver == '' or other.ver == '':
+            return self.name < other.name
+        else:
+            return StrictVersion(self.ver) < StrictVersion(other.ver)
+
+    def __cmp__(self, other):
+        from distutils.version import StrictVersion
+
+        if self.version == '' or other.version == '':
+            return cmp(self.name, other.name)
+        else:
+            return StrictVersion(self.ver).__cmp__(other.ver)
+
+    def __str__(self):
+        return str(self.__dict__)
+# END: class ApkVersionInfo()
+
+###################
+# END: CLASSES    #
+###################
 
 ###################
 # Globals         #
@@ -40,7 +108,7 @@ logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
 def DEBUG_readFromFile(file_name):
     """
-    DEBUG_readFromFile():
+    DEBUG_readFromFile(): Read the debug information from file if READFROMFILE is enabled
     """
     if READFROMFILE and os.path.exists(file_name):
         with open(file_name, 'rb') as debug_file:
@@ -52,7 +120,7 @@ def DEBUG_readFromFile(file_name):
 
 def DEBUG_writeToFile(file_name, debug, encoding):
     """
-    DEBUG_writeToFile():
+    DEBUG_writeToFile(): Write the debug information to file if SAVELASTFILE is enabled
     """
     if SAVELASTFILE:
         try:
@@ -66,7 +134,8 @@ def DEBUG_writeToFile(file_name, debug, encoding):
 
 def listRepo(repo, orderby=None):
     """
-    listRepo(repo):
+    listRepo(repo): Get list of all APKs in a specific store from the Aptoide API
+                    and return it in JSON form
     """
     file_name = '{0}{1}.json'.format(repo, '' if not orderby else '-' + '-'.join(orderby))
     orderby   = '' if not orderby else '/orderby/' + '/'.join(orderby)
@@ -86,12 +155,13 @@ def listRepo(repo, orderby=None):
     else:
         logging.error(file_name)
         return None
-# END: def listRepo(repo):
+# END: def listRepo
 
 
 def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
     """
-    getApkInfo(repo, apkid, apkversion):
+    getApkInfo(repo, apkid, apkversion): Get APK specific information from the Aptoide API
+                                         and return it in JSON form
     """
     version   = '1' if doVersion1 else '2'
     file_name = '{0}-{1}-{2}_{3}.json'.format(repo, apkid, apkversion, version)
@@ -113,12 +183,12 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
     else:
         logging.error(file_name)
         return None
-# END: def getApkInfo(repo, apkid, apkversion):
+# END: def getApkInfo
 
 
 def doDpiStuff(screenCompat):
     """
-    doDpiStuff(screenCompat):
+    doDpiStuff(screenCompat): Convert screenCompat to a single DPI or a range of DPIs
     """
     if screenCompat == 'nodpi':
         return screenCompat
@@ -130,25 +200,145 @@ def doDpiStuff(screenCompat):
         dpis[str(splits2[1])] = ''
 
     return '-'.join(sorted(dpis.keys()))
-# END: def doDpiStuff(screenCompat):
+# END: def doDpiStuff
 
 
 def doCpuStuff(cpu):
     """
-    doCpuStuff(cpu):
+    doCpuStuff(cpu): Convert CPU type to that used by OpenGApps
     """
     return {
         'armeabi-v7a': 'arm',
         'arm64-v8a'  : 'arm64',
         'x86'        : 'x86',
     }.get(cpu, 'all')
-# END: def doCpuStuff(cpu):
+# END: def doCpuStuff
+
+
+def processReportSourcesOutput(report_file):
+    """
+    processReportSourcesOutput(report_file): Return a dictionary of all APKs and versions in report
+                                             created by report_sources.sh
+    """
+    ignoredPackageNames = [ 'android.autoinstalls.config.google.fugu',
+                            'android.autoinstalls.config.google.nexus',
+                            'com.android.facelock',
+                            'com.google.android.androidforwork',
+                            'com.google.android.apps.mediashell.leanback',
+                            'com.google.android.athome.remotecontrol',
+                            'com.google.android.atv.customization',
+                            'com.google.android.atv.widget',
+                            'com.google.android.backuptransport',
+                            'com.google.android.configupdater',
+                            'com.google.android.feedback',
+                            'com.google.android.fugu.pairing',
+                            'com.google.android.gsf',
+                            'com.google.android.gsf.login',
+                            'com.google.android.gsf.notouch',
+                            'com.google.android.onetimeinitializer',
+                            'com.google.android.packageinstaller',
+                            'com.google.android.pano.packageinstaller',
+                            'com.google.android.partnersetup',
+                            'com.google.android.setupwizard',
+                            'com.google.android.sss',
+                            'com.google.android.sss.authbridge',
+                            'com.google.android.syncadapters.calendar',
+                            'com.google.android.syncadapters.contacts',
+                            'com.google.android.tungsten.overscan',
+                            'com.google.android.tungsten.setupwraith',
+                            'com.google.android.tv.frameworkpackagestubs',
+                            'com.google.android.tv.remote',
+                            'com.google.android.tv.remotepairing',
+                            'com.google.android.tv.voiceinput',
+                            'com.google.tungsten.bugreportsender' ]
+
+    dAllApks = {}
+
+    pattern = "^\s+(?P<name>com\.[^|]*)\|(?P<arch>[^|]*)\|(?P<sdk>[^|]*)\|(?P<dpi>[^|]*)\|(?P<ver>[^|]*)\|[^|]*\|[^|]*$"
+    reLine  = re.compile(pattern)
+    with open(report_file) as report:
+        report.readline()
+        for line in report.readlines():
+            m = reLine.match(line)
+            if m:
+                name = m.group('name').strip()
+
+                # Check if ignored
+                if name in ignoredPackageNames:
+                    continue
+
+                arch = m.group('arch').strip()
+                sdk  = m.group('sdk').strip()
+                dpi  = m.group('dpi').strip()
+                ver  = m.group('ver').strip()
+                avi  = ApkVersionInfo(name, arch, sdk, dpi, ver)
+
+                # Init dict entry if needed
+                if not name in dAllApks:
+                    dAllApks[name] = []
+
+                dAllApks[name].append(avi)
+            # END: if m:
+        # END: for line
+    # END: with open
+
+    return dAllApks
+# END: def processReportSourcesOutput
+
+
+def getMaxVersionDict(dAllApks):
+    """
+    getMaxVersionDict(dAllApks):
+    """
+    maxApps  = {}
+    for k in sorted(dAllApks.keys()):
+        k2 = dAllApks[k][0].maxname
+        if not k in maxApps:
+            max1 = max(apk.ver for apk in dAllApks[k])
+            max2 = max1
+
+            # Check for "non-leanback" versions for max comparison
+            if k2 in dAllApks:
+                max2 = max(apk.ver for apk in dAllApks[k2])
+
+            maxApps[k]  = max(max1, max2)
+
+            # Special case for Drive, Docs, Sheets and Slides
+            # Remove the last '.XX' since it is CPU/DPI specific
+            if 'com.google.android.apps.docs' in k:
+                maxApps[k] = maxApps[k][0:-3]
+
+            logging.debug('max({0}): {1}'.format(k, maxApps[k]))
+
+    return maxApps
+# END: def getMaxVersionDict
 
 
 def main(param_list):
     """
-    main():
+    main(): single parameter for report_sources.sh output
     """
+    if len(param_list) != 1:
+        print('ERROR: expecting 1 parameter (report from output of report_sources.sh)')
+        return
+
+    dAllApks   = processReportSourcesOutput(param_list[0])
+    maxApps    = getMaxVersionDict(dAllApks)
+
+    appsneeded = []
+
+    for k in dAllApks.keys():
+        thisappsneeded = []
+        for a in dAllApks[k]:
+            maxApk = ApkVersionInfo(ver = maxApps[k])
+            if a.ver < maxApk.ver:
+                logging.debug('{0}: {1} < maxApk.ver: {2}'.format(k, a.ver, maxApk.ver))
+                thisappsneeded.append(a.fullString(maxApps[k]))
+        if len(thisappsneeded) == 0:
+            logging.debug('deleted: ' + k)
+            del maxApps[k]
+        else:
+            appsneeded.extend(thisappsneeded)
 
     repos = ['albrtkmxxo',
              'android777',
@@ -201,99 +391,20 @@ def main(param_list):
              'vip-apk',
              'westcoastandroid']
 
-    apps = {'com.android.chrome'                          : '46.0.2490.76',
-            'com.google.android.apps.docs'                : '2.3.414.25',
-            'com.google.android.apps.docs.editors.docs'   : '1.4.432.07',
-            'com.google.android.apps.docs.editors.sheets' : '1.4.432.09',
-            'com.google.android.apps.docs.editors.slides' : '1.2.432.11',
-            'com.google.android.apps.maps'                : '9.16.2',
-            'com.google.android.apps.photos'              : '1.8.0.106438466',
-            'com.google.android.apps.plus'                : '6.6.0.105800701',
-            'com.google.android.gms.leanback'             : '8.3.00',
-            'com.google.android.play.games'               : '3.4.12',
-            'com.google.android.play.games.leanback'      : '3.4.12',
-            'com.google.android.talk'                     : '5.1.105976615',
-            'com.google.android.youtube'                  : '10.42.52'}
+    # Log the needed versions:
+    for n in appsneeded:
+        logging.info(n)
 
-    appsneeded = ["com.android.chrome|arm64|21|nodpi|46.0.2490.76",
-                  "com.google.android.apps.docs|arm|14|160|2.3.414.25.32",
-                  "com.google.android.apps.docs|arm|14|640|2.3.414.25.36",
-                  "com.google.android.apps.docs|arm64|14|240|2.3.414.25.43",
-                  "com.google.android.apps.docs|arm64|14|320|2.3.414.25.44",
-                  "com.google.android.apps.docs|arm64|14|480|2.3.414.25.45",
-                  "com.google.android.apps.docs|arm64|14|640|2.3.414.25.46",
-                  "com.google.android.apps.docs|arm64|14|nodpi|2.3.414.25.40",
-                  "com.google.android.apps.docs|x86|14|160|2.3.414.25.72",
-                  "com.google.android.apps.docs|x86|14|240|2.3.414.25.73",
-                  "com.google.android.apps.docs|x86|14|320|2.3.414.25.74",
-                  "com.google.android.apps.docs|x86|14|480|2.3.414.25.75",
-                  "com.google.android.apps.docs|x86|14|nodpi|2.3.414.25.70",
-                  "com.google.android.apps.docs.editors.docs|arm|16|160|1.4.432.07.32",
-                  "com.google.android.apps.docs.editors.docs|arm64|16|240|1.4.432.07.43",
-                  "com.google.android.apps.docs.editors.docs|arm64|16|640|1.4.432.07.46",
-                  "com.google.android.apps.docs.editors.docs|arm64|16|nodpi|1.4.432.07.40",
-                  "com.google.android.apps.docs.editors.docs|x86|16|160|1.4.432.07.72",
-                  "com.google.android.apps.docs.editors.docs|x86|16|320|1.4.432.07.74",
-                  "com.google.android.apps.docs.editors.docs|x86|16|nodpi|1.4.432.07.70",
-                  "com.google.android.apps.docs.editors.sheets|arm|16|160|1.4.432.09.32",
-                  "com.google.android.apps.docs.editors.sheets|arm|16|240|1.4.432.09.33",
-                  "com.google.android.apps.docs.editors.sheets|arm64|16|240|1.4.432.09.43",
-                  "com.google.android.apps.docs.editors.sheets|x86|16|160|1.4.432.09.72",
-                  "com.google.android.apps.docs.editors.sheets|x86|16|320|1.4.432.09.74",
-                  "com.google.android.apps.docs.editors.sheets|x86|16|nodpi|1.4.432.09.70",
-                  "com.google.android.apps.docs.editors.slides|arm64|16|nodpi|1.2.432.11.40",
-                  "com.google.android.apps.docs.editors.slides|x86|16|160|1.2.432.11.72",
-                  "com.google.android.apps.docs.editors.slides|x86|16|320|1.2.432.11.74",
-                  "com.google.android.apps.docs.editors.slides|x86|16|nodpi|1.2.432.11.70",
-                  "com.google.android.apps.maps|arm|18|nodpi|9.16.2",
-                  "com.google.android.apps.maps|arm64|18|nodpi|9.16.2",
-                  "com.google.android.apps.maps|x86|18|nodpi|9.16.2",
-                  "com.google.android.apps.maps|x86_64|18|nodpi|9.16.2",
-                  "com.google.android.apps.photos|x86|14|nodpi|1.8.0.106438466",
-                  "com.google.android.apps.plus|x86|19|213-240|6.6.0.105800701",
-                  "com.google.android.apps.plus|x86|19|nodpi|6.6.0.105800701",
-                  "com.google.android.gms.leanback|arm|19|nodpi|8.3.00",
-                  "com.google.android.gms.leanback|arm64|19|nodpi|8.3.00",
-                  "com.google.android.play.games|arm|9|240|3.4.12",
-                  "com.google.android.play.games|arm|9|nodpi|3.4.12",
-                  "com.google.android.play.games|arm64|9|480|3.4.12",
-                  "com.google.android.play.games|x86|9|nodpi|3.4.12",
-                  "com.google.android.play.games.leanback|arm|21|nodpi|3.4.12",
-                  "com.google.android.play.games.leanback|arm64|21|nodpi|3.4.12",
-                  "com.google.android.play.games.leanback|x86|21|nodpi|3.4.12",
-                  "com.google.android.talk|arm|15|160|5.1.105976615",
-                  "com.google.android.talk|arm|15|240|5.1.105976615",
-                  "com.google.android.talk|arm|15|320|5.1.105976615",
-                  "com.google.android.talk|arm|15|480|5.1.105976615",
-                  "com.google.android.talk|arm|15|640|5.1.105976615",
-                  "com.google.android.talk|arm|15|nodpi|5.1.105976615",
-                  "com.google.android.talk|x86|15|160|5.1.105976615",
-                  "com.google.android.talk|x86|15|320|5.1.105976615",
-                  "com.google.android.talk|x86|15|480|5.1.105976615",
-                  "com.google.android.talk|x86|15|nodpi|5.1.105976615",
-                  "com.google.android.youtube|arm|15|160|10.42.52",
-                  "com.google.android.youtube|arm|15|240|10.42.52",
-                  "com.google.android.youtube|arm|15|320|10.42.52",
-                  "com.google.android.youtube|arm|15|480|10.42.52",
-                  "com.google.android.youtube|arm|15|nodpi|10.42.52",
-                  "com.google.android.youtube|arm64|23|nodpi|10.42.52",
-                  "com.google.android.youtube|arm64|15|240|10.42.52",
-                  "com.google.android.youtube|arm64|15|320|10.42.52",
-                  "com.google.android.youtube|arm64|15|480|10.42.52",
-                  "com.google.android.youtube|arm64|15|nodpi|10.42.52",
-                  "com.google.android.youtube|x86|15|160|10.42.52",
-                  "com.google.android.youtube|x86|15|240|10.42.52",
-                  "com.google.android.youtube|x86|15|320|10.42.52",
-                  "com.google.android.youtube|x86|15|480|10.42.52",
-                  "com.google.android.youtube|x86|15|nodpi|10.42.52"]
-
+    # Start checking all stores ...
     for repo in repos:
         offset = 0
         while offset < 500:
             data   = listRepo(repo, ('recent', '100', str(offset)))
             if data:
+                # Check each apk ...
                 for item in data['listing']:
-                    if item['apkid'] in apps.keys() and apps[item['apkid']] in item['ver']:
+                    # Against the list we are looking for
+                    if item['apkid'] in maxApps.keys() and maxApps[item['apkid']] in item['ver']:
                         apkInfo = getApkInfo(repo, item['apkid'], item['ver'],
                                              options='vercode=' + str(item['vercode']))
                         if apkInfo:
