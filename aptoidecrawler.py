@@ -41,7 +41,7 @@ class ApkVersionInfo(object):
         sName  = '^(?P<name>.*)\.leanback$'
         reName = re.compile(sName)
 
-        sVer  = '^(?P<ver>.*)(?P<extra>[-.](leanback|tv|arm|arm\.arm_neon|armeabi-v7a|arm64|arm64-v8a|x86|))$'
+        sVer  = '^(?P<ver>.*)(?P<extra>[-.](leanback|tv|arm|arm\.arm_neon|armeabi-v7a|arm64|arm64-v8a|x86))$'
         reVer = re.compile(sVer)
 
         self.name     = name
@@ -186,6 +186,44 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
 # END: def getApkInfo
 
 
+def downloadApk(apkInfo):
+    """
+    downloadApk(apkInfo): Download the specified URL to APK file name
+    """
+    url     = apkInfo['path']
+    apkname = '{0}-{1}-{2}-minAPI{3}.apk'.format(apkInfo['package'],
+                                                 apkInfo['vername'],
+                                                 apkInfo['vercode'],
+                                                 apkInfo['minSdk'])
+
+    logging.info('Downloading "{0}" from: {1}'.format(url, apkname))
+
+    try:
+        if os.path.exists(apkname):
+            logging.info('Downloaded APK already exists.')
+            return
+
+        if os.path.exists(os.path.join('.', 'apkcrawler', apkname)):
+            logging.info('Downloaded APK already exists (in ./apkcrawler/).')
+            return
+
+        if os.path.exists(os.path.join('..', 'apkcrawler', apkname)):
+            logging.info('Downloaded APK already exists (in ../apkcrawler/).')
+            return
+
+        # Open the url
+        session = requests.Session()
+        r = session.get(url)
+
+        with open(apkname, 'wb') as local_file:
+            local_file.write(r.content)
+        print('{0} '.format(apkname)),
+        sys.stdout.flush()
+    except OSError:
+        logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
+# END: def downloadApk
+
+
 def doDpiStuff(screenCompat):
     """
     doDpiStuff(screenCompat): Convert screenCompat to a single DPI or a range of DPIs
@@ -256,31 +294,36 @@ def processReportSourcesOutput(report_file):
 
     pattern = "^\s+(?P<name>com\.[^|]*)\|(?P<arch>[^|]*)\|(?P<sdk>[^|]*)\|(?P<dpi>[^|]*)\|(?P<ver>[^|]*)\|[^|]*\|[^|]*$"
     reLine  = re.compile(pattern)
-    with open(report_file) as report:
-        report.readline()
-        for line in report.readlines():
-            m = reLine.match(line)
-            if m:
-                name = m.group('name').strip()
 
-                # Check if ignored
-                if name in ignoredPackageNames:
-                    continue
+    lines = ''
+    if not report_file is None:
+        with open(report_file) as report:
+            lines = report.readlines()
+    else:
+        lines = sys.stdin.readlines()
 
-                arch = m.group('arch').strip()
-                sdk  = m.group('sdk').strip()
-                dpi  = m.group('dpi').strip()
-                ver  = m.group('ver').strip()
-                avi  = ApkVersionInfo(name, arch, sdk, dpi, ver)
+    for line in lines:
+        m = reLine.match(line)
+        if m:
+            name = m.group('name').strip()
 
-                # Init dict entry if needed
-                if not name in dAllApks:
-                    dAllApks[name] = []
+            # Check if ignored
+            if name in ignoredPackageNames:
+                continue
 
-                dAllApks[name].append(avi)
-            # END: if m:
-        # END: for line
-    # END: with open
+            arch = m.group('arch').strip()
+            sdk  = m.group('sdk').strip()
+            dpi  = m.group('dpi').strip()
+            ver  = m.group('ver').strip()
+            avi  = ApkVersionInfo(name, arch, sdk, dpi, ver)
+
+            # Init dict entry if needed
+            if not name in dAllApks:
+                dAllApks[name] = []
+
+            dAllApks[name].append(avi)
+        # END: if m:
+    # END: for line
 
     return dAllApks
 # END: def processReportSourcesOutput
@@ -318,11 +361,20 @@ def main(param_list):
     """
     main(): single parameter for report_sources.sh output
     """
-    if len(param_list) != 1:
-        print('ERROR: expecting 1 parameter (report from output of report_sources.sh)')
+    dAllApks = {}
+
+    if len(param_list) == 1:
+        dAllApks = processReportSourcesOutput(param_list[0])
+    else:
+        dAllApks = processReportSourcesOutput(None)
+
+    if len(dAllApks.keys()) == 0:
+        print('ERROR: expecting:')
+        print(' - 1 parameter (report file from output of report_sources.sh)')
+        print(' or ')
+        print(' - stdin from report_sources.sh')
         return
 
-    dAllApks   = processReportSourcesOutput(param_list[0])
     maxApps    = getMaxVersionDict(dAllApks)
 
     appsneeded = []
@@ -397,6 +449,8 @@ def main(param_list):
 
     # Start checking all stores ...
     for repo in repos:
+        logging.info('Checking store: {0}'.format(repo))
+
         offset = 0
         while offset < 500:
             data   = listRepo(repo, ('recent', '100', str(offset)))
@@ -414,7 +468,7 @@ def main(param_list):
                                                                 doDpiStuff(apkInfo['apk'].get('screenCompat', 'nodpi')),
                                                                 item['ver'])
                             if this in appsneeded:
-                                print(this + ' --- ' + item['path'])
+                                downloadApk(apkInfo['apk'])
                         # END: if apkInfo
                     # END: if item
                 # END: for item
