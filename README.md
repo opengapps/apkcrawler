@@ -3,9 +3,13 @@ APK Crawler is a tool to automatically retrieve APKs from various internet sourc
 
 ## Usage
 ### Default
-Fetches all APKs for all applications supported by Open GApps
+Fetches all APKs for all applications supported by Open GApps from APK Mirror
 ```sh
 python apkcrawler.py
+```
+or missing APKs from Aptoide stores
+```
+./report_sources.sh nohelp nosig | python aptoidecrawler.py
 ```
 ### Specific
 Fetches app APKs for specified applications supported by Open GApps using their [`.gapps-config` codename](https://github.com/opengapps/opengapps/wiki/Advanced-Features-and-Options#include-and-exclude-google-applications)
@@ -17,6 +21,11 @@ APK Crawler emits the downloaded filename so it can be used inline
 ```sh
 ./add_sourceapp.sh $(python apkcrawler.py drive docs slides sheets)
 ```
+or
+```
+./add_sourceapp.sh $(python aptoidecrawler.py report.txt)
+```
+
 
 ## Supported Sites
 - [APK Mirror](http://apkmirror.com)
