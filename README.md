@@ -20,6 +20,7 @@ APK Crawler emits the downloaded filename so it can be used inline
 
 ## Supported Sites
 - [APK Mirror](http://apkmirror.com)
+- [Aptoide](http://aptoide.com)
 - ~~Google Play~~ (Not yet added)
 
 ## Requirements
