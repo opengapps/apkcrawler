@@ -437,6 +437,7 @@ def main(param_list):
              'shotaro',
              'slapchop',
              'snah',
+             'sommydany',
              'speny',
              'stein-gmg',
              'tim-we',
