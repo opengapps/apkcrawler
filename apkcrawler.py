@@ -143,7 +143,7 @@ allApkInfo = [
     ApkInfo('Fit',                          'fitness'             ),
     ApkInfo('Gmail',                        'gmail'               ),
     ApkInfo('Google Connectivity Services', 'gcs'                 ),
-    ApkInfo('Google Hindi Input',           'hindi',          4   ),
+    ApkInfo('Google Indic Keyboard',        'hindi',          4   ),
     ApkInfo('Google Japanese Input',        'japanese',       4   ),
     ApkInfo('Google Keyboard',              'keyboardgoogle', 2   ),
     ApkInfo('Google Korean Input',          'korean',         4   ),
