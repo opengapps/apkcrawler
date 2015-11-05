@@ -9,6 +9,7 @@
 
 import sys
 import os
+import datetime
 import re
 import logging
 
@@ -41,7 +42,7 @@ class ApkVersionInfo(object):
         sName  = '^(?P<name>.*)\.leanback$'
         reName = re.compile(sName)
 
-        sVer  = '^(?P<ver>.*)(?P<extra>[-.](leanback|tv|arm|arm\.arm_neon|armeabi-v7a|arm64|arm64-v8a|x86))$'
+        sVer  = '^(?P<ver>.*)(?P<extra>[-.](leanback|tv|arm|arm\.arm_neon|armeabi-v7a|arm64|arm64-v8a|x86|large|small))$'
         reVer = re.compile(sVer)
 
         self.name     = name
@@ -449,16 +450,22 @@ def main(param_list):
     for n in appsneeded:
         logging.info(n)
 
+    # Date to look back until
+    today        = datetime.date.today()
+    search_stop  = today - datetime.timedelta(days=3)
+
     # Start checking all stores ...
     for repo in repos:
         logging.info('Checking store: {0}'.format(repo))
 
+        search_date = today
         offset = 0
-        while offset < 500:
+        while search_date > search_stop:
             data   = listRepo(repo, ('recent', '100', str(offset)))
             if data:
                 # Check each apk ...
                 for item in data['listing']:
+                    search_date = datetime.datetime.strptime(item['date'], '%Y-%m-%d').date()
                     # Against the list we are looking for
                     if item['apkid'] in maxApps.keys() and maxApps[item['apkid']] in item['ver']:
                         apkInfo = getApkInfo(repo, item['apkid'], item['ver'],
