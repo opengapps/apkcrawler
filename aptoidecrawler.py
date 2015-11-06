@@ -12,6 +12,7 @@ import os
 import datetime
 import re
 import logging
+import multiprocessing
 
 import json
 import requests
@@ -100,6 +101,9 @@ class ApkVersionInfo(object):
 ###################
 # Globals         #
 ###################
+
+maxApps    = {}
+appsneeded = []
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(sys.argv[0]))
@@ -358,10 +362,54 @@ def getMaxVersionDict(dAllApks):
 # END: def getMaxVersionDict
 
 
+def checkOneStore(repo):
+    """
+    checkOneStore(repo):
+    """
+    global maxApps
+    global appsneeded
+
+    logging.info('Checking store: {0}'.format(repo))
+
+    # Date to look back until
+    today        = datetime.date.today()
+    search_stop  = today - datetime.timedelta(days=3)
+
+    search_date = today
+    offset = 0
+    while search_date > search_stop:
+        data   = listRepo(repo, ('recent', '100', str(offset)))
+        if data:
+            # Check each apk ...
+            for item in data['listing']:
+                search_date = datetime.datetime.strptime(item['date'], '%Y-%m-%d').date()
+                # Against the list we are looking for
+                if item['apkid'] in maxApps.keys() and maxApps[item['apkid']] in item['ver']:
+                    apkInfo = getApkInfo(repo, item['apkid'], item['ver'],
+                                         options='vercode=' + str(item['vercode']))
+                    if apkInfo:
+                        this = '{0}|{1}|{2}|{3}|{4}'.format(item['apkid'],
+                                                            doCpuStuff(apkInfo['apk'].get('cpu', 'all')),
+                                                            apkInfo['apk']['minSdk'],
+                                                            doDpiStuff(apkInfo['apk'].get('screenCompat', 'nodpi')),
+                                                            item['ver'])
+                        if this in appsneeded:
+                            downloadApk(apkInfo['apk'])
+                    # END: if apkInfo
+                # END: if item
+            # END: for item
+        # END: if data
+        offset += 100
+    # END: while
+# END: def checkOneStore:
+
+
 def main(param_list):
     """
     main(): single parameter for report_sources.sh output
     """
+    global maxApps
+    global appsneeded
     dAllApks = {}
 
     if len(param_list) == 1:
@@ -377,7 +425,6 @@ def main(param_list):
         return
 
     maxApps    = getMaxVersionDict(dAllApks)
-
     appsneeded = []
 
     for k in dAllApks.keys():
@@ -450,41 +497,10 @@ def main(param_list):
     for n in appsneeded:
         logging.info(n)
 
-    # Date to look back until
-    today        = datetime.date.today()
-    search_stop  = today - datetime.timedelta(days=3)
-
     # Start checking all stores ...
-    for repo in repos:
-        logging.info('Checking store: {0}'.format(repo))
+    p = multiprocessing.Pool(5)
+    p.map(checkOneStore, repos)
 
-        search_date = today
-        offset = 0
-        while search_date > search_stop:
-            data   = listRepo(repo, ('recent', '100', str(offset)))
-            if data:
-                # Check each apk ...
-                for item in data['listing']:
-                    search_date = datetime.datetime.strptime(item['date'], '%Y-%m-%d').date()
-                    # Against the list we are looking for
-                    if item['apkid'] in maxApps.keys() and maxApps[item['apkid']] in item['ver']:
-                        apkInfo = getApkInfo(repo, item['apkid'], item['ver'],
-                                             options='vercode=' + str(item['vercode']))
-                        if apkInfo:
-                            this = '{0}|{1}|{2}|{3}|{4}'.format(item['apkid'],
-                                                                doCpuStuff(apkInfo['apk'].get('cpu', 'all')),
-                                                                apkInfo['apk']['minSdk'],
-                                                                doDpiStuff(apkInfo['apk'].get('screenCompat', 'nodpi')),
-                                                                item['ver'])
-                            if this in appsneeded:
-                                downloadApk(apkInfo['apk'])
-                        # END: if apkInfo
-                    # END: if item
-                # END: for item
-            # END: if data
-            offset += 100
-        # END: while offset
-    # END: for repo
 # END: main():
 
 ###################
