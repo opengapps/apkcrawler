@@ -21,7 +21,7 @@ from debug import Debug
 # DEBUG VARS      #
 ###################
 
-Debug.DEBUG        = True
+Debug.DEBUG        = False
 Debug.READFROMFILE = False  # Read from file for debugging
 Debug.SAVELASTFILE = False  # Write to file upon each request
 
