@@ -15,15 +15,16 @@ import multiprocessing
 import requests
 from bs4 import BeautifulSoup
 import unicodedata
-import codecs
+
+from debug import Debug
 
 ###################
 # DEBUG VARS      #
 ###################
 
-DEBUG        = False
-READFROMHTML = False  # Read from file for debugging
-SAVELASTHTML = False  # Write to file upon each request
+Debug.DEBUG        = False
+Debug.READFROMHTML = False  # Read from file for debugging
+Debug.SAVELASTHTML = False  # Write to file upon each request
 
 ###################
 # END: DEBUG VARS #
@@ -45,20 +46,36 @@ class ApkVersionInfo(object):
         self.download_url = ''
 
     def __lt__(self, other):
-        from distutils.version import StrictVersion
-
         if self.version == '' or other.version == '':
             return self.name < other.name
         else:
-            return StrictVersion(self.version) < StrictVersion(other.version)
+            return self.version_compare(self.version, other.version) == -1
 
     def __cmp__(self, other):
-        from distutils.version import StrictVersion
-
         if self.version == '' or other.version == '':
             return cmp(self.name, other.name)
         else:
-            return StrictVersion(self.version).__cmp__(other.version)
+            return self.version_compare(self.version, other.version)
+
+    def version_compare(self, v1, v2):
+        import re
+
+        # Make blank-->'0', replace - with . and split into parts
+        parts1 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', v1.replace('-', '.')).split('.')]
+        parts2 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', v2.replace('-', '.')).split('.')]
+
+        # fill up the shorter version with zeros ...
+        lendiff = len(parts1) - len(parts2)
+        if lendiff > 0:
+            parts2.extend([0] * lendiff)
+        elif lendiff < 0:
+            parts1.extend([0] * (-lendiff))
+
+        for i, p in enumerate(parts1):
+            ret = cmp(p, parts2[i])
+            if ret:
+                return ret
+        return 0
 
     def __str__(self):
         return str(self.__dict__)
@@ -83,8 +100,11 @@ class ApkInfo(object):
         else:
             self.url = url
 
-        msRe = self.apkmirror_name.replace('+', '\+') + ' ' + sReVersionFmt.format('{1,' + str(num_used_ver) + '}')
+        # Version RegEx String
+        self.sReVerFmt = '(?P<VERSIONNAME>(([vR]?([A-Z]|\d+)[bQRS]?|arm|arm64|neon|x86|release|RELEASE|tv)[-.]?){0})'
+        msRe = self.apkmirror_name.replace('+', '\+') + ' ' + self.sReVerFmt.format('{1,' + str(num_used_ver) + '}')
         self.reVersion = re.compile(msRe)  # Special case for Google+
+
         self.versions  = []
 
     def __str__(self):
@@ -115,12 +135,9 @@ APKMIRRORBASEURL    = 'http://www.apkmirror.com'
 APKMIRRORGOOGLEURL  = '/apk/google-inc/'
 APKMIRRORGOOGLEURL2 = '/uploads/?app='
 
-# Version RegEx String
-sReVersionFmt = '(?P<VERSIONNAME>(([vR]?([A-Z]|\d+)[bQRS]?|arm|arm64|neon|x86|release|RELEASE|tv)[-.]?){0})'
-
 # logging
 logFile   = '{0}.log'.format(os.path.basename(sys.argv[0]))
-logLevel  = (logging.DEBUG if DEBUG else logging.INFO)
+logLevel  = (logging.DEBUG if Debug.DEBUG else logging.INFO)
 logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
 requestedApkInfo = []
@@ -227,66 +244,6 @@ def downloadApkFromVersionInfo(apkVersionInfo):
 # END: def downloadApkFromVersionInfo(apkVersionInfo):
 
 
-def DEBUG_readFromHtml(html_name):
-    """
-    DEBUG_readFromHtml():
-    """
-    if READFROMHTML and os.path.exists(html_name):
-        with open(html_name, 'rb') as debug_file:
-            return debug_file.read()
-    else:
-        return ''
-# END: def DEBUG_readFromHtml():
-
-
-def DEBUG_writeToHtml(html_name, html, encoding):
-    """
-    DEBUG_writeToHtml():
-    """
-    if SAVELASTHTML:
-        try:
-            with codecs.open(html_name, 'w', encoding) as debug_file:
-                debug_file.write(html)
-        except TypeError:
-            with open(html_name, '+ab') as debug_file:
-                debug_file.write(html)
-# END: def DEBUG_writeToHtml():
-
-
-def DEBUG_getApkInfoFromMainGooglePage():
-    """
-    DEBUG_getApkInfoFromMainGooglePage(): For debugging only. Collects each application's top
-                                          level information for APKMirror
-    """
-    html_name = 'apkmirror-apk-google-inc.html'
-    url       = APKMIRRORBASEURL + APKMIRRORGOOGLEURL
-    html      = DEBUG_readFromHtml(html_name)
-
-    if html == '':
-        session = requests.Session()
-        logging.debug('Requesting1: ' + url)
-        resp = session.get(url)
-        html = resp.text
-        DEBUG_writeToHtml(html_name, html, resp.encoding)
-
-    try:
-        dom    = BeautifulSoup(html, 'html5lib')
-        latest = dom.findAll('div', {'class': 'latestWidget'})[2]
-        apps   = latest.findAll('a', {'class': 'fontBlack'})
-
-        dApk = {}
-
-        for app in apps:
-            appText = unicodedata.normalize('NFKD', app.get_text()).encode('ascii', 'ignore')
-            dApk[appText] = app['href']
-        # END: for app in apps:
-    except:
-        logging.exception('!!! Error parsing html from: "{0}"'.format(url))
-
-    printDictionary(dApk)
-# END: def DEBUG_getApkInfoFromMainGooglePage():
-
-
 def getVersionInfo(apkVersionInfo):
     """
     getVersionInfo(apkVersionInfo): Determines each versions information
@@ -294,14 +251,14 @@ def getVersionInfo(apkVersionInfo):
     html_name = apkVersionInfo.scrape_url.rsplit('/', 2)[1]
     html_name = html_name.replace('-android-apk-download', '') + '.html'
     url       = APKMIRRORBASEURL + apkVersionInfo.scrape_url
-    html      = DEBUG_readFromHtml(html_name)
+    html      = Debug.readFromFile(html_name)
 
     if html == '':
         session = requests.Session()
         logging.debug('Requesting3: ' + url)
         resp    = session.get(url)
         html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
-        DEBUG_writeToHtml(html_name, html, resp.encoding)
+        Debug.writeToFile(html_name, html, resp.encoding)
 
     try:
         dom       = BeautifulSoup(html, 'html5lib')
@@ -329,14 +286,14 @@ def getAppVersions(apkInfo):
 
     html_name = '{0}.html'.format(apkInfo.opengapps_name)
     url       = APKMIRRORBASEURL + APKMIRRORGOOGLEURL2 + apkInfo.url
-    html      = DEBUG_readFromHtml(html_name)
+    html      = Debug.readFromFile(html_name)
 
     if html == '':
         session = requests.Session()
         logging.debug('Requesting2: ' + url)
         resp    = session.get(url)
         html    = resp.text
-        DEBUG_writeToHtml(html_name, html, resp.encoding)
+        Debug.writeToFile(html_name, html, resp.encoding)
 
     try:
         dom      = BeautifulSoup(html, 'html5lib')
@@ -360,6 +317,9 @@ def getAppVersions(apkInfo):
                 m = apkInfo.reVersion.search(verText)
                 if m:
                     avi = ApkVersionInfo(m.group('VERSIONNAME').rstrip('-.'), version['href'])
+                    avi.version = avi.name
+                    avi.version = avi.version.replace(apkInfo.opengapps_name, '').strip()
+                    avi.version = avi.version.split(' ')[0]
                     apkInfo.versions.append(avi)
                 else:
                     logging.info('!!! No Matchy: ' + verText)
@@ -412,9 +372,6 @@ def main(param_list):
     main():
     """
     global requestedApkInfo
-
-    # This was only used initially to identify the contents of allApkInfo
-    # DEBUG_getApkInfoFromMainGooglePage()
 
     # Handle user input
     processCommandLine(param_list)
