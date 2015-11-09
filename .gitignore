@@ -9,3 +9,4 @@
 #Temporary editor files
 *.bak
 *~
+*.pyc
