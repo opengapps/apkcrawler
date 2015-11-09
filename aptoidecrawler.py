@@ -2,8 +2,6 @@
 
 #
 # Required Modules
-# - beautifulsoup4
-# - html5lib
 # - requests
 #
 
@@ -16,15 +14,16 @@ import multiprocessing
 
 import json
 import requests
-import codecs
+
+from debug import Debug
 
 ###################
 # DEBUG VARS      #
 ###################
 
-DEBUG        = False
-READFROMFILE = False  # Read from file for debugging
-SAVELASTFILE = False  # Write to file upon each request
+Debug.DEBUG        = True
+Debug.READFROMFILE = False  # Read from file for debugging
+Debug.SAVELASTFILE = False  # Write to file upon each request
 
 ###################
 # END: DEBUG VARS #
@@ -37,13 +36,13 @@ SAVELASTFILE = False  # Write to file upon each request
 
 class ApkVersionInfo(object):
     """ApkVersionInfo"""
-    def __init__(self, name='', arch='', sdk='', dpi='', ver=''):
+    def __init__(self, name='', arch='', sdk='', dpi='', ver='', vercode=''):
         super(ApkVersionInfo, self).__init__()
 
         sName  = '^(?P<name>.*)\.leanback$'
         reName = re.compile(sName)
 
-        sVer  = '^(?P<ver>.*)(?P<extra>[-.](leanback|tv|arm|arm\.arm_neon|armeabi-v7a|arm64|arm64-v8a|x86|large|small))$'
+        sVer = '^(?P<ver>.*)(?P<extra>[-.](leanback|tv|arm|arm\.arm_neon|armeabi-v7a|arm64|arm64-v8a|x86|large|small))$'
         reVer = re.compile(sVer)
 
         self.name     = name
@@ -53,6 +52,7 @@ class ApkVersionInfo(object):
         self.dpi      = dpi
         self.ver      = ver
         self.realver  = None  # used for full versions
+        self.vercode  = vercode
 
         m = reName.match(self.maxname)
         if m:
@@ -67,28 +67,45 @@ class ApkVersionInfo(object):
             self.realver = m.group('extra')
 
     def fullString(self, max):
-        return '{0}|{1}|{2}|{3}|{4}{5}'.format(self.name,
-                                               self.arch,
-                                               self.sdk,
-                                               self.dpi,
-                                               max,
-                                               self.realver if self.realver else '' )
+        return '{0}|{1}|{2}|{3}|{4}{5}|{6}'.format(self.name,
+                                                   self.arch,
+                                                   self.sdk,
+                                                   self.dpi,
+                                                   max,
+                                                   self.realver if self.realver else '',
+                                                   self.vercode )
 
     def __lt__(self, other):
-        from distutils.version import StrictVersion
-
         if self.ver == '' or other.ver == '':
             return self.name < other.name
         else:
-            return StrictVersion(self.ver) < StrictVersion(other.ver)
+            return self.version_compare(self.ver, other.ver) == -1
 
     def __cmp__(self, other):
-        from distutils.version import StrictVersion
-
-        if self.version == '' or other.version == '':
+        if self.ver == '' or other.ver == '':
             return cmp(self.name, other.name)
         else:
-            return StrictVersion(self.ver).__cmp__(other.ver)
+            return self.version_compare(self.ver, other.ver)
+
+    def version_compare(self, v1, v2):
+        import re
+
+        # Make blank-->'0', replace - with . and split into parts
+        parts1 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', v1.replace('-', '.')).split('.')]
+        parts2 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', v2.replace('-', '.')).split('.')]
+
+        # fill up the shorter version with zeros ...
+        lendiff = len(parts1) - len(parts2)
+        if lendiff > 0:
+            parts2.extend([0] * lendiff)
+        elif lendiff < 0:
+            parts1.extend([0] * (-lendiff))
+
+        for i, p in enumerate(parts1):
+            ret = cmp(p, parts2[i])
+            if ret:
+                return ret
+        return 0
 
     def __str__(self):
         return str(self.__dict__)
@@ -102,39 +119,13 @@ class ApkVersionInfo(object):
 # Globals         #
 ###################
 
-maxApps    = {}
-appsneeded = []
+dAllApks  = {}
+maxApps   = {}
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(sys.argv[0]))
-logLevel  = (logging.DEBUG if DEBUG else logging.INFO)
+logLevel  = (logging.DEBUG if Debug.DEBUG else logging.INFO)
 logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
-
-
-def DEBUG_readFromFile(file_name):
-    """
-    DEBUG_readFromFile(): Read the debug information from file if READFROMFILE is enabled
-    """
-    if READFROMFILE and os.path.exists(file_name):
-        with open(file_name, 'rb') as debug_file:
-            return debug_file.read()
-    else:
-        return ''
-# END: def DEBUG_readFromFile():
-
-
-def DEBUG_writeToFile(file_name, debug, encoding):
-    """
-    DEBUG_writeToFile(): Write the debug information to file if SAVELASTFILE is enabled
-    """
-    if SAVELASTFILE:
-        try:
-            with codecs.open(file_name, 'w', encoding) as debug_file:
-                debug_file.write(str(debug))
-        except TypeError:
-            with open(file_name, 'ab') as debug_file:
-                debug_file.write(str(debug))
-# END: def DEBUG_writeToFile():
 
 
 def listRepo(repo, orderby=None):
@@ -145,14 +136,14 @@ def listRepo(repo, orderby=None):
     file_name = '{0}{1}.json'.format(repo, '' if not orderby else '-' + '-'.join(orderby))
     orderby   = '' if not orderby else '/orderby/' + '/'.join(orderby)
     url       = 'http://webservices.aptoide.com/webservices/listRepository/{0}{1}/json'.format(repo, orderby)
-    data      = DEBUG_readFromFile(file_name)
+    data      = Debug.readFromFile(file_name)
 
     if data == '':
         session = requests.Session()
         logging.debug('Requesting1: ' + url)
         resp    = session.get(url)
         data    = resp.json()
-        DEBUG_writeToFile(file_name, json.dumps(data, sort_keys=True,
+        Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
                           indent=4, separators=(',', ': ')), resp.encoding)
 
     if data['status'] == 'OK':
@@ -173,14 +164,14 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
     options   = '' if not options else '/options=({0})'.format(options)
     url       = 'http://webservices.aptoide.com/webservices/{0}/getApkInfo/{1}/{2}/{3}{4}/json'.format(
                 version, repo, apkid, apkversion, options)
-    data      = DEBUG_readFromFile(file_name)
+    data      = Debug.readFromFile(file_name)
 
     if data == '':
         session = requests.Session()
         logging.debug('Requesting2: ' + url)
         resp    = session.get(url)
         data    = resp.json()
-        DEBUG_writeToFile(file_name, json.dumps(data, sort_keys=True,
+        Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
                           indent=4, separators=(',', ': ')), resp.encoding)
 
     if data['status'] == 'OK':
@@ -251,103 +242,69 @@ def doCpuStuff(cpu):
     doCpuStuff(cpu): Convert CPU type to that used by OpenGApps
     """
     return {
-        'armeabi-v7a': 'arm',
-        'arm64-v8a'  : 'arm64',
-        'x86'        : 'x86',
+        'armeabi'              : 'arm',
+        'armeabi-v7a'          : 'arm',
+        'arm64-v8a'            : 'arm64',
+        'arm64-v8a,armeabi-v7a': 'arm64',
+        'x86'                  : 'x86',
     }.get(cpu, 'all')
 # END: def doCpuStuff
 
 
-def processReportSourcesOutput(report_file):
+def processReportSourcesOutput(lines):
     """
-    processReportSourcesOutput(report_file): Return a dictionary of all APKs and versions in report
-                                             created by report_sources.sh
+    processReportSourcesOutput(lines): Return a dictionary of all APKs and versions in report
+                                       created by report_sources.sh
     """
-    ignoredPackageNames = [ 'android.autoinstalls.config.google.fugu',
-                            'android.autoinstalls.config.google.nexus',
-                            'com.android.facelock',
-                            'com.google.android.androidforwork',
-                            'com.google.android.apps.mediashell.leanback',
-                            'com.google.android.athome.remotecontrol',
-                            'com.google.android.atv.customization',
-                            'com.google.android.atv.widget',
-                            'com.google.android.backuptransport',
-                            'com.google.android.configupdater',
-                            'com.google.android.feedback',
-                            'com.google.android.fugu.pairing',
-                            'com.google.android.gsf',
-                            'com.google.android.gsf.login',
-                            'com.google.android.gsf.notouch',
-                            'com.google.android.onetimeinitializer',
-                            'com.google.android.packageinstaller',
-                            'com.google.android.pano.packageinstaller',
-                            'com.google.android.partnersetup',
-                            'com.google.android.setupwizard',
-                            'com.google.android.sss',
-                            'com.google.android.sss.authbridge',
-                            'com.google.android.syncadapters.calendar',
-                            'com.google.android.syncadapters.contacts',
-                            'com.google.android.tungsten.overscan',
-                            'com.google.android.tungsten.setupwraith',
-                            'com.google.android.tv.frameworkpackagestubs',
-                            'com.google.android.tv.remote',
-                            'com.google.android.tv.remotepairing',
-                            'com.google.android.tv.voiceinput',
-                            'com.google.tungsten.bugreportsender' ]
+    global dAllApks
 
     dAllApks = {}
 
-    pattern = "^\s+(?P<name>com\.[^|]*)\|(?P<arch>[^|]*)\|(?P<sdk>[^|]*)\|(?P<dpi>[^|]*)\|(?P<ver>[^|]*)\|[^|]*\|[^|]*$"
-    reLine  = re.compile(pattern)
-
-    lines = ''
-    if not report_file is None:
-        with open(report_file) as report:
-            lines = report.readlines()
-    else:
-        lines = sys.stdin.readlines()
+    sColumns = ['(?P<name>com\.[^|]*)', '(?P<arch>[^|]*)', '(?P<sdk>[^|]*)', '(?P<dpi>[^|]*)',
+                '(?P<ver>[^|]*)',       '(?P<code>[^|]*)', '(?P<sig>[^|]*)']
+    pattern  = '^\s+' + '\|'.join(sColumns) + '$'
+    reLine   = re.compile(pattern)
 
     for line in lines:
         m = reLine.match(line)
         if m:
             name = m.group('name').strip()
 
-            # Check if ignored
-            if name in ignoredPackageNames:
-                continue
+            # Check if supported and add if it is
+            if name not in dAllApks.keys():
+                dAllApks[name] = []
 
             arch = m.group('arch').strip()
             sdk  = m.group('sdk').strip()
             dpi  = m.group('dpi').strip()
             ver  = m.group('ver').strip()
-            avi  = ApkVersionInfo(name, arch, sdk, dpi, ver)
-
-            # Init dict entry if needed
-            if not name in dAllApks:
-                dAllApks[name] = []
+            code = m.group('code').strip()
+            avi  = ApkVersionInfo(name, arch, sdk, dpi, ver, code)
 
             dAllApks[name].append(avi)
         # END: if m:
     # END: for line
-
-    return dAllApks
 # END: def processReportSourcesOutput
 
 
-def getMaxVersionDict(dAllApks):
+def getMaxVersionDict():
     """
-    getMaxVersionDict(dAllApks):
+    getMaxVersionDict():
     """
+    global dAllApks
+    global maxApps
+
     maxApps  = {}
+
     for k in sorted(dAllApks.keys()):
         k2 = dAllApks[k][0].maxname
         if not k in maxApps:
-            max1 = max(apk.ver for apk in dAllApks[k])
+            max1 = max(apk for apk in dAllApks[k]).ver
             max2 = max1
 
             # Check for "non-leanback" versions for max comparison
             if k2 in dAllApks:
-                max2 = max(apk.ver for apk in dAllApks[k2])
+                max2 = max(apk for apk in dAllApks[k2]).ver
 
             maxApps[k]  = max(max1, max2)
 
@@ -357,8 +314,8 @@ def getMaxVersionDict(dAllApks):
                 maxApps[k] = maxApps[k][0:-3]
 
             logging.debug('max({0}): {1}'.format(k, maxApps[k]))
-
-    return maxApps
+        # END: if not k
+    # END: for k
 # END: def getMaxVersionDict
 
 
@@ -366,8 +323,8 @@ def checkOneStore(repo):
     """
     checkOneStore(repo):
     """
+    global dAllApks
     global maxApps
-    global appsneeded
 
     logging.info('Checking store: {0}'.format(repo))
 
@@ -378,22 +335,37 @@ def checkOneStore(repo):
     search_date = today
     offset = 0
     while search_date > search_stop:
-        data   = listRepo(repo, ('recent', '100', str(offset)))
+        data = listRepo(repo, ('recent', '100', str(offset)))
         if data:
             # Check each apk ...
             for item in data['listing']:
                 search_date = datetime.datetime.strptime(item['date'], '%Y-%m-%d').date()
+
                 # Against the list we are looking for
-                if item['apkid'] in maxApps.keys() and maxApps[item['apkid']] in item['ver']:
+                if item['apkid'] not in dAllApks.keys():
+                    continue
+
+                # Do we already have it
+                if filter(lambda version: version.vercode == item['vercode'], dAllApks[item['apkid']]):
+                    continue
+
+                v = item['ver'].split(' ')[0]
+                maxApkInfo = ApkVersionInfo(name=item['apkid'], ver=maxApps[item['apkid']])
+                tmpApkInfo = ApkVersionInfo(name=item['apkid'], ver=v)
+                # Is it >= maxVersion
+                if maxApkInfo <= tmpApkInfo:
                     apkInfo = getApkInfo(repo, item['apkid'], item['ver'],
                                          options='vercode=' + str(item['vercode']))
                     if apkInfo:
-                        this = '{0}|{1}|{2}|{3}|{4}'.format(item['apkid'],
-                                                            doCpuStuff(apkInfo['apk'].get('cpu', 'all')),
-                                                            apkInfo['apk']['minSdk'],
-                                                            doDpiStuff(apkInfo['apk'].get('screenCompat', 'nodpi')),
-                                                            item['ver'])
-                        if this in appsneeded:
+                        this = '{0}|{1}|{2}|{3}|{4}|{5}'.format(item['apkid'],
+                                                                doCpuStuff(apkInfo['apk'].get('cpu', 'all')),
+                                                                apkInfo['apk']['minSdk'],
+                                                                doDpiStuff(apkInfo['apk'].get('screenCompat', 'nodpi')),
+                                                                v,
+                                                                item['vercode'])
+                        if not filter(lambda version: version.fullString(maxApps[item['apkid']]) == this,
+                                      dAllApks[item['apkid']]):
+                            logging.debug(this)
                             downloadApk(apkInfo['apk'])
                     # END: if apkInfo
                 # END: if item
@@ -408,14 +380,22 @@ def main(param_list):
     """
     main(): single parameter for report_sources.sh output
     """
-    global maxApps
-    global appsneeded
-    dAllApks = {}
+    global dAllApks
 
+    lines = ''
     if len(param_list) == 1:
-        dAllApks = processReportSourcesOutput(param_list[0])
+        with open(param_list[0]) as report:
+            lines = report.readlines()
     else:
-        dAllApks = processReportSourcesOutput(None)
+        lines = sys.stdin.readlines()
+
+    processReportSourcesOutput(lines)
+    getMaxVersionDict()
+
+    for k in sorted(dAllApks.keys()):
+        m = maxApps[k]
+        for v in dAllApks[k]:
+            logging.debug(v.fullString(m))
 
     if len(dAllApks.keys()) == 0:
         print('ERROR: expecting:')
@@ -423,22 +403,6 @@ def main(param_list):
         print(' or ')
         print(' - stdin from report_sources.sh')
         return
-
-    maxApps    = getMaxVersionDict(dAllApks)
-    appsneeded = []
-
-    for k in dAllApks.keys():
-        thisappsneeded = []
-        for a in dAllApks[k]:
-            maxApk = ApkVersionInfo(ver = maxApps[k])
-            if a.ver < maxApk.ver:
-                logging.debug('{0}: {1} < maxApk.ver: {2}'.format(k, a.ver, maxApk.ver))
-                thisappsneeded.append(a.fullString(maxApps[k]))
-        if len(thisappsneeded) == 0:
-            logging.debug('deleted: ' + k)
-            del maxApps[k]
-        else:
-            appsneeded.extend(thisappsneeded)
 
     repos = ['albrtkmxxo',
              'android777',
@@ -491,11 +455,8 @@ def main(param_list):
              'tim-we',
              'tutu75',
              'vip-apk',
-             'westcoastandroid']
-
-    # Log the needed versions:
-    for n in appsneeded:
-        logging.info(n)
+             'westcoastandroid',
+             'yelbana2']
 
     # Start checking all stores ...
     p = multiprocessing.Pool(5)
