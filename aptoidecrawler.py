@@ -425,6 +425,7 @@ def main(param_list):
              'draconius666',
              'eltremendo02',
              'grungo2407',
+             'gs3passion',
              'gyjano',
              'hampoo',
              'hfk217',
