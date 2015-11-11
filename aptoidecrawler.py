@@ -21,9 +21,9 @@ from debug import Debug
 # DEBUG VARS      #
 ###################
 
-Debug.DEBUG        = False
-Debug.READFROMFILE = False  # Read from file for debugging
-Debug.SAVELASTFILE = False  # Write to file upon each request
+# Debug.DEBUG        = True
+# Debug.READFROMFILE = True  # Read from file for debugging
+# Debug.SAVELASTFILE = True  # Write to file upon each request
 
 ###################
 # END: DEBUG VARS #
@@ -76,36 +76,32 @@ class ApkVersionInfo(object):
                                                    self.vercode )
 
     def __lt__(self, other):
-        if self.ver == '' or other.ver == '':
-            return self.name < other.name
-        else:
-            return self.version_compare(self.ver, other.ver) == -1
+        return self.__cmp__(other) == -1
 
     def __cmp__(self, other):
         if self.ver == '' or other.ver == '':
+            logging.error('AVI.cmp(): self.ver or other.ver is empty [{0},{1}]'.format(self.ver, other.ver))
             return cmp(self.name, other.name)
         else:
-            return self.version_compare(self.ver, other.ver)
+            import re
 
-    def version_compare(self, v1, v2):
-        import re
+            # Make blank-->'0', replace - with . and split into parts
+            p1 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '',  self.ver.replace('-', '.')).split('.')]
+            p2 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', other.ver.replace('-', '.')).split('.')]
 
-        # Make blank-->'0', replace - with . and split into parts
-        parts1 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', v1.replace('-', '.')).split('.')]
-        parts2 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', v2.replace('-', '.')).split('.')]
+            # fill up the shorter version with zeros ...
+            lendiff = len(p1) - len(p2)
+            if lendiff > 0:
+                p2.extend([0] * lendiff)
+            elif lendiff < 0:
+                p1.extend([0] * (-lendiff))
 
-        # fill up the shorter version with zeros ...
-        lendiff = len(parts1) - len(parts2)
-        if lendiff > 0:
-            parts2.extend([0] * lendiff)
-        elif lendiff < 0:
-            parts1.extend([0] * (-lendiff))
-
-        for i, p in enumerate(parts1):
-            ret = cmp(p, parts2[i])
-            if ret:
-                return ret
-        return 0
+            for i, p in enumerate(p1):
+                ret = cmp(p, p2[i])
+                if ret:
+                    return ret
+            return 0
+    # END: def cmp:
 
     def __str__(self):
         return str(self.__dict__)
@@ -119,8 +115,9 @@ class ApkVersionInfo(object):
 # Globals         #
 ###################
 
-dAllApks  = {}
-maxApps   = {}
+dAllApks      = {}
+maxVerEachApk = {}
+minSdkEachApk = {}
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(sys.argv[0]))
@@ -292,13 +289,15 @@ def getMaxVersionDict():
     getMaxVersionDict():
     """
     global dAllApks
-    global maxApps
+    global maxVerEachApk
+    global minSdkEachApk
 
-    maxApps  = {}
+    maxVerEachApk = {}
+    minSdkEachApk = {}
 
     for k in sorted(dAllApks.keys()):
         k2 = dAllApks[k][0].maxname
-        if not k in maxApps:
+        if not k in maxVerEachApk:
             max1 = max(apk for apk in dAllApks[k]).ver
             max2 = max1
 
@@ -306,15 +305,21 @@ def getMaxVersionDict():
             if k2 in dAllApks:
                 max2 = max(apk for apk in dAllApks[k2]).ver
 
-            maxApps[k]  = max(max1, max2)
+            maxVerEachApk[k] = max(max1, max2)
 
             # Special case for Drive, Docs, Sheets and Slides
             # Remove the last '.XX' since it is CPU/DPI specific
             if 'com.google.android.apps.docs' in k:
-                maxApps[k] = maxApps[k][0:-3]
-
-            logging.debug('max({0}): {1}'.format(k, maxApps[k]))
+                maxVerEachApk[k] = maxVerEachApk[k][0:-3]
         # END: if not k
+
+        if not k in minSdkEachApk:
+            minSdk = min(int(apk.sdk) for apk in dAllApks[k])
+            minSdk = min(minSdk, 19)  # We suport down to 19
+            minSdkEachApk[k] = minSdk
+        # END: if not k in minSdkEachApk:
+
+        logging.debug('{0} - maxVer: {1}, minSdk: {2}'.format(k, maxVerEachApk[k], minSdkEachApk[k]))
     # END: for k
 # END: def getMaxVersionDict
 
@@ -324,13 +329,14 @@ def checkOneStore(repo):
     checkOneStore(repo):
     """
     global dAllApks
-    global maxApps
+    global maxVerEachApk
+    global minSdkEachApk
 
     logging.info('Checking store: {0}'.format(repo))
 
     # Date to look back until
-    today        = datetime.date.today()
-    search_stop  = today - datetime.timedelta(days=3)
+    today       = datetime.date.today()
+    search_stop = today - datetime.timedelta(days=3)
 
     search_date = today
     offset = 0
@@ -350,20 +356,25 @@ def checkOneStore(repo):
                     continue
 
                 v = item['ver'].split(' ')[0]
-                maxApkInfo = ApkVersionInfo(name=item['apkid'], ver=maxApps[item['apkid']])
+                maxApkInfo = ApkVersionInfo(name=item['apkid'], ver=maxVerEachApk[item['apkid']])
                 tmpApkInfo = ApkVersionInfo(name=item['apkid'], ver=v)
                 # Is it >= maxVersion
                 if maxApkInfo <= tmpApkInfo:
                     apkInfo = getApkInfo(repo, item['apkid'], item['ver'],
                                          options='vercode=' + str(item['vercode']))
                     if apkInfo:
+                        thisSdk = int(apkInfo['apk']['minSdk'])
+                        if thisSdk < minSdkEachApk[item['apkid']]:
+                            logging.debug('SdkTooLow: {0}({1})'.format(item['apkid'], thisSdk))
+                            continue
+
                         this = '{0}|{1}|{2}|{3}|{4}|{5}'.format(item['apkid'],
                                                                 doCpuStuff(apkInfo['apk'].get('cpu', 'all')),
                                                                 apkInfo['apk']['minSdk'],
                                                                 doDpiStuff(apkInfo['apk'].get('screenCompat', 'nodpi')),
                                                                 v,
                                                                 item['vercode'])
-                        if not filter(lambda version: version.fullString(maxApps[item['apkid']]) == this,
+                        if not filter(lambda version: version.fullString(maxVerEachApk[item['apkid']]) == this,
                                       dAllApks[item['apkid']]):
                             logging.debug(this)
                             downloadApk(apkInfo['apk'])
@@ -391,11 +402,6 @@ def main(param_list):
 
     processReportSourcesOutput(lines)
     getMaxVersionDict()
-
-    for k in sorted(dAllApks.keys()):
-        m = maxApps[k]
-        for v in dAllApks[k]:
-            logging.debug(v.fullString(m))
 
     if len(dAllApks.keys()) == 0:
         print('ERROR: expecting:')
