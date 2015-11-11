@@ -1,5 +1,6 @@
 import os
 import codecs
+import logging
 
 
 class Debug(object):
@@ -32,4 +33,14 @@ class Debug(object):
                 with open(file_name, 'ab') as debug_file:
                     debug_file.write(str(debug))
     # END: def writeToFile():
+
+    @staticmethod
+    def printDictionary(d):
+        """
+        printDictionary(d): Prints well space key value pairs
+        """
+        maxKeyFmt = '{0: <' + str(len(max(d, key = len))) + '}'
+        for k in sorted(d.keys()):
+            logging.debug(maxKeyFmt.format(k) + ' - ' + d[k])
+    # END: def printDictionary(d):
 # END: class Debug
