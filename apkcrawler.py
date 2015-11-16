@@ -101,7 +101,7 @@ allApkInfo = [
     # ApkMirrorInfo('Android for Work App',         'androidforwork'      ),
     ApkMirrorInfo('Android System WebView',       'webviewgoogle'       ),
     ApkMirrorInfo('Calculator',                   'calculator',     '', 'google-calculator'            ),
-    ApkMirrorInfo('Calendar',                     'calendargoogle'      ),
+    ApkMirrorInfo('Google Calendar',              'calendargoogle', '', 'calendar'                     ),
     ApkMirrorInfo('Camera',                       'cameragoogle'        ),
     ApkMirrorInfo('Chrome',                       'chrome'              ),
     ApkMirrorInfo('Clock',                        'clockgoogle'         ),
