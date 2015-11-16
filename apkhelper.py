@@ -10,7 +10,7 @@ class ApkVersionInfo(object):
         sName  = '^(?P<name>.*)\.leanback$'
         reName = re.compile(sName)
 
-        sVer = '^(?P<ver>.*)(?P<extra>[-.](leanback|tv|arm|arm\.arm_neon|armeabi-v7a|arm64|arm64-v8a|x86|large|small))$'
+        sVer = '^(?P<ver>.*)(?P<extra>[-.](leanback|tv|arm|arm\.arm_neon|armeabi-v7a|arm64|arm64-v8a|x86|large|small|xxhdpi))$'
         reVer = re.compile(sVer)
 
         self.name         = name
