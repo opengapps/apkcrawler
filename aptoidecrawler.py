@@ -103,10 +103,20 @@ def downloadApk(apkInfo):
     downloadApk(apkInfo): Download the specified URL to APK file name
     """
     url     = apkInfo['path']
-    apkname = '{0}-{1}-{2}-minAPI{3}.apk'.format(apkInfo['package'],
-                                                 apkInfo['vername'],
-                                                 apkInfo['vercode'],
-                                                 apkInfo['minSdk'])
+
+    cpu     = apkInfo.get('cpu', '')
+    if cpu != '':
+        cpu = '({0})'.format(cpu)
+
+    dpi     = apkInfo.get('screenCompat', '(nodpi)')
+    if dpi != '(nodpi)':
+        dpi = '({0}dpi)'.format(doDpiStuff(dpi, ','))
+
+    apkname = '{0}_{1}-{2}_minAPI{3}{4}{5}.apk'.format(apkInfo['package'],
+                                                       apkInfo['vername'],
+                                                       apkInfo['vercode'],
+                                                       apkInfo['minSdk'],
+                                                       cpu, dpi)
 
     logging.info('Downloading "{0}" from: {1}'.format(url, apkname))
 
@@ -136,7 +146,7 @@ def downloadApk(apkInfo):
 # END: def downloadApk
 
 
-def doDpiStuff(screenCompat):
+def doDpiStuff(screenCompat, delim='-'):
     """
     doDpiStuff(screenCompat): Convert screenCompat to a single DPI or a range of DPIs
     """
@@ -149,7 +159,7 @@ def doDpiStuff(screenCompat):
         splits2 = split.split('/')
         dpis[str(splits2[1])] = ''
 
-    return '-'.join(sorted(dpis.keys()))
+    return delim.join(sorted(dpis.keys()))
 # END: def doDpiStuff
 
 
