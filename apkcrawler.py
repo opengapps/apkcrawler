@@ -111,7 +111,7 @@ allApkInfo = [
     ApkMirrorInfo('Drive',                        'drive',          4   ),
     ApkMirrorInfo('Earth',                        'earth'               ),
     ApkMirrorInfo('Exchange Services',            'exchangegoogle'      ),
-    ApkMirrorInfo('Fit',                          'fitness'             ),
+    ApkMirrorInfo('Fit',                          'fitness',        3   ),
     ApkMirrorInfo('Gmail',                        'gmail'               ),
     ApkMirrorInfo('Google Connectivity Services', 'gcs'                 ),
     ApkMirrorInfo('Google Indic Keyboard',        'indic',          4   ),
