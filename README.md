@@ -10,6 +10,7 @@ python apkcrawler.py
 or missing APKs from Aptoide stores
 ```
 ./report_sources.sh nohelp nosig | python aptoidecrawler.py
+./report_sources.sh nohelp nosig | python apk-dlcrawler.py
 ```
 ### Specific
 Fetches app APKs for specified applications supported by Open GApps using their [`.gapps-config` codename](https://github.com/opengapps/opengapps/wiki/Advanced-Features-and-Options#include-and-exclude-google-applications)
@@ -24,12 +25,14 @@ APK Crawler emits the downloaded filename so it can be used inline
 or
 ```
 ./add_sourceapp.sh $(python aptoidecrawler.py report.txt)
+./add_sourceapp.sh $(python apk-dlcrawler.py report.txt)
 ```
 
 
 ## Supported Sites
 - [APK Mirror](http://apkmirror.com)
 - [Aptoide](http://aptoide.com)
+- [APK Downloader](http://apk-dl.com)
 - ~~Google Play~~ (Not yet added)
 
 ## Requirements
@@ -37,10 +40,11 @@ or
 - [requests](https://pypi.python.org/pypi/requests)
 - [beautifulsoup4](https://pypi.python.org/pypi/beautifulsoup4/)
 - [html5lib](https://pypi.python.org/pypi/html5lib)
+- [requesocks](https://pypi.python.org/pypi/requesocks) ONLY for SOCKS5 support
 
 ## Installation
 ```sh
-pip install requests beautifulsoup4 html5lib
+pip install requests beautifulsoup4 html5lib requesocks
 ```
 
 ## Known Issues
