@@ -37,6 +37,7 @@ class ReportHelper(object):
                 dAllApks[name].append(avi)
             # END: if m:
         # END: for line
+
         return dAllApks
     # END: def processReportSourcesOutput
 
@@ -46,7 +47,6 @@ class ReportHelper(object):
         getMaxVersionDict():
         """
         maxVerEachApk = {}
-        minSdkEachApk = {}
 
         for k in sorted(dAllApks.keys()):
             k2 = dAllApks[k][0].maxname
@@ -66,16 +66,30 @@ class ReportHelper(object):
                     maxVerEachApk[k] = maxVerEachApk[k][0:-3]
             # END: if not k
 
+            logging.debug('{0} - maxVer: {1}'.format(k, maxVerEachApk[k]))
+        # END: for k
+
+        return maxVerEachApk
+    # END: def getMaxVersionDict
+
+    @staticmethod
+    def getMinSdkDict(dAllApks):
+        """
+        getMaxVersionDict():
+        """
+        minSdkEachApk = {}
+
+        for k in sorted(dAllApks.keys()):
             if not k in minSdkEachApk:
                 minSdk = min(int(apk.sdk) for apk in dAllApks[k])
                 minSdk = min(minSdk, 19)  # We suport down to 19
                 minSdkEachApk[k] = minSdk
             # END: if not k in minSdkEachApk:
 
-            logging.debug('{0} - maxVer: {1}, minSdk: {2}'.format(k, maxVerEachApk[k], minSdkEachApk[k]))
+            logging.debug('{0} - minSdk: {1}'.format(k, minSdkEachApk[k]))
         # END: for k
 
-        return (maxVerEachApk, minSdkEachApk)
+        return minSdkEachApk
     # END: def getMaxVersionDict
 
     @staticmethod
@@ -88,7 +102,7 @@ class ReportHelper(object):
             thisappsneeded = []
             for a in dAllApks[k]:
                 maxApk = ApkVersionInfo(ver = maxVerEachApk[k])
-                if '2280749' in maxApk.ver:
+                if '2280749' in maxApk.ver:  # This excludes 'from factor image' apks
                     maxApk.ver = '0'
                     thisappsneeded = []
                 if a.ver < maxApk.ver:
