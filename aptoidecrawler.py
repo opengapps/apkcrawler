@@ -13,10 +13,16 @@ import logging
 import multiprocessing
 
 import json
-import requests
+
+# Debug.USE_SOCKS_PROXY = True
+if Debug.USE_SOCKS_PROXY:
+    import requesocks as requests
+else:
+    import requests
 
 from debug import Debug
 from apkhelper import ApkVersionInfo
+from reporthelper import ReportHelper
 
 ###################
 # DEBUG VARS      #
@@ -56,6 +62,7 @@ def listRepo(repo, orderby=None):
 
     if data == '':
         session = requests.Session()
+        session.proxies = Debug.PROXIES
         logging.debug('Requesting1: ' + url)
         resp    = session.get(url)
         data    = resp.json()
@@ -84,6 +91,7 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
 
     if data == '':
         session = requests.Session()
+        session.proxies = Debug.PROXIES
         logging.debug('Requesting2: ' + url)
         resp    = session.get(url)
         data    = resp.json()
@@ -135,6 +143,7 @@ def downloadApk(apkInfo):
 
         # Open the url
         session = requests.Session()
+        session.proxies = Debug.PROXIES
         r = session.get(url)
 
         with open(apkname, 'wb') as local_file:
@@ -175,82 +184,6 @@ def doCpuStuff(cpu):
         'x86'                  : 'x86',
     }.get(cpu, 'all')
 # END: def doCpuStuff
-
-
-def processReportSourcesOutput(lines):
-    """
-    processReportSourcesOutput(lines): Return a dictionary of all APKs and versions in report
-                                       created by report_sources.sh
-    """
-    global dAllApks
-
-    dAllApks = {}
-
-    sColumns = ['(?P<name>com\.[^|]*)', '(?P<arch>[^|]*)', '(?P<sdk>[^|]*)', '(?P<dpi>[^|]*)',
-                '(?P<ver>[^|]*)',       '(?P<code>[^|]*)', '(?P<sig>[^|]*)']
-    pattern  = '^\s+' + '\|'.join(sColumns) + '$'
-    reLine   = re.compile(pattern)
-
-    for line in lines:
-        m = reLine.match(line)
-        if m:
-            name = m.group('name').strip()
-
-            # Check if supported and add if it is
-            if name not in dAllApks.keys():
-                dAllApks[name] = []
-
-            arch = m.group('arch').strip()
-            sdk  = m.group('sdk').strip()
-            dpi  = m.group('dpi').strip()
-            ver  = m.group('ver').strip()
-            code = m.group('code').strip()
-            avi  = ApkVersionInfo(name, arch, sdk, dpi, ver, code)
-
-            dAllApks[name].append(avi)
-        # END: if m:
-    # END: for line
-# END: def processReportSourcesOutput
-
-
-def getMaxVersionDict():
-    """
-    getMaxVersionDict():
-    """
-    global dAllApks
-    global maxVerEachApk
-    global minSdkEachApk
-
-    maxVerEachApk = {}
-    minSdkEachApk = {}
-
-    for k in sorted(dAllApks.keys()):
-        k2 = dAllApks[k][0].maxname
-        if not k in maxVerEachApk:
-            max1 = max(apk for apk in dAllApks[k]).ver
-            max2 = max1
-
-            # Check for "non-leanback" versions for max comparison
-            if k2 in dAllApks:
-                max2 = max(apk for apk in dAllApks[k2]).ver
-
-            maxVerEachApk[k] = max(max1, max2)
-
-            # Special case for Drive, Docs, Sheets and Slides
-            # Remove the last '.XX' since it is CPU/DPI specific
-            if 'com.google.android.apps.docs' in k:
-                maxVerEachApk[k] = maxVerEachApk[k][0:-3]
-        # END: if not k
-
-        if not k in minSdkEachApk:
-            minSdk = min(int(apk.sdk) for apk in dAllApks[k])
-            minSdk = min(minSdk, 19)  # We suport down to 19
-            minSdkEachApk[k] = minSdk
-        # END: if not k in minSdkEachApk:
-
-        logging.debug('{0} - maxVer: {1}, minSdk: {2}'.format(k, maxVerEachApk[k], minSdkEachApk[k]))
-    # END: for k
-# END: def getMaxVersionDict
 
 
 def checkOneStore(repo):
@@ -321,6 +254,8 @@ def main(param_list):
     main(): single parameter for report_sources.sh output
     """
     global dAllApks
+    global maxVerEachApk
+    global minSdkEachApk
 
     lines = ''
     if len(param_list) == 1:
@@ -329,8 +264,10 @@ def main(param_list):
     else:
         lines = sys.stdin.readlines()
 
-    processReportSourcesOutput(lines)
-    getMaxVersionDict()
+    dAllApks = ReportHelper.processReportSourcesOutput(lines)
+    (maxVerEachApk, minSdkEachApk) = ReportHelper.getMaxVersionDict(dAllApks)
+
+    ReportHelper.showMissingApks(dAllApks, maxVerEachApk)
 
     if len(dAllApks.keys()) == 0:
         print('ERROR: expecting:')
