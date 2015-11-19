@@ -11,13 +11,7 @@ import sys
 import os
 import re
 import logging
-import multiprocessing
-
-# Debug.USE_SOCKS_PROXY = True
-if Debug.USE_SOCKS_PROXY:
-    import requesocks as requests
-else:
-    import requests
+# import multiprocessing
 
 from bs4 import BeautifulSoup
 import unicodedata
@@ -25,6 +19,12 @@ import unicodedata
 from debug import Debug
 from apkhelper import ApkVersionInfo
 from reporthelper import ReportHelper
+
+# Debug.USE_SOCKS_PROXY = True
+if Debug.USE_SOCKS_PROXY:
+    import requesocks as requests
+else:
+    import requests
 
 ###################
 # DEBUG VARS      #
@@ -62,7 +62,7 @@ def getUrlFromRedirect(apkname, url):
 
     if html == '':
         session = requests.Session()
-        session.proxies = Debug.PROXIES
+        session.proxies = Debug.getProxy()
         logging.debug('Requesting2: ' + url)
         resp    = session.get(url)
         html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
@@ -82,10 +82,10 @@ def downloadApk(apkInfo):
     """
     downloadApk(apkInfo): Download the specified URL to APK file name
     """
-    apkname = '{0}_{1}-{2}_minAPI{3}{4}{5}.apk'.format(apkInfo.name,
-                                                       apkInfo.ver,
-                                                       apkInfo.vercode,
-                                                       apkInfo.sdk)
+    apkname = '{0}_{1}-{2}_minAPI{3}.apk'.format(apkInfo.name,
+                                                 apkInfo.ver,
+                                                 apkInfo.vercode,
+                                                 apkInfo.sdk)
 
     url     = getUrlFromRedirect(apkname, apkInfo.download_url)
     if url == '':
@@ -109,7 +109,7 @@ def downloadApk(apkInfo):
 
         # Open the url
         session = requests.Session()
-        session.proxies = Debug.PROXIES
+        session.proxies = Debug.getProxy()
         r = session.get(url)
 
         with open(apkname, 'wb') as local_file:
@@ -137,7 +137,7 @@ def checkOneApp(apkid):
 
     if html == '':
         session = requests.Session()
-        session.proxies = Debug.PROXIES
+        session.proxies = Debug.getProxy()
         logging.debug('Requesting: ' + url)
         resp    = session.get(url)
         html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
@@ -202,9 +202,6 @@ def main(param_list):
         lines = sys.stdin.readlines()
 
     dAllApks = ReportHelper.processReportSourcesOutput(lines)
-    (maxVerEachApk, minSdkEachApk) = ReportHelper.getMaxVersionDict(dAllApks)
-
-    ReportHelper.showMissingApks(dAllApks, maxVerEachApk)
 
     if len(dAllApks.keys()) == 0:
         print('ERROR: expecting:')
@@ -213,11 +210,23 @@ def main(param_list):
         print(' - stdin from report_sources.sh')
         return
 
+    maxVerEachApk = ReportHelper.getMaxVersionDict(dAllApks)
+    minSdkEachApk = ReportHelper.getMinSdkDict(dAllApks)
+
+    ReportHelper.showMissingApks(dAllApks, maxVerEachApk)
+
     keys = dAllApks.keys()
 
-    # Start checking all apkids ...
-    p = multiprocessing.Pool(5)
-    p.map(checkOneApp, keys)
+    for key in keys:
+        checkOneApp(key)
+
+#    if Debug.DEBUG:
+#        for key in keys:
+#            checkOneApp(key)
+#    else:
+#        # Start checking all apkids ...
+#        p = multiprocessing.Pool(5)
+#        p.map(checkOneApp, keys)
 
 # END: main():
 

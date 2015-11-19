@@ -8,21 +8,20 @@
 import sys
 import os
 import datetime
-import re
 import logging
-import multiprocessing
+# import multiprocessing
 
 import json
+
+from debug import Debug
+from apkhelper import ApkVersionInfo
+from reporthelper import ReportHelper
 
 # Debug.USE_SOCKS_PROXY = True
 if Debug.USE_SOCKS_PROXY:
     import requesocks as requests
 else:
     import requests
-
-from debug import Debug
-from apkhelper import ApkVersionInfo
-from reporthelper import ReportHelper
 
 ###################
 # DEBUG VARS      #
@@ -62,10 +61,10 @@ def listRepo(repo, orderby=None):
 
     if data == '':
         session = requests.Session()
-        session.proxies = Debug.PROXIES
+        # session.proxies = Debug.getProxy()
         logging.debug('Requesting1: ' + url)
         resp    = session.get(url)
-        data    = resp.json()
+        data    = json.loads(resp.text)
         Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
                           indent=4, separators=(',', ': ')), resp.encoding)
 
@@ -91,10 +90,10 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
 
     if data == '':
         session = requests.Session()
-        session.proxies = Debug.PROXIES
+        # session.proxies = Debug.getProxy()
         logging.debug('Requesting2: ' + url)
         resp    = session.get(url)
-        data    = resp.json()
+        data    = json.loads(resp.text)
         Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
                           indent=4, separators=(',', ': ')), resp.encoding)
 
@@ -143,7 +142,7 @@ def downloadApk(apkInfo):
 
         # Open the url
         session = requests.Session()
-        session.proxies = Debug.PROXIES
+        session.proxies = Debug.getProxy()
         r = session.get(url)
 
         with open(apkname, 'wb') as local_file:
@@ -265,9 +264,6 @@ def main(param_list):
         lines = sys.stdin.readlines()
 
     dAllApks = ReportHelper.processReportSourcesOutput(lines)
-    (maxVerEachApk, minSdkEachApk) = ReportHelper.getMaxVersionDict(dAllApks)
-
-    ReportHelper.showMissingApks(dAllApks, maxVerEachApk)
 
     if len(dAllApks.keys()) == 0:
         print('ERROR: expecting:')
@@ -275,6 +271,11 @@ def main(param_list):
         print(' or ')
         print(' - stdin from report_sources.sh')
         return
+
+    maxVerEachApk = ReportHelper.getMaxVersionDict(dAllApks)
+    minSdkEachApk = ReportHelper.getMinSdkDict(dAllApks)
+
+    ReportHelper.showMissingApks(dAllApks, maxVerEachApk)
 
     repos = ['albrtkmxxo',
              'android777',
@@ -332,9 +333,16 @@ def main(param_list):
              'westcoastandroid',
              'yelbana2']
 
-    # Start checking all stores ...
-    p = multiprocessing.Pool(5)
-    p.map(checkOneStore, repos)
+    for repo in repos:
+        checkOneStore(repo)
+
+#    if Debug.DEBUG:
+#        for repo in repos:
+#            checkOneStore(repo)
+#    else:
+#        # Start checking all stores ...
+#        p = multiprocessing.Pool(5)
+#        p.map(checkOneStore, repos)
 
 # END: main():
 
@@ -345,5 +353,6 @@ def main(param_list):
 if __name__ == "__main__":
     logging.basicConfig(filename = logFile, filemode = 'w', level = logLevel, format = logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("requesocks").setLevel(logging.WARNING)
 
     main(sys.argv[1:])
