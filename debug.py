@@ -9,9 +9,6 @@ class Debug(object):
     SAVELASTFILE = False  # Write to file upon each request
 
     USE_SOCKS_PROXY = False
-    PROXIES         = {}
-    if USE_SOCKS_PROXY:
-        PROXIES = { 'http': 'socks5://127.0.0.1:9999', 'https': 'socks5://127.0.0.1:9999' }
 
     @staticmethod
     def readFromFile(file_name):
@@ -42,10 +39,21 @@ class Debug(object):
     @staticmethod
     def printDictionary(d):
         """
-        printDictionary(d): Prints well space key value pairs
+        printDictionary(d): Prints well spaced key value pairs
         """
         maxKeyFmt = '{0: <' + str(len(max(d, key = len))) + '}'
         for k in sorted(d.keys()):
-            logging.debug(maxKeyFmt.format(k) + ' - ' + d[k])
+            logging.debug(maxKeyFmt.format(k) + ' - ' + str(d[k]))
     # END: def printDictionary(d):
+
+    @staticmethod
+    def getProxy():
+        """
+        getProxy(): Gets the proxy settings
+        """
+        PROXIES = {}
+        if Debug.USE_SOCKS_PROXY:
+            PROXIES = { 'http': 'socks5://127.0.0.1:9999', 'https': 'socks5://127.0.0.1:9999' }
+        return PROXIES
+    # END: def getProxy:
 # END: class Debug
