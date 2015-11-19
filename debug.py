@@ -8,6 +8,11 @@ class Debug(object):
     READFROMFILE = False  # Read from file for debugging
     SAVELASTFILE = False  # Write to file upon each request
 
+    USE_SOCKS_PROXY = False
+    PROXIES         = {}
+    if USE_SOCKS_PROXY:
+        PROXIES = { 'http': 'socks5://127.0.0.1:9999', 'https': 'socks5://127.0.0.1:9999' }
+
     @staticmethod
     def readFromFile(file_name):
         """
