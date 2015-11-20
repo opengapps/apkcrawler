@@ -11,7 +11,7 @@ import sys
 import os
 import re
 import logging
-# import multiprocessing
+import multiprocessing
 
 from bs4 import BeautifulSoup
 import unicodedata
@@ -42,9 +42,11 @@ else:
 # Globals         #
 ###################
 
-dAllApks      = {}
-maxVerEachApk = {}
-minSdkEachApk = {}
+manager = multiprocessing.Manager()
+Global  = manager.Namespace()
+Global.dAllApks      = {}
+Global.maxVerEachApk = {}
+Global.minSdkEachApk = {}
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(sys.argv[0]))
@@ -125,9 +127,9 @@ def checkOneApp(apkid):
     """
     checkOneApp(apkid):
     """
-    global dAllApks
-    global maxVerEachApk
-    global minSdkEachApk
+    dAllApks      = Global.dAllApks
+    maxVerEachApk = Global.maxVerEachApk
+    minSdkEachApk = Global.minSdkEachApk
 
     logging.info('Checking app: {0}'.format(apkid))
 
@@ -190,9 +192,9 @@ def main(param_list):
     """
     main(): single parameter for report_sources.sh output
     """
-    global dAllApks
-    global maxVerEachApk
-    global minSdkEachApk
+    dAllApks      = Global.dAllApks
+    maxVerEachApk = Global.maxVerEachApk
+    minSdkEachApk = Global.minSdkEachApk
 
     lines = ''
     if len(param_list) == 1:
@@ -217,16 +219,13 @@ def main(param_list):
 
     keys = dAllApks.keys()
 
-    for key in keys:
-        checkOneApp(key)
+    Global.dAllApks      = dAllApks
+    Global.maxVerEachApk = maxVerEachApk
+    Global.minSdkEachApk = minSdkEachApk
 
-#    if Debug.DEBUG:
-#        for key in keys:
-#            checkOneApp(key)
-#    else:
-#        # Start checking all apkids ...
-#        p = multiprocessing.Pool(5)
-#        p.map(checkOneApp, keys)
+    # Start checking all apkids ...
+    p = multiprocessing.Pool(5)
+    p.map(checkOneApp, keys)
 
 # END: main():
 

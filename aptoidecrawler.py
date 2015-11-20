@@ -9,7 +9,7 @@ import sys
 import os
 import datetime
 import logging
-# import multiprocessing
+import multiprocessing
 
 import json
 
@@ -38,10 +38,11 @@ else:
 ###################
 # Globals         #
 ###################
-
-dAllApks      = {}
-maxVerEachApk = {}
-minSdkEachApk = {}
+manager = multiprocessing.Manager()
+Global  = manager.Namespace()
+Global.dAllApks      = {}
+Global.maxVerEachApk = {}
+Global.minSdkEachApk = {}
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(sys.argv[0]))
@@ -189,9 +190,9 @@ def checkOneStore(repo):
     """
     checkOneStore(repo):
     """
-    global dAllApks
-    global maxVerEachApk
-    global minSdkEachApk
+    dAllApks      = Global.dAllApks
+    maxVerEachApk = Global.maxVerEachApk
+    minSdkEachApk = Global.minSdkEachApk
 
     logging.info('Checking store: {0}'.format(repo))
 
@@ -252,9 +253,9 @@ def main(param_list):
     """
     main(): single parameter for report_sources.sh output
     """
-    global dAllApks
-    global maxVerEachApk
-    global minSdkEachApk
+    dAllApks      = Global.dAllApks
+    maxVerEachApk = Global.maxVerEachApk
+    minSdkEachApk = Global.minSdkEachApk
 
     lines = ''
     if len(param_list) == 1:
@@ -333,16 +334,13 @@ def main(param_list):
              'westcoastandroid',
              'yelbana2']
 
-    for repo in repos:
-        checkOneStore(repo)
+    Global.dAllApks      = dAllApks
+    Global.maxVerEachApk = maxVerEachApk
+    Global.minSdkEachApk = minSdkEachApk
 
-#    if Debug.DEBUG:
-#        for repo in repos:
-#            checkOneStore(repo)
-#    else:
-#        # Start checking all stores ...
-#        p = multiprocessing.Pool(5)
-#        p.map(checkOneStore, repos)
+    # Start checking all stores ...
+    p = multiprocessing.Pool(5)
+    p.map(checkOneStore, repos)
 
 # END: main():
 
