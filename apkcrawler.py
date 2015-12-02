@@ -140,6 +140,7 @@ allApkInfo = [
     ApkMirrorInfo('News & Weather',               'newswidget'          ),
     ApkMirrorInfo('Photos',                       'photos'              ),
     ApkMirrorInfo('Project Fi',                   'projectfi'           ),
+    ApkMirrorInfo('Remote Control',               'remote'              ),
     ApkMirrorInfo('Sheets',                       'sheets',         4   ),
     ApkMirrorInfo('Slides',                       'slides',         4   ),
     ApkMirrorInfo('Sound Search for Google Play', 'ears',               ),
