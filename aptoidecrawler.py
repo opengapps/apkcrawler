@@ -311,6 +311,7 @@ def main(param_list):
              'ludock96',
              'mark8',
              'matandroid',
+             'megas0ra',
              'metin2ventor',
              'migatronic',
              'milaupv',
