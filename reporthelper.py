@@ -49,7 +49,7 @@ class ReportHelper(object):
         maxVerEachApk = {}
 
         for k in sorted(dAllApks.keys()):
-            k2 = dAllApks[k][0].maxname
+            k2 = dAllApks[k][0].extraname
             if not k in maxVerEachApk:
                 max1 = max(apk for apk in dAllApks[k]).ver
                 max2 = max1
@@ -102,7 +102,7 @@ class ReportHelper(object):
             thisappsneeded = []
             for a in dAllApks[k]:
                 maxApk = ApkVersionInfo(ver = maxVerEachApk[k])
-                if '2280749' in maxApk.ver:  # This excludes 'from factor image' apks
+                if '6.0.1' == maxApk.ver:  # This excludes 'from factory image' apks
                     maxApk.ver = '0'
                     thisappsneeded = []
                 if a.ver < maxApk.ver:
