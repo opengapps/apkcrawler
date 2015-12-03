@@ -7,14 +7,14 @@ class ApkVersionInfo(object):
     def __init__(self, name='', arch='', sdk='', dpi='', ver='', vercode='', scrape_url=''):
         super(ApkVersionInfo, self).__init__()
 
-        sName  = '^(?P<name>.*)\.leanback$'
+        sName  = '^(?P<name>.*)(?P<extra>\.(leanback|beta)$'
         reName = re.compile(sName)
 
-        sVer = '^(?P<ver>.*)(?P<extra>[-.](leanback|tv|arm|arm\.arm_neon|armeabi-v7a|arm64|arm64-v8a|x86|large|small|xxhdpi))$'
-        reVer = re.compile(sVer)
+        sVer   = '^(?P<ver>.*)(?P<extra>[-.](leanback|tv|arm|arm\.arm_neon|armeabi-v7a|arm64|arm64-v8a|x86|large|small|xxhdpi))$'
+        reVer  = re.compile(sVer)
 
         self.name         = name
-        self.maxname      = name  # used for max versions
+        self.extraname    = None  # used for beta/leanback versions
         self.arch         = arch
         self.sdk          = sdk
         self.dpi          = dpi
@@ -26,9 +26,10 @@ class ApkVersionInfo(object):
         self.apk_name     = ''
         self.download_url = ''
 
-        m = reName.match(self.maxname)
+        m = reName.match(self.name)
         if m:
-            self.maxname = m.group('name')
+            self.extraname = self.name
+            self.name      = m.group('name')
 
         if 'com.google.android.apps.docs' in self.name:
             self.realver = self.ver[-3:]
