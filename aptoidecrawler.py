@@ -225,27 +225,35 @@ def checkOneStore(repo):
                 if filter(lambda version: version.vercode == item['vercode'], dAllApks[item['apkid']]):
                     continue
 
-                v = item['ver'].split(' ')[0]
-                maxApkInfo = ApkVersionInfo(name=item['apkid'], ver=maxVerEachApk[item['apkid']])
-                tmpApkInfo = ApkVersionInfo(name=item['apkid'], ver=v)
+                # If the version name contains 'beta' append '.beta' to the apkid
+                extra  = ''
+                if 'beta' in item['ver']:
+                    extra = '.beta'
+
+                apkid    = item['apkid']
+                apkextra = apkid + extra
+                ver      = item['ver'].split(' ')[0]  # Look at only the true version number
+
+                maxApkInfo = ApkVersionInfo(name=apkid, ver=maxVerEachApk[apkid])
+                tmpApkInfo = ApkVersionInfo(name=apkid, ver=ver)
                 # Is it >= maxVersion
                 if maxApkInfo <= tmpApkInfo:
-                    apkInfo = getApkInfo(repo, item['apkid'], item['ver'],
+                    apkInfo = getApkInfo(repo, apkid, ver,
                                          options='vercode=' + str(item['vercode']))
                     if apkInfo:
                         thisSdk = int(apkInfo['apk']['minSdk'])
-                        if thisSdk < minSdkEachApk[item['apkid']]:
-                            logging.debug('SdkTooLow: {0}({1})'.format(item['apkid'], thisSdk))
+                        if thisSdk < minSdkEachApk[apkid]:
+                            logging.debug('SdkTooLow: {0}({1})'.format(apkid, thisSdk))
                             continue
 
-                        this = '{0}|{1}|{2}|{3}|{4}|{5}'.format(item['apkid'],
+                        this = '{0}|{1}|{2}|{3}|{4}|{5}'.format(apkid,
                                                                 doCpuStuff(apkInfo['apk'].get('cpu', 'all')),
                                                                 apkInfo['apk']['minSdk'],
                                                                 doDpiStuff(apkInfo['apk'].get('screenCompat', 'nodpi')),
-                                                                v,
+                                                                ver,
                                                                 item['vercode'])
-                        if not filter(lambda version: version.fullString(maxVerEachApk[item['apkid']]) == this,
-                                      dAllApks[item['apkid']]):
+                        if not filter(lambda version: version.fullString(maxVerEachApk[apkid]) == this,
+                                      dAllApks[apkid]):
                             logging.debug(this)
                             downloadApk(apkInfo['apk'])
                     # END: if apkInfo
