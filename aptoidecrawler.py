@@ -60,20 +60,24 @@ def listRepo(repo, orderby=None):
     url       = 'http://webservices.aptoide.com/webservices/listRepository/{0}{1}/json'.format(repo, orderby)
     data      = Debug.readFromFile(file_name)
 
-    if data == '':
-        session = requests.Session()
-        # session.proxies = Debug.getProxy()
-        logging.debug('Requesting1: ' + url)
-        resp    = session.get(url)
-        data    = json.loads(resp.text)
-        Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
-                          indent=4, separators=(',', ': ')), resp.encoding)
+    try:
+        if data == '':
+            session = requests.Session()
+            # session.proxies = Debug.getProxy()
+            logging.debug('Requesting1: ' + url)
+            resp    = session.get(url)
+            data    = json.loads(resp.text)
+            Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
+                              indent=4, separators=(',', ': ')), resp.encoding)
 
-    if data['status'] == 'OK':
-        return data
-    else:
-        logging.error(file_name)
-        return None
+        if data['status'] == 'OK':
+            return data
+        else:
+            logging.error(file_name)
+    except:
+        logging.exception('!!! Invalid JSON from: "{0}"'.format(url))
+
+    return None
 # END: def listRepo
 
 
@@ -89,20 +93,24 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
                 version, repo, apkid, apkversion, options)
     data      = Debug.readFromFile(file_name)
 
-    if data == '':
-        session = requests.Session()
-        # session.proxies = Debug.getProxy()
-        logging.debug('Requesting2: ' + url)
-        resp    = session.get(url)
-        data    = json.loads(resp.text)
-        Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
-                          indent=4, separators=(',', ': ')), resp.encoding)
+    try:
+        if data == '':
+            session = requests.Session()
+            # session.proxies = Debug.getProxy()
+            logging.debug('Requesting2: ' + url)
+            resp    = session.get(url)
+            data    = json.loads(resp.text)
+            Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
+                              indent=4, separators=(',', ': ')), resp.encoding)
 
-    if data['status'] == 'OK':
-        return data
-    else:
-        logging.error(file_name)
-        return None
+        if data['status'] == 'OK':
+            return data
+        else:
+            logging.error(file_name)
+    except:
+        logging.exception('!!! Invalid JSON from: "{0}"'.format(url))
+
+    return None
 # END: def getApkInfo
 
 
