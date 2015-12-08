@@ -291,6 +291,7 @@ def main(param_list):
              'apk-s',
              'aplicaciones-ceibal',
              'apps',
+             'appstv',
              'austroid',
              'bazar-canaima',
              'benny09',
