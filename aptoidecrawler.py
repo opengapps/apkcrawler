@@ -126,7 +126,7 @@ def downloadApk(apkInfo):
 
     dpi     = apkInfo.get('screenCompat', '(nodpi)')
     if dpi != '(nodpi)':
-        dpi = '({0}dpi)'.format(doDpiStuff(dpi, ','))
+        dpi = '({0}dpi)'.format(doDpiStuff(dpi))
 
     apkname = '{0}_{1}-{2}_minAPI{3}{4}{5}.apk'.format(apkInfo['package'],
                                                        apkInfo['vername'].replace(' ', '_'),
