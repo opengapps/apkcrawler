@@ -129,7 +129,7 @@ def downloadApk(apkInfo):
         dpi = '({0}dpi)'.format(doDpiStuff(dpi, ','))
 
     apkname = '{0}_{1}-{2}_minAPI{3}{4}{5}.apk'.format(apkInfo['package'],
-                                                       apkInfo['vername'],
+                                                       apkInfo['vername'].replace(' ', '_'),
                                                        apkInfo['vercode'],
                                                        apkInfo['minSdk'],
                                                        cpu, dpi)
