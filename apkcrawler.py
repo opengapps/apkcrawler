@@ -134,6 +134,7 @@ allApkInfo = [
     ApkMirrorInfo('Google Zhuyin Input',          'zhuyin',         4   ),
     ApkMirrorInfo('Google+',                      'googleplus',     4   ),  # or 3?
     ApkMirrorInfo('Hangouts',                     'hangouts'            ),
+    ApkMirrorInfo('Inbox',                        'inbox'               ),
     ApkMirrorInfo('Keep',                         'keep'                ),
     ApkMirrorInfo('Maps',                         'maps'                ),
     ApkMirrorInfo('Messenger',                    'messenger',      '', 'messenger-google-inc/' ),
