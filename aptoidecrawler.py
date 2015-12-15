@@ -347,6 +347,7 @@ def main(param_list):
              'tim-we',
              'tutu75',
              'vip-apk',
+             'wanky',
              'westcoastandroid',
              'yelbana2']
 
