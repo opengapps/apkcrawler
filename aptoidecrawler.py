@@ -326,6 +326,7 @@ def main(param_list):
              'matandroid',
              'megas0ra',
              'metin2ventor',
+             'michael-belisle',
              'migatronic',
              'milaupv',
              'msi8',
