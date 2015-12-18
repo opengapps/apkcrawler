@@ -7,8 +7,8 @@ Fetches all APKs for all applications supported by Open GApps from APK Mirror
 ```sh
 python apkcrawler.py
 ```
-or missing APKs from Aptoide stores
-```
+or missing APKs from Aptoide and APK-DL
+```sh
 ./report_sources.sh nohelp nosig | python aptoidecrawler.py
 ./report_sources.sh nohelp nosig | python apk-dlcrawler.py
 ```
@@ -23,7 +23,7 @@ APK Crawler emits the downloaded filename so it can be used inline
 ./add_sourceapp.sh $(python apkcrawler.py drive docs slides sheets)
 ```
 or
-```
+```sh
 ./add_sourceapp.sh $(python aptoidecrawler.py report.txt)
 ./add_sourceapp.sh $(python apk-dlcrawler.py report.txt)
 ```
@@ -40,7 +40,7 @@ or
 - [requests](https://pypi.python.org/pypi/requests)
 - [beautifulsoup4](https://pypi.python.org/pypi/beautifulsoup4/)
 - [html5lib](https://pypi.python.org/pypi/html5lib)
-- [requesocks](https://pypi.python.org/pypi/requesocks) ONLY for SOCKS5 support
+- [requesocks](https://pypi.python.org/pypi/requesocks) (ONLY for SOCKS5 support)
 
 ## Installation
 ```sh
