@@ -360,6 +360,7 @@ def main(param_list):
              'vip-apk',
              'wanky',
              'westcoastandroid',
+             'xerodox',
              'yelbana2']
 
     Global.dAllApks      = dAllApks
