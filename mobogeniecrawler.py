@@ -29,7 +29,7 @@ else:
 
 Debug.DEBUG        = True
 # Debug.READFROMFILE = True  # Read from file for debugging
-Debug.SAVELASTFILE = True  # Write to file upon each request
+# Debug.SAVELASTFILE = True  # Write to file upon each request
 
 ###################
 # END: DEBUG VARS #
@@ -107,7 +107,9 @@ def checkOneApp(apkid):
             session = requests.Session()
             # session.proxies = Debug.getProxy()
             logging.debug('Requesting: ' + url)
-            resp    = session.get(url)
+            resp    = session.get(url,allow_redirects=False)
+            if (resp.status_code) == 302:
+                raise ValueError
             data    = json.loads(resp.text)
             Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
                               indent=4, separators=(',', ': ')), resp.encoding)
@@ -129,7 +131,7 @@ def checkOneApp(apkid):
                 # END: if Sdk
             # END: if item
 
-    except IndexError:
+    except ValueError:
         logging.info('{0} not supported by mobogenie ...'.format(apkid))
     except:
         logging.exception('!!! Invalid JSON from: "{0}"'.format(url))
