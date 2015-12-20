@@ -79,10 +79,12 @@ def downloadApk(url,package,vercode):
         # Open the url
         session = requests.Session()
         session.proxies = Debug.getProxy()
-        r = session.get(url)
 
+        r = session.get(url,stream=True)
         with open(apkname, 'wb') as local_file:
-            local_file.write(r.content)
+            for chunk in r.iter_content(1024):
+                local_file.write(chunk)
+
         print('{0} '.format(apkname)),
         sys.stdout.flush()
     except OSError:
