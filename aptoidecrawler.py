@@ -134,7 +134,7 @@ def downloadApk(apkInfo):
                                                        apkInfo['minSdk'],
                                                        cpu, dpi)
 
-    logging.info('Downloading "{0}" from: {1}'.format(url, apkname))
+    logging.info('Downloading "{0}" from: {1}'.format(apkname,url))
 
     try:
         if os.path.exists(apkname):

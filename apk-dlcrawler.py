@@ -94,7 +94,7 @@ def downloadApk(apkInfo):
         logging.error('Unable to determine redirect url for ' + apkname)
         return
 
-    logging.info('Downloading "{0}" from: {1}'.format(apkname, url))
+    logging.info('Downloading "{0}" from: {1}'.format(apkname,url))
 
     try:
         if os.path.exists(apkname):
