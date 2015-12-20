@@ -117,20 +117,23 @@ def checkOneApp(apkid):
     try:
         dom       = BeautifulSoup(html, 'html5lib')
         latestapk = dom.findAll('a', {'itemprop': 'downloadUrl'})[0]
+        appid     = re.search('(^\/dl\/)([0-9]+)(\/1$)', latestapk['href']).group(2)
         latesturl = session.head('http://www.plazza.ir' + latestapk['href'],allow_redirects=True).url
-
         latestver = re.search('(_)([0-9]+)(\.apk)$', latesturl).group(2)
-        #print('{0}'.format(found))
 
-        #We miss versioncode comparison here
+        #We still miss versioncode comparison here
         downloadApk(latesturl,apkid,latestver)
 
-        #we still have to implement te fetching of older versions
+        #Fetching of older versions is not completed, because it requires VIP accounts
+        #olderapks = dom.findAll('div', {'style': 'direction: rtl'})[0].findAll('a', {'target': '_blank'})
+        #for apk in olderapks:
+        #    apkver = re.search('(\/)([0-9]+)(\?.*$|$)', apk['href']).group(2) #number is either end of string or there can be an ? for extra GET parameters
+        #    apkurl = session.head('http://www.plazza.ir/dl_version/' + appid + '/' + apkver + '/1',allow_redirects=True).url
 
     except AttributeError:
         logging.info('{0} has an invalid version in the download URL ...'.format(apkid))
     except IndexError:
-        logging.info('{0} not supported by apk-dl.com ...'.format(apkid))
+        logging.info('{0} not supported by plazza.ir ...'.format(apkid))
     except:
         logging.exception('!!! Error parsing html from: "{0}"'.format(url))
 
