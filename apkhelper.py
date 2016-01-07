@@ -57,9 +57,9 @@ class ApkVersionInfo(object):
         else:
             import re
 
-            # Make blank-->'0', replace - with . and split into parts
-            p1 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '',  self.ver.replace('-', '.')).split('.')]
-            p2 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', other.ver.replace('-', '.')).split('.')]
+            # Make blank-->'0', replace - and _ with . and split into parts
+            p1 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '',  self.ver.replace('-', '.').replace('_', '.')).split('.')]
+            p2 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', other.ver.replace('-', '.').replace('_', '.')).split('.')]
 
             # fill up the shorter version with zeros ...
             lendiff = len(p1) - len(p2)
