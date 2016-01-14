@@ -196,10 +196,6 @@ def checkOneStore(repo):
     """
     checkOneStore(repo):
     """
-    dAllApks      = Global.report.dAllApks
-    maxVerEachApk = Global.report.maxVerEachApk
-    minSdkEachApk = Global.report.minSdkEachApk
-
     logging.info('Checking store: {0}'.format(repo))
 
     # Date to look back until
@@ -219,10 +215,6 @@ def checkOneStore(repo):
                 if item['apkid'] not in dAllApks.keys():
                     continue
 
-                # Do we already have it
-                if filter(lambda version: version.vercode == item['vercode'], dAllApks[item['apkid']]):
-                    continue
-
                 # If the version name contains 'beta' append '.beta' to the apkid
                 extra  = ''
                 if 'beta' in item['ver']:
@@ -230,28 +222,28 @@ def checkOneStore(repo):
 
                 apkid    = item['apkid']
                 apkextra = apkid + extra
-                ver      = item['ver'].split(' ')[0]  # Look at only the true version number
+                ver      = item['ver'].split(' ')[0]
 
-                maxApkInfo = ApkVersionInfo(name=apkid, ver=maxVerEachApk[apkid])
-                tmpApkInfo = ApkVersionInfo(name=apkid, ver=ver)
-                # Is it >= maxVersion
-                if maxApkInfo <= tmpApkInfo:
+                avi = ApkVersionInfo(name=apkid,
+                                     #arch='',
+                                     #sdk='',
+                                     #dpi='',
+                                     ver=ver,  # Look at only the true version number
+                                     vercode=item['vercode'],
+                                     #scrape_url=''
+                                     )
+                # Do we already have it
+                if Global.report.isThisApkNeeded(avi):
+                    # Get additional info
                     apkInfo = getApkInfo(repo, apkid, ver,
                                          options='vercode=' + str(item['vercode']))
                     if apkInfo:
-                        thisSdk = int(apkInfo['apk']['minSdk'])
-                        if thisSdk < minSdkEachApk[apkid]:
-                            logging.debug('SdkTooLow: {0}({1})'.format(apkid, thisSdk))
-                            continue
+                        avi.arch = doCpuStuff(apkInfo['apk'].get('cpu', 'all'))
+                        avi.sdk  = int(apkInfo['apk']['minSdk'])
+                        avi.dpi  = doDpiStuff(apkInfo['apk'].get('screenCompat', 'nodpi'))
 
-                        this = '{0}|{1}|{2}|{3}|{4}|{5}'.format(apkid,
-                                                                doCpuStuff(apkInfo['apk'].get('cpu', 'all')),
-                                                                apkInfo['apk']['minSdk'],
-                                                                doDpiStuff(apkInfo['apk'].get('screenCompat', 'nodpi')),
-                                                                ver,
-                                                                item['vercode'])
-                        if not filter(lambda version: version.fullString(maxVerEachApk[apkid]) == this,
-                                      dAllApks[apkid]):
+                        # Still need it after additional info?
+                        if Global.report.isThisApkNeeded(avi):
                             logging.debug(this)
                             downloadApk(apkInfo['apk'])
                     # END: if apkInfo

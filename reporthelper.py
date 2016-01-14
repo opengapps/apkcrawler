@@ -114,11 +114,29 @@ class ReportHelper(object):
             logging.info(a)
     # END: def showMissingApks
 
-    def isThisApkNeeded(self):
+    def isThisApkNeeded(self, avi):
         """
         def isThisApkNeeded(): Return true if this information passed in is needed per the report data
                                that this class was initialized with
         """
+
+        # Do we have the requested vercode already?
+        if avi.vercode != '':
+            if filter(lambda apk: apk.vercode == avi.vercode, self.dAllApks[avi.name]):
+                return False
+
+        # Is it < maxVersion?
+        if avi.ver != '':
+            maxApkInfo = ApkVersionInfo(name=avi.name, ver=self.maxVerEachApk[avi.name])
+            if avi < maxApkInfo:
+                return False
+
+        # Is it < minSdk?
+        if avi.sdk != '':
+            if avi.sdk < self.minSdkEachApk[avi.name]:
+                logging.debug('SdkTooLow: {0}({1})'.format(avi.name, avi.sdk))
+                return False
+
         return True
     # END: def isThisApkNeeded():
 # END: class ReportHelper

@@ -90,10 +90,6 @@ def checkOneApp(apkid):
     """
     checkOneApp(apkid):
     """
-    dAllApks      = Global.report.dAllApks
-    maxVerEachApk = Global.report.maxVerEachApk
-    minSdkEachApk = Global.report.minSdkEachApk
-
     logging.info('Checking app: {0}'.format(apkid))
 
     file_name = '{0}.json'.format(apkid)
@@ -113,21 +109,17 @@ def checkOneApp(apkid):
                               indent=4, separators=(',', ': ')), resp.encoding)
 
         item=data['data']['appInfo']
+        avi = ApkVersionInfo(name=apkid,
+                             #arch='',
+                             sdk=item['sdkVersion'],
+                             #dpi='',
+                             ver=item['version'].split(' ')[0],
+                             vercode=item['versionCode'],
+                             #scrape_url=''
+                             )
 
-        if not filter(lambda apk: apk.vercode == item['versionCode'], dAllApks[apkid]):
-
-            v = item['version'].split(' ')[0]
-            maxApkInfo = ApkVersionInfo(name=item['apkId'], ver=maxVerEachApk[item['apkId']])
-            tmpApkInfo = ApkVersionInfo(name=item['apkId'], ver=v)
-            # Is it >= maxVersion
-            if maxApkInfo <= tmpApkInfo:
-                thisSdk = int(item['sdkVersion'])
-                if thisSdk < minSdkEachApk[item['apkId']]:
-                    logging.debug('SdkTooLow: {0}({1})'.format(item['apkId'], thisSdk))
-                else:
-                    downloadApk('http://download.mgccw.com/'+item['apkPath'], item['apkId'], item['version'], item['versionCode'], item['sdkVersion'])
-                # END: if Sdk
-            # END: if item
+        if Global.report.isThisApkNeeded(avi):
+            downloadApk('http://download.mgccw.com/'+item['apkPath'], item['apkId'], item['version'], item['versionCode'], item['sdkVersion'])
 
     except ValueError:
         logging.info('{0} not supported by mobogenie ...'.format(apkid))

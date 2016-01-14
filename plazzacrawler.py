@@ -94,10 +94,6 @@ def checkOneApp(apkid):
     """
     checkOneApp(apkid):
     """
-    dAllApks      = Global.report.dAllApks
-    maxVerEachApk = Global.report.maxVerEachApk
-    minSdkEachApk = Global.report.minSdkEachApk
-
     logging.info('Checking app: {0}'.format(apkid))
 
     html_name = '{0}.html'.format(apkid)

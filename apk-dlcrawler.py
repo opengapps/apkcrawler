@@ -125,10 +125,6 @@ def checkOneApp(apkid):
     """
     checkOneApp(apkid):
     """
-    dAllApks      = Global.report.dAllApks
-    maxVerEachApk = Global.report.maxVerEachApk
-    minSdkEachApk = Global.report.minSdkEachApk
-
     logging.info('Checking app: {0}'.format(apkid))
 
     html_name = '{0}.html'.format(apkid)
@@ -148,7 +144,6 @@ def checkOneApp(apkid):
         apklist = dom.findAll('ul', {'class': 'apks dlist'})[0]
         apks    = apklist.findAll('div', {'class': 'details'})
 
-        maxApkInfo = ApkVersionInfo(name=apkid, ver=maxVerEachApk[apkid])
         for apk in apks:
             items = apk.findAll('div')
             dApk = {}
@@ -168,16 +163,20 @@ def checkOneApp(apkid):
                 (ver, vercode) = dApk['Version'].split('(Code:', 1)
                 ver     = ver.split('(', 1)[0]
                 vercode = vercode[0:-1]
-                tmpApkInfo = ApkVersionInfo(name=apkid, sdk=sdk, ver=ver, vercode=vercode)
-                tmpApkInfo.download_url = dApk['url']
-                if maxApkInfo <= tmpApkInfo:
-                    thisSdk = int(tmpApkInfo.sdk)
-                    if thisSdk < minSdkEachApk[apkid]:
-                        logging.debug('SdkTooLow: {0}({1})'.format(apkid, thisSdk))
-                        continue
-                    if not filter(lambda apk: apk.vercode == tmpApkInfo.vercode, dAllApks[apkid]):
-                        logging.debug(tmpApkInfo.fullString(maxVerEachApk[apkid]))
-                        downloadApk(tmpApkInfo)
+
+                avi = ApkVersionInfo(name=apkid,
+                                     #arch='',
+                                     sdk=sdk,
+                                     #dpi='',
+                                     ver=ver,
+                                     vercode=vercode,
+                                     #scrape_url=''
+                                     )
+                avi.download_url = dApk['url']
+
+                if Global.report.isThisApkNeeded(avi):
+                    downloadApk(avi)
+
     except IndexError:
         logging.info('{0} not supported by apk-dl.com ...'.format(apkid))
     except:
