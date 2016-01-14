@@ -113,6 +113,7 @@ allApkInfo = [
     ApkMirrorInfo('Exchange Services',            'exchangegoogle'      ),
     ApkMirrorInfo('Fitness Tracking',             'fitness',        3,  'fit'                   ),
     ApkMirrorInfo('Gmail',                        'gmail'               ),
+    ApkMirrorInfo('Google Cast Receiver',         'castreceiver'        ),
     ApkMirrorInfo('Google Contacts',              'contactsgoogle'      ),
     ApkMirrorInfo('Google Connectivity Services', 'gcs'                 ),
     ApkMirrorInfo('Google Indic Keyboard',        'indic',          4   ),
