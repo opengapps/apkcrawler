@@ -44,9 +44,7 @@ else:
 
 manager = multiprocessing.Manager()
 Global  = manager.Namespace()
-Global.dAllApks      = {}
-Global.maxVerEachApk = {}
-Global.minSdkEachApk = {}
+Global.report = None
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(sys.argv[0]))
@@ -127,9 +125,9 @@ def checkOneApp(apkid):
     """
     checkOneApp(apkid):
     """
-    dAllApks      = Global.dAllApks
-    maxVerEachApk = Global.maxVerEachApk
-    minSdkEachApk = Global.minSdkEachApk
+    dAllApks      = Global.report.dAllApks
+    maxVerEachApk = Global.report.maxVerEachApk
+    minSdkEachApk = Global.report.minSdkEachApk
 
     logging.info('Checking app: {0}'.format(apkid))
 
@@ -192,10 +190,6 @@ def main(param_list):
     """
     main(): single parameter for report_sources.sh output
     """
-    dAllApks      = Global.dAllApks
-    maxVerEachApk = Global.maxVerEachApk
-    minSdkEachApk = Global.minSdkEachApk
-
     lines = ''
     if len(param_list) == 1:
         with open(param_list[0]) as report:
@@ -203,25 +197,15 @@ def main(param_list):
     else:
         lines = sys.stdin.readlines()
 
-    dAllApks = ReportHelper.processReportSourcesOutput(lines)
+    Global.report = ReportHelper(lines)
+    keys = Global.report.dAllApks.keys()
 
-    if len(dAllApks.keys()) == 0:
+    if len(keys) == 0:
         print('ERROR: expecting:')
         print(' - 1 parameter (report file from output of report_sources.sh)')
         print(' or ')
         print(' - stdin from report_sources.sh')
         return
-
-    maxVerEachApk = ReportHelper.getMaxVersionDict(dAllApks)
-    minSdkEachApk = ReportHelper.getMinSdkDict(dAllApks)
-
-    ReportHelper.showMissingApks(dAllApks, maxVerEachApk)
-
-    keys = dAllApks.keys()
-
-    Global.dAllApks      = dAllApks
-    Global.maxVerEachApk = maxVerEachApk
-    Global.minSdkEachApk = minSdkEachApk
 
     # Start checking all apkids ...
     p = multiprocessing.Pool(5)

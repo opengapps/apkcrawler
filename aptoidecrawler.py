@@ -40,9 +40,7 @@ else:
 ###################
 manager = multiprocessing.Manager()
 Global  = manager.Namespace()
-Global.dAllApks      = {}
-Global.maxVerEachApk = {}
-Global.minSdkEachApk = {}
+Global.report = None
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(sys.argv[0]))
@@ -198,9 +196,9 @@ def checkOneStore(repo):
     """
     checkOneStore(repo):
     """
-    dAllApks      = Global.dAllApks
-    maxVerEachApk = Global.maxVerEachApk
-    minSdkEachApk = Global.minSdkEachApk
+    dAllApks      = Global.report.dAllApks
+    maxVerEachApk = Global.report.maxVerEachApk
+    minSdkEachApk = Global.report.minSdkEachApk
 
     logging.info('Checking store: {0}'.format(repo))
 
@@ -269,10 +267,6 @@ def main(param_list):
     """
     main(): single parameter for report_sources.sh output
     """
-    dAllApks      = Global.dAllApks
-    maxVerEachApk = Global.maxVerEachApk
-    minSdkEachApk = Global.minSdkEachApk
-
     lines = ''
     if len(param_list) == 1:
         with open(param_list[0]) as report:
@@ -280,19 +274,15 @@ def main(param_list):
     else:
         lines = sys.stdin.readlines()
 
-    dAllApks = ReportHelper.processReportSourcesOutput(lines)
+    Global.report = ReportHelper(lines)
+    keys = Global.report.dAllApks.keys()
 
-    if len(dAllApks.keys()) == 0:
+    if len(keys) == 0:
         print('ERROR: expecting:')
         print(' - 1 parameter (report file from output of report_sources.sh)')
         print(' or ')
         print(' - stdin from report_sources.sh')
         return
-
-    maxVerEachApk = ReportHelper.getMaxVersionDict(dAllApks)
-    minSdkEachApk = ReportHelper.getMinSdkDict(dAllApks)
-
-    ReportHelper.showMissingApks(dAllApks, maxVerEachApk)
 
     repos = ['albrtkmxxo',
              'android777',
@@ -375,10 +365,6 @@ def main(param_list):
              'westcoastandroid',
              'xerodox',
              'yelbana2']
-
-    Global.dAllApks      = dAllApks
-    Global.maxVerEachApk = maxVerEachApk
-    Global.minSdkEachApk = minSdkEachApk
 
     # Start checking all stores ...
     p = multiprocessing.Pool(5)
