@@ -38,7 +38,7 @@ from apkhelper import ApkVersionInfo
 
 class ApkMirrorInfo(object):
     """ApkMirrorInfo"""
-    def __init__(self, apkmirror_name='', opengapps_name='', num_used_ver='', url=''):
+    def __init__(self, apkmirror_name='', opengapps_name='', url=''):
         super(ApkMirrorInfo, self).__init__()
         import re
         self.apkmirror_name = apkmirror_name
@@ -48,16 +48,15 @@ class ApkMirrorInfo(object):
         if url == '':
             self.url = apkmirror_name.lower()
             self.url = self.url.replace(' ',   '-')  # Space to dash (fairly common)
-            self.url = self.url.replace(' & ', '-')  # Special case for News & Weather
+            self.url = self.url.replace('-&-', '-')  # Special case for News & Weather
             self.url = self.url.replace('+',   '')   # Special case for Google+
             self.url = self.url + '/'                # Trailing '/'
         else:
             self.url = url
 
         # Version RegEx String
-        self.sReVerFmt = '(?P<VERSIONNAME>(([vR]?([A-Z]|\d+)[bQRS]?|arm|arm64|neon|x86|release|RELEASE|tv)[-.]?){0})'
-        msRe = self.apkmirror_name.replace('+', '\+') + ' ' + self.sReVerFmt.format('{1,' + str(num_used_ver) + '}')
-        self.reVersion = re.compile(msRe)  # Special case for Google+
+        self.sReVerInfo = '(?P<VERNAME>\S*) \((?P<VERCODE>\d*)\).* API (?P<SDK>\d*)\)'
+        self.reVersion  = re.compile(self.sReVerInfo)
 
         self.versions  = []
 
@@ -96,63 +95,63 @@ logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
 requestedApkInfo = []
 allApkInfo = [
-    ApkMirrorInfo('Android Pay',                  'androidpay'          ),
+    ApkMirrorInfo('Android Pay',                  'androidpay'      ),
     ### Android for Work App (not the core included in Open GApps)
-    # ApkMirrorInfo('Android for Work App',         'androidforwork'      ),
-    ApkMirrorInfo('Android System WebView',       'webviewgoogle'       ),
-    ApkMirrorInfo('Calculator',                   'calculator',     '', 'google-calculator'     ),
-    ApkMirrorInfo('Google Calendar',              'calendargoogle', '', 'calendar'              ),
-    ApkMirrorInfo('Google Camera',                'cameragoogle',   '', 'camera'                ),
-    ApkMirrorInfo('Chrome',                       'chrome'              ),
-    ApkMirrorInfo('Clock',                        'clockgoogle'         ),
-    ApkMirrorInfo('Cloud Print',                  'cloudprint'          ),
-    ApkMirrorInfo('Device Policy',                'dmagent'             ),
-    ApkMirrorInfo('Docs',                         'docs',           4   ),
-    ApkMirrorInfo('Drive',                        'drive',          4   ),
-    ApkMirrorInfo('Earth',                        'earth'               ),
-    ApkMirrorInfo('Exchange Services',            'exchangegoogle'      ),
-    ApkMirrorInfo('Fitness Tracking',             'fitness',        3,  'fit'                   ),
-    ApkMirrorInfo('Gmail',                        'gmail'               ),
-    ApkMirrorInfo('Google Cast Receiver',         'castreceiver'        ),
-    ApkMirrorInfo('Google Contacts',              'contactsgoogle'      ),
-    ApkMirrorInfo('Google Connectivity Services', 'gcs'                 ),
-    ApkMirrorInfo('Google Indic Keyboard',        'indic',          4   ),
-    ApkMirrorInfo('Google Japanese Input',        'japanese',       4   ),
-    ApkMirrorInfo('Google Keyboard',              'keyboardgoogle', 2   ),
-    ApkMirrorInfo('Google Korean Input',          'korean',         4   ),
-    ApkMirrorInfo('Google Now Launcher',          'googlenow'           ),
-    ApkMirrorInfo('Google Pinyin Input',          'pinyin',         4   ),
-    ApkMirrorInfo('Google Phone',                 'dialergoogle'        ),
-    ApkMirrorInfo('Google Play Books',            'books'               ),
-    ApkMirrorInfo('Google Play Games',            'playgames',      3   ),
-    ApkMirrorInfo('Google Play Newsstand',        'newsstand'           ),
-    ApkMirrorInfo('Google Play Movies',           'movies',         3   ),
-    ApkMirrorInfo('Google Play Music',            'music'               ),
-    ApkMirrorInfo('Google Play services',         'gmscore'             ),
-    ApkMirrorInfo('Google Play Store',            'vending'             ),
-    ApkMirrorInfo('Google App',                   'search',         4,  'google-search/'        ),
-    ApkMirrorInfo('Google Text-to-speech Engine', 'googletts',      4   ),
-    ApkMirrorInfo('Google Zhuyin Input',          'zhuyin',         4   ),
-    ApkMirrorInfo('Google+',                      'googleplus',     4   ),  # or 3?
-    ApkMirrorInfo('Hangouts',                     'hangouts'            ),
-    ApkMirrorInfo('Inbox',                        'inbox'               ),
-    ApkMirrorInfo('Keep',                         'keep'                ),
-    ApkMirrorInfo('Maps',                         'maps'                ),
-    ApkMirrorInfo('Messenger',                    'messenger',      '', 'messenger-google-inc/' ),
-    ApkMirrorInfo('News & Weather',               'newswidget'          ),
-    ApkMirrorInfo('Photos',                       'photos'              ),
-    ApkMirrorInfo('Project Fi',                   'projectfi'           ),
-    ApkMirrorInfo('Remote Control',               'remote'              ),
-    ApkMirrorInfo('Sheets',                       'sheets',         4   ),
-    ApkMirrorInfo('Slides',                       'slides',         4   ),
-    ApkMirrorInfo('Sound Search for Google Play', 'ears',               ),
-    ApkMirrorInfo('Street View',                  'street'              ),
-    ApkMirrorInfo('Tags',                         'taggoogle'           ),
-    ApkMirrorInfo('TalkBack',                     'talkback'            ),
-    ApkMirrorInfo('Translate',                    'translate'           ),
+    # ApkMirrorInfo('Android for Work App',         'androidforwork'  ),
+    ApkMirrorInfo('Android System WebView',       'webviewgoogle'   ),
+    ApkMirrorInfo('Calculator',                   'calculator',     'google-calculator'     ),
+    ApkMirrorInfo('Google Calendar',              'calendargoogle', 'calendar'              ),
+    ApkMirrorInfo('Google Camera',                'cameragoogle',   'camera'                ),
+    ApkMirrorInfo('Chrome',                       'chrome'          ),
+    ApkMirrorInfo('Clock',                        'clockgoogle'     ),
+    ApkMirrorInfo('Cloud Print',                  'cloudprint'      ),
+    ApkMirrorInfo('Device Policy',                'dmagent'         ),
+    ApkMirrorInfo('Docs',                         'docs'            ),
+    ApkMirrorInfo('Drive',                        'drive'           ),
+    ApkMirrorInfo('Earth',                        'earth'           ),
+    ApkMirrorInfo('Exchange Services',            'exchangegoogle'  ),
+    ApkMirrorInfo('Fitness Tracking',             'fitness',        'fit'                   ),
+    ApkMirrorInfo('Gmail',                        'gmail'           ),
+    ApkMirrorInfo('Google Cast Receiver',         'castreceiver'    ),
+    ApkMirrorInfo('Google Contacts',              'contactsgoogle'  ),
+    ApkMirrorInfo('Google Connectivity Services', 'gcs'             ),
+    ApkMirrorInfo('Google Indic Keyboard',        'indic'           ),
+    ApkMirrorInfo('Google Japanese Input',        'japanese'        ),
+    ApkMirrorInfo('Google Keyboard',              'keyboardgoogle'  ),
+    ApkMirrorInfo('Google Korean Input',          'korean'          ),
+    ApkMirrorInfo('Google Now Launcher',          'googlenow'       ),
+    ApkMirrorInfo('Google Pinyin Input',          'pinyin'          ),
+    ApkMirrorInfo('Google Phone',                 'dialergoogle'    ),
+    ApkMirrorInfo('Google Play Books',            'books'           ),
+    ApkMirrorInfo('Google Play Games',            'playgames'       ),
+    ApkMirrorInfo('Google Play Newsstand',        'newsstand'       ),
+    ApkMirrorInfo('Google Play Movies',           'movies'          ),
+    ApkMirrorInfo('Google Play Music',            'music'           ),
+    ApkMirrorInfo('Google Play services',         'gmscore'         ),
+    ApkMirrorInfo('Google Play Store',            'vending'         ),
+    ApkMirrorInfo('Google App',                   'search',         'google-search/'        ),
+    ApkMirrorInfo('Google Text-to-speech Engine', 'googletts'       ),
+    ApkMirrorInfo('Google Zhuyin Input',          'zhuyin'          ),
+    ApkMirrorInfo('Google+',                      'googleplus'      ),
+    ApkMirrorInfo('Hangouts',                     'hangouts'        ),
+    ApkMirrorInfo('Inbox',                        'inbox'           ),
+    ApkMirrorInfo('Keep',                         'keep'            ),
+    ApkMirrorInfo('Maps',                         'maps'            ),
+    ApkMirrorInfo('Messenger',                    'messenger',      'messenger-google-inc/' ),
+    ApkMirrorInfo('News & Weather',               'newswidget'      ),
+    ApkMirrorInfo('Photos',                       'photos'          ),
+    ApkMirrorInfo('Project Fi',                   'projectfi'       ),
+    ApkMirrorInfo('Remote Control',               'remote'          ),
+    ApkMirrorInfo('Sheets',                       'sheets'          ),
+    ApkMirrorInfo('Slides',                       'slides'          ),
+    ApkMirrorInfo('Sound Search for Google Play', 'ears'            ),
+    ApkMirrorInfo('Street View',                  'street'          ),
+    ApkMirrorInfo('Tags',                         'taggoogle'       ),
+    ApkMirrorInfo('TalkBack',                     'talkback'        ),
+    ApkMirrorInfo('Translate',                    'translate'       ),
     ### Trusted Face (facelock) is currently withheld for versioning reasons
-    # ApkMirrorInfo('Trusted Face',                 'faceunlock'          ),
-    ApkMirrorInfo('YouTube',                      'youtube'             )]
+    # ApkMirrorInfo('Trusted Face',                 'faceunlock'      ),
+    ApkMirrorInfo('YouTube',                      'youtube'         )]
 
 ###################
 # END: Globals    #
@@ -247,43 +246,51 @@ def getAppVersions(apkInfo):
     try:
         dom      = BeautifulSoup(html, 'html5lib')
         latest   = dom.findAll('div', {'class': 'latestWidget'})[1]
-        versions = latest.findAll('a', {'class': 'fontBlack'})
+        versions = latest.findAll('div', {'class': 'latestPost'})
 
         dVersions = {}
 
         for version in versions:
-            # Ignore duplicate entries (one 'hidden' is shown,
-            #   and the other 'visible', is not shown)
-            if 'visible-xs-block' in version.parent['class']:
+            verName = version.findAll('a', {'class': 'fontBlack'})
+            if verName:
+                verName = verName[0]
+            else:
                 continue
 
-            verText = '"{0}"'.format(version.get_text().encode('ascii', 'ignore'))
+            verText = '{0}'.format(verName.get_text().encode('ascii', 'ignore'))
             if 'beta' in verText.lower() or 'preview' in verText.lower():
                 logging.info('!!! Beta or Preview Found: ' + verText)
             else:
-                dVersions[verText] = version['href']
+                blues = version.findAll('span', {'class': 'fontBlue'})
+                blueVer = [blue for blue in blues if 'Version' in blue.get_text()][0]
+                verInfo = blueVer.findNext('strong').get_text()
 
-                m = apkInfo.reVersion.search(verText)
+                dVersions[verText] = verName['href']
+
+                m = apkInfo.reVersion.search(verInfo)
                 if m:
-                    avi = ApkVersionInfo(name=m.group('VERSIONNAME').rstrip('-.'), scrape_url=version['href'])
-                    avi.ver = avi.name
-                    avi.ver = avi.ver.replace(apkInfo.opengapps_name, '').strip()
-                    avi.ver = avi.ver.split(' ')[0]
+                    avi = ApkVersionInfo(name=verText,
+                                         ver=m.group('VERNAME'),
+                                         vercode=int(m.group('VERCODE')),
+                                         sdk=int(m.group('SDK')),
+                                         scrape_url=verName['href'])
                     apkInfo.versions.append(avi)
                 else:
                     logging.info('!!! No Matchy: ' + verText)
-        # END: for v in versions:
+        # END: for version in versions:
 
         Debug.printDictionary(dVersions)
 
         # Determine which versions to download
         if len(apkInfo.versions) > 0:
-            maxVersionByName = sorted(apkInfo.versions)[-1]
+            maxVersionByVerCode = sorted(apkInfo.versions, key=lambda x: x.vercode)[-1]
 
-            logging.debug('Max Version By Name: "{0}"'.format(maxVersionByName.name))
+            logging.debug('Max Version By VerCode: "{0}" ({1})'.format(maxVersionByVerCode.name, maxVersionByVerCode.ver))
+
+            maxVersionByVerCode = maxVersionByVerCode.ver
 
             for v in apkInfo.versions:
-                if v.name == maxVersionByName.name:
+                if v.ver == maxVersionByVerCode:
                     logging.info('Getting Info for: "{0}" ({1})'.format(v.name, v.scrape_url))
                     getVersionInfo(v)
                     logging.info('Downloading: "{0}"'.format(v.apk_name))
