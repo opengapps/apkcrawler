@@ -211,10 +211,6 @@ def checkOneStore(repo):
             for item in data['listing']:
                 search_date = datetime.datetime.strptime(item['date'], '%Y-%m-%d').date()
 
-                # Against the list we are looking for
-                if item['apkid'] not in dAllApks.keys():
-                    continue
-
                 # If the version name contains 'beta' append '.beta' to the apkid
                 extra  = ''
                 if 'beta' in item['ver']:
@@ -244,7 +240,6 @@ def checkOneStore(repo):
 
                         # Still need it after additional info?
                         if Global.report.isThisApkNeeded(avi):
-                            logging.debug(this)
                             downloadApk(apkInfo['apk'])
                     # END: if apkInfo
                 # END: if item

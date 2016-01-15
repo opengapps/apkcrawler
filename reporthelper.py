@@ -6,10 +6,14 @@ from apkhelper import ApkVersionInfo
 class ReportHelper(object):
     """ReportHelper"""
     def __init__(self, lines):
-        self.dAllApks      = self.processReportSourcesOutput(lines)
-        self.maxVerEachApk = self.getMaxVersionDict()
-        self.minSdkEachApk = self.getMinSdkDict()
-        self.appsNeeded    = self.showMissingApks()
+        self.dAllApks      = {}
+        self.processReportSourcesOutput(lines)
+        self.maxVerEachApk = {}
+        self.getMaxVersionDict()
+        self.minSdkEachApk = {}
+        self.getMinSdkDict()
+        self.appsNeeded    = []
+        self.showMissingApks()
     # END: __init__
 
     def processReportSourcesOutput(self, lines):
@@ -52,7 +56,7 @@ class ReportHelper(object):
         self.maxVerEachApk = {}
 
         for k in sorted(self.dAllApks.keys()):
-            k2 = self.dAllApks[k][0].maxname
+            k2 = self.dAllApks[k][0].name
             if k not in self.maxVerEachApk:
                 max1 = max(apk for apk in self.dAllApks[k]).ver
                 max2 = max1
@@ -119,6 +123,10 @@ class ReportHelper(object):
         def isThisApkNeeded(): Return true if this information passed in is needed per the report data
                                that this class was initialized with
         """
+
+        # Against the list we are looking for
+        if avi.name not in self.dAllApks.keys():
+            return False
 
         # Do we have the requested vercode already?
         if avi.vercode != '':
