@@ -375,6 +375,7 @@ def main(param_list):
              'michael-belisle',
              'migatronic',
              'milaupv',
+             'mine-t999',
              'msi8',
              'mys3',
              'new-day-apps',
