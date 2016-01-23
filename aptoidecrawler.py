@@ -252,48 +252,52 @@ def checkOneStore(repo):
     while search_date > search_stop:
         data = listRepo(repo, ('recent', '100', str(offset)))
         if data:
-            # Check each apk ...
-            for item in data['listing']:
-                search_date = datetime.datetime.strptime(item['date'], '%Y-%m-%d').date()
+            if len(data['listing']) == 0:
+                break
+            else:
+                # Check each apk ...
+                for item in data['listing']:
+                    search_date = datetime.datetime.strptime(item['date'], '%Y-%m-%d').date()
 
-                # If the version name contains 'beta' append '.beta' to the apkid
-                extra  = ''
-                if 'beta' in item['ver']:
-                    extra = '.beta'
+                    # If the version name contains 'beta' append '.beta' to the apkid
+                    extra  = ''
+                    if 'beta' in item['ver']:
+                        extra = '.beta'
 
-                apkid    = item['apkid']
-                apkextra = apkid + extra
-                ver      = item['ver'].split(' ')[0]
+                    apkid    = item['apkid']
+                    apkextra = apkid + extra
+                    ver      = item['ver'].split(' ')[0]
 
-                avi = ApkVersionInfo(name=apkid,
-                                     #arch='',
-                                     #sdk='',
-                                     #dpi='',
-                                     ver=ver,  # Look at only the true version number
-                                     vercode=item['vercode'],
-                                     #scrape_src=''
-                                     )
+                    avi = ApkVersionInfo(name=apkid,
+                                         #arch='',
+                                         #sdk='',
+                                         #dpi='',
+                                         ver=ver,  # Look at only the true version number
+                                         vercode=item['vercode'],
+                                         #scrape_src=''
+                                         )
 
-                # Check for beta support
-                bCheckMore = False
-                if Global.report.needsBetaSupport(avi):
-                    import copy
-                    avibeta = copy.deepcopy(avi)
-                    avibeta.name += '.beta'
-                    needBeta = Global.report.isThisApkNeeded(avibeta)
+                    # Check for beta support
+                    bCheckMore = False
+                    if Global.report.needsBetaSupport(avi):
+                        import copy
+                        avibeta = copy.deepcopy(avi)
+                        avibeta.name += '.beta'
+                        needBeta = Global.report.isThisApkNeeded(avibeta)
 
-                # Do we already have it
-                if Global.report.isThisApkNeeded(avi):
-                    # Get additional info
-                    avi = getApkInfo(repo, apkid, ver,
-                                     options='vercode=' + str(item['vercode']))
-                    if avi:
-                        # Still need it after additional info?
-                        if Global.report.isThisApkNeeded(avi):
-                            downloadApk(avi)
-                    # END: if avi:
-                # END: if isThisApkNeeded
-            # END: for item
+                    # Do we already have it
+                    if Global.report.isThisApkNeeded(avi):
+                        # Get additional info
+                        avi = getApkInfo(repo, apkid, ver,
+                                         options='vercode=' + str(item['vercode']))
+                        if avi:
+                            # Still need it after additional info?
+                            if Global.report.isThisApkNeeded(avi):
+                                downloadApk(avi)
+                        # END: if avi:
+                    # END: if isThisApkNeeded
+                # END: for item
+            # END: if listing length
         # END: if data
         offset += 100
     # END: while
