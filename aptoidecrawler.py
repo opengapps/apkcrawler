@@ -381,6 +381,7 @@ def main(param_list):
              'milaupv',
              'mine-t999',
              'msi8',
+             'mygica',
              'mys3',
              'new-day-apps',
              'nowkin',
