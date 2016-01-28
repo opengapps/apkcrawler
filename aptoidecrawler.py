@@ -60,23 +60,35 @@ def listRepo(repo, orderby=None):
     url       = 'http://webservices.aptoide.com/webservices/listRepository/{0}{1}/json'.format(repo, orderby)
     data      = Debug.readFromFile(file_name)
 
-    try:
-        if data == '':
-            session = requests.Session()
-            # session.proxies = Debug.getProxy()
-            logging.debug('Requesting1: ' + url)
-            resp    = session.get(url)
-            data    = json.loads(resp.text)
-            Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
-                              indent=4, separators=(',', ': ')), resp.encoding)
+    CODES = [200]
 
-        if data['status'] == 'OK':
-            return data
-        else:
-            logging.error(file_name)
-    except:
-        logging.exception('!!! Invalid JSON from: "{0}"'.format(url))
+    if data == '':
+        session = requests.Session()
+        # session.proxies = Debug.getProxy()
 
+        retries = 3
+        while retries > 0:
+            try:
+                logging.debug('Requesting1 ({0}): {1}'.format(retries, url))
+                retries -= 1
+                resp = session.get(url)
+                data = resp.json()
+
+                if resp.status_code in CODES:
+                    if 'status' in data and data['status'] == 'OK':
+                        Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
+                                          indent=4, separators=(',', ': ')), resp.encoding)
+                        return data
+                    else:
+                        logging.error('data1[\'status\']: {0}, retries: {1} - {2}'.format(data.get('status', 'null'),
+                                                                                          retries, file_name))
+                else:
+                    logging.error('HTTPStatus1: {0}, retries: {1} - {2}'.format(resp.status_code,
+                                                                                retries, file_name))
+            except:
+                logging.exception('!!! Invalid JSON from: "{0}"'.format(url))
+       # END: while
+    # END: if data == ''
     return None
 # END: def listRepo
 
@@ -93,32 +105,44 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
                 version, repo, apkid, apkversion, options)
     data      = Debug.readFromFile(file_name)
 
-    try:
-        if data == '':
-            session = requests.Session()
-            # session.proxies = Debug.getProxy()
-            logging.debug('Requesting2: ' + url)
-            resp    = session.get(url)
-            data    = json.loads(resp.text)
-            Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
-                              indent=4, separators=(',', ': ')), resp.encoding)
+    CODES = [200]
 
-        if data['status'] == 'OK':
-            avi = ApkVersionInfo(name    = data['apk']['package'],
-                                 arch    = data['apk'].get('cpu', 'all'),
-                                 sdk     = data['apk']['minSdk'],
-                                 dpi     = doDpiStuff(data['apk'].get('screenCompat', 'nodpi')),
-                                 ver     = data['apk']['vername'].split(' ')[0],  # Look at only the true version number
-                                 vercode = data['apk']['vercode'],
-                                 #scrape_src=''
-                                 )
-            avi.download_src = data['apk']['path']
-            return avi
-        else:
-            logging.error(file_name)
-    except:
-        logging.exception('!!! Invalid JSON from: "{0}"'.format(url))
+    if data == '':
+        session = requests.Session()
+        # session.proxies = Debug.getProxy()
 
+        retries = 3
+        while retries > 0:
+            try:
+                logging.debug('Requesting2 ({0}): {1}'.format(retries, url))
+                retries -= 1
+                resp = session.get(url)
+                data = resp.json()
+
+                if resp.status_code in CODES:
+                    if 'status' in data and data['status'] == 'OK':
+                        avi = ApkVersionInfo(name    = data['apk']['package'],
+                                             arch    = data['apk'].get('cpu', 'all'),
+                                             sdk     = data['apk']['minSdk'],
+                                             dpi     = doDpiStuff(data['apk'].get('screenCompat', 'nodpi')),
+                                             ver     = data['apk']['vername'].split(' ')[0],  # Look at only the true version number
+                                             vercode = data['apk']['vercode'],
+                                             #scrape_src=''
+                                             )
+                        avi.download_src = data['apk']['path']
+                        Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
+                                          indent=4, separators=(',', ': ')), resp.encoding)
+                        return avi
+                    else:
+                        logging.error('data2[\'status\']: {0}, retries: {1} - {2}'.format(data.get('status', 'null'),
+                                                                                          retries, file_name))
+                else:
+                    logging.error('HTTPStatus2: {0}, retries: {1} - {2}'.format(resp.status_code,
+                                                                                retries, file_name))
+            except:
+                logging.exception('!!! Invalid JSON from: "{0}"'.format(url))
+       # END: while
+    # END: if data == ''
     return None
 # END: def getApkInfo
 
@@ -159,6 +183,10 @@ def downloadApk(avi, isBeta=False):
         session = requests.Session()
         session.proxies = Debug.getProxy()
         r = session.get(url)
+
+        if r.status_code == 500:
+            logging.error('HTTP Status 500. Failed to download: ' + apkname)
+            return
 
         with open(apkname, 'wb') as local_file:
             local_file.write(r.content)
