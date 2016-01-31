@@ -414,7 +414,8 @@ def main(param_list):
              'wanky',
              'westcoastandroid',
              'xerodox',
-             'yelbana2']
+             'yelbana2',
+             'zinavivid']
 
     # Start checking all stores ...
     p = multiprocessing.Pool(5)
