@@ -10,3 +10,6 @@
 *.bak
 *~
 *.pyc
+
+#PlayStoreCredentials (those are super secret)
+playstorecrawler.config

@@ -105,7 +105,7 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
 
         if data['status'] == 'OK':
             avi = ApkVersionInfo(name    = data['apk']['package'],
-                                 arch    = data['apk'].get('cpu', 'all')),
+                                 arch    = data['apk'].get('cpu', 'all'),
                                  sdk     = data['apk']['minSdk'],
                                  dpi     = doDpiStuff(data['apk'].get('screenCompat', 'nodpi')),
                                  ver     = data['apk']['vername'].split(' ')[0],  # Look at only the true version number
