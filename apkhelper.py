@@ -16,11 +16,11 @@ class ApkVersionInfo(object):
         self.name         = name
         self.extraname    = None  # used for beta/leanback versions
         self.arch         = arch
-        self.sdk          = sdk
+        self.sdk          = 0 if sdk == '' else int(sdk)
         self.dpi          = dpi
         self.ver          = ver
         self.realver      = None  # used for full versions
-        self.vercode      = vercode
+        self.vercode      = 0 if vercode == '' else  int(vercode)
 
         self.scrape_url   = scrape_url
         self.apk_name     = ''
@@ -30,6 +30,10 @@ class ApkVersionInfo(object):
         if m:
             self.extraname = self.name
             self.name      = m.group('name')
+
+            # Let's keep .beta its own package for now
+            if m.group('extra') == '.beta':
+                self.name = self.extraname
 
         if 'com.google.android.apps.docs' in self.name:
             self.realver = self.ver[-3:]

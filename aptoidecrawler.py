@@ -40,7 +40,9 @@ else:
 ###################
 manager = multiprocessing.Manager()
 Global  = manager.Namespace()
-Global.report = None
+Global.report      = None
+Global.dlFiles     = []
+Global.dlFilesBeta = []
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(sys.argv[0]))
@@ -82,7 +84,7 @@ def listRepo(repo, orderby=None):
 def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
     """
     getApkInfo(repo, apkid, apkversion): Get APK specific information from the Aptoide API
-                                         and return it in JSON form
+                                         and return it as an ApkVersionInfo object
     """
     version   = '1' if doVersion1 else '2'
     file_name = '{0}-{1}-{2}_{3}.json'.format(repo, apkid, apkversion, version)
@@ -102,7 +104,16 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
                               indent=4, separators=(',', ': ')), resp.encoding)
 
         if data['status'] == 'OK':
-            return data
+            avi = ApkVersionInfo(name    = data['apk']['package'],
+                                 arch    = data['apk'].get('cpu', 'all')),
+                                 sdk     = data['apk']['minSdk'],
+                                 dpi     = doDpiStuff(data['apk'].get('screenCompat', 'nodpi')),
+                                 ver     = data['apk']['vername'].split(' ')[0],  # Look at only the true version number
+                                 vercode = data['apk']['vercode'],
+                                 #scrape_url=''
+                                 )
+            avi.download_url = data['apk']['path']
+            return avi
         else:
             logging.error(file_name)
     except:
@@ -112,24 +123,21 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
 # END: def getApkInfo
 
 
-def downloadApk(apkInfo):
+def downloadApk(avi, isBeta=False):
     """
-    downloadApk(apkInfo): Download the specified URL to APK file name
+    downloadApk(avi): Download the specified URL to APK file name
     """
-    url     = apkInfo['path']
+    url = avi.download_url
 
-    cpu     = apkInfo.get('cpu', '')
-    if cpu != '':
-        cpu = '({0})'.format(cpu)
+    cpu = '({0})'.format(avi.arch)
 
-    dpi     = apkInfo.get('screenCompat', '(nodpi)')
-    if dpi != '(nodpi)':
-        dpi = '({0}dpi)'.format(doDpiStuff(dpi, ','))
+    dpi = avi.dpi if avi.dpi != 'nodpi' else 'no'
+    dpi = '({0}dpi)'.format(dpi)
 
-    apkname = '{0}_{1}-{2}_minAPI{3}{4}{5}.apk'.format(apkInfo['package'],
-                                                       apkInfo['vername'].replace(' ', '_'),
-                                                       apkInfo['vercode'],
-                                                       apkInfo['minSdk'],
+    apkname = '{0}_{1}-{2}_minAPI{3}{4}{5}.apk'.format(avi.name.replace('.beta', ''),
+                                                       avi.realver.replace(' ', '_'),
+                                                       avi.vercode,
+                                                       avi.sdk,
                                                        cpu, dpi)
 
     logging.info('Downloading "{0}" from: {1}'.format(apkname,url))
@@ -154,8 +162,15 @@ def downloadApk(apkInfo):
 
         with open(apkname, 'wb') as local_file:
             local_file.write(r.content)
-        print('{0} '.format(apkname)),
-        sys.stdout.flush()
+        if isBeta:
+            Global.dlFilesBeta.append(apkname)
+            logging.debug('beta: ' + ', '.join(Global.dlFilesBeta))
+        else:
+            tmp = Global.dlFiles
+            tmp.append(apkname)
+            Global.dlFiles = tmp
+            # Global.dlFiles.append(apkname)
+            logging.debug('reg : ' + ', '.join(Global.dlFiles))
     except OSError:
         logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
 # END: def downloadApk
@@ -228,21 +243,26 @@ def checkOneStore(repo):
                                      vercode=item['vercode'],
                                      #scrape_url=''
                                      )
+
+                # Check for beta support
+                bCheckMore = False
+                if Global.report.needsBetaSupport(avi):
+                    import copy
+                    avibeta = copy.deepcopy(avi)
+                    avibeta.name += '.beta'
+                    needBeta = Global.report.isThisApkNeeded(avibeta)
+
                 # Do we already have it
                 if Global.report.isThisApkNeeded(avi):
                     # Get additional info
-                    apkInfo = getApkInfo(repo, apkid, ver,
-                                         options='vercode=' + str(item['vercode']))
-                    if apkInfo:
-                        avi.arch = doCpuStuff(apkInfo['apk'].get('cpu', 'all'))
-                        avi.sdk  = int(apkInfo['apk']['minSdk'])
-                        avi.dpi  = doDpiStuff(apkInfo['apk'].get('screenCompat', 'nodpi'))
-
+                    avi = getApkInfo(repo, apkid, ver,
+                                     options='vercode=' + str(item['vercode']))
+                    if avi:
                         # Still need it after additional info?
                         if Global.report.isThisApkNeeded(avi):
-                            downloadApk(apkInfo['apk'])
-                    # END: if apkInfo
-                # END: if item
+                            downloadApk(avi)
+                    # END: if avi:
+                # END: if isThisApkNeeded
             # END: for item
         # END: if data
         offset += 100
@@ -263,6 +283,9 @@ def main(param_list):
 
     Global.report = ReportHelper(lines)
     keys = Global.report.dAllApks.keys()
+
+    Global.dlFiles     = []
+    Global.dlFilesBeta = []
 
     if len(keys) == 0:
         print('ERROR: expecting:')
@@ -357,6 +380,19 @@ def main(param_list):
     p = multiprocessing.Pool(5)
     p.map(checkOneStore, repos)
 
+    logging.debug('Just before outputString creation')
+
+    outputString = ' '.join(Global.dlFiles)
+    if Global.dlFilesBeta:
+        outputString += ' beta ' + ' '.join(Global.dlFilesBeta)
+
+    logging.debug('Just after outputString creation')
+
+    if outputString:
+        print(outputString)
+        sys.stdout.flush()
+
+    logging.debug('Done ...')
 # END: main():
 
 ###################

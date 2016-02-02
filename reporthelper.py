@@ -2,17 +2,18 @@ import re
 import logging
 from apkhelper import ApkVersionInfo
 
-
 class ReportHelper(object):
     """ReportHelper"""
     def __init__(self, lines):
         self.dAllApks      = {}
-        self.processReportSourcesOutput(lines)
         self.maxVerEachApk = {}
-        self.getMaxVersionDict()
         self.minSdkEachApk = {}
-        self.getMinSdkDict()
         self.appsNeeded    = []
+        
+        # Fill member dict and lists
+        self.processReportSourcesOutput(lines)
+        self.getMaxVersionDict()
+        self.getMinSdkDict()
         self.showMissingApks()
     # END: __init__
 
@@ -32,11 +33,6 @@ class ReportHelper(object):
             m = reLine.match(line)
             if m:
                 name = m.group('name').strip()
-
-                # Check if supported and add if it is
-                if name not in self.dAllApks.keys():
-                    self.dAllApks[name] = []
-
                 arch = m.group('arch').strip()
                 sdk  = m.group('sdk').strip()
                 dpi  = m.group('dpi').strip()
@@ -44,7 +40,14 @@ class ReportHelper(object):
                 code = m.group('code').strip()
                 avi  = ApkVersionInfo(name, arch, sdk, dpi, ver, code)
 
-                self.dAllApks[name].append(avi)
+                # Check if supported and add if it is
+                if avi.vercode in [1, 19, 22, 23]:  # Ignore factory image files
+                    continue
+
+                if avi.name not in self.dAllApks.keys():
+                    self.dAllApks[avi.name] = []
+
+                self.dAllApks[avi.name].append(avi)
             # END: if m:
         # END: for line
     # END: def processReportSourcesOutput
@@ -86,7 +89,7 @@ class ReportHelper(object):
         for k in sorted(self.dAllApks.keys()):
             if k not in self.minSdkEachApk:
                 minSdk = min(int(apk.sdk) for apk in self.dAllApks[k])
-                minSdk = min(minSdk, 19)  # We suport down to 19
+                minSdk = min(minSdk, 19)  # We support down to 19
                 self.minSdkEachApk[k] = minSdk
             # END: if not k
 
@@ -100,13 +103,13 @@ class ReportHelper(object):
         """
         self.appsNeeded = []
 
+        # NOTE: This code currently only shows older apks (that need updating).
+        #       @mfonville has another scheme based up vercode rules for each
+        #       apkid that would be more complete
         for k in self.dAllApks.keys():
             thisappsneeded = []
             for a in self.dAllApks[k]:
                 maxApk = ApkVersionInfo(ver = self.maxVerEachApk[k])
-                if '2280749' in maxApk.ver:  # This excludes 'from factor image' apks
-                    maxApk.ver = '0'
-                    thisappsneeded = []
                 if a.ver < maxApk.ver:
                     logging.debug('{0}: {1} < maxApk.ver: {2}'.format(k, a.ver, maxApk.ver))
                     thisappsneeded.append(a.fullString(self.maxVerEachApk[k]))
@@ -129,7 +132,7 @@ class ReportHelper(object):
             return False
 
         # Do we have the requested vercode already?
-        if avi.vercode != '':
+        if avi.vercode != 0:
             if filter(lambda apk: apk.vercode == avi.vercode, self.dAllApks[avi.name]):
                 return False
 
@@ -140,11 +143,36 @@ class ReportHelper(object):
                 return False
 
         # Is it < minSdk?
-        if avi.sdk != '':
+        if avi.sdk != 0:
             if avi.sdk < self.minSdkEachApk[avi.name]:
                 logging.debug('SdkTooLow: {0}({1})'.format(avi.name, avi.sdk))
                 return False
 
+        # Are we dealing with a app that has beta support?
+        #   Examples: WebView, GoogleApp
+        if self.needsBetaSupport(avi): 
+            # TODO: Needs more thought (?)
+            if not avi.name.endswith('.beta'):  # Make sure we don't promote a beta app to non-beta
+                # Do we have the requested vercode (in beta) already?
+                if avi.vercode != '':
+                    if filter(lambda apk: apk.vercode == avi.vercode, self.dAllApks[avi.name + '.beta']):
+                        return False
+
+                # Is it >= maxVersion (for beta)?
+                if avi.ver != '':
+                    maxApkInfo = ApkVersionInfo(name=avi.name, ver=self.maxVerEachApk[avi.name + '.beta'])
+                    if avi >= maxApkInfo:
+                        return False
+
+        # END: if self.needsBetaSupport(avi): 
+
         return True
     # END: def isThisApkNeeded():
+
+    def needsBetaSupport(self, avi):
+        """
+        def needsBetaSupport(): Returns True if beta support is needed, else False
+        """
+        return (avi.name.endswith('.beta') or avi.name + '.beta' in self.dAllApks)
+    # END: def needsBetaSupport(self, avi):
 # END: class ReportHelper
