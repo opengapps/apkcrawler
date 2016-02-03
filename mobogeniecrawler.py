@@ -44,7 +44,7 @@ Global  = manager.Namespace()
 Global.report = None
 
 # logging
-logFile   = '{0}.log'.format(os.path.basename(sys.argv[0]))
+logFile   = '{0}.log'.format(os.path.basename(__file__))
 logLevel  = (logging.DEBUG if Debug.DEBUG else logging.INFO)
 logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
