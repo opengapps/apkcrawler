@@ -19,7 +19,7 @@ class ApkVersionInfo(object):
         self.sdk          = 0 if sdk == '' else int(sdk)
         self.dpi          = dpi
         self.ver          = ver
-        self.realver      = None  # used for full versions
+        self.realver      = ver  # used for full versions #TODO temporary hack by mfonville so that this value is not None for "replace"
         self.vercode      = 0 if vercode == '' else  int(vercode)
 
         self.scrape_url   = scrape_url
