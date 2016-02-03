@@ -110,9 +110,9 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
                                  dpi     = doDpiStuff(data['apk'].get('screenCompat', 'nodpi')),
                                  ver     = data['apk']['vername'].split(' ')[0],  # Look at only the true version number
                                  vercode = data['apk']['vercode'],
-                                 #scrape_url=''
+                                 #scrape_src=''
                                  )
-            avi.download_url = data['apk']['path']
+            avi.download_src = data['apk']['path']
             return avi
         else:
             logging.error(file_name)
@@ -125,9 +125,9 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
 
 def downloadApk(avi, isBeta=False):
     """
-    downloadApk(avi): Download the specified URL to APK file name
+    downloadApk(avi, isBeta): Download the specified ApkInfo from Aptoide to APK file name
     """
-    url = avi.download_url
+    url = avi.download_src
 
     cpu = '({0})'.format(avi.arch)
 
@@ -241,7 +241,7 @@ def checkOneStore(repo):
                                      #dpi='',
                                      ver=ver,  # Look at only the true version number
                                      vercode=item['vercode'],
-                                     #scrape_url=''
+                                     #scrape_src=''
                                      )
 
                 # Check for beta support

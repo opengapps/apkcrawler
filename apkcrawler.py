@@ -181,7 +181,7 @@ def downloadApkFromVersionInfo(apkVersionInfo):
 
         # Open the url
         session = requests.Session()
-        r = session.get(apkVersionInfo.download_url)
+        r = session.get(apkVersionInfo.download_src)
 
         with open(apkVersionInfo.apk_name, 'wb') as local_file:
             local_file.write(r.content)
@@ -196,9 +196,9 @@ def getVersionInfo(apkVersionInfo):
     """
     getVersionInfo(apkVersionInfo): Determines each versions information
     """
-    html_name = apkVersionInfo.scrape_url.rsplit('/', 2)[1]
+    html_name = apkVersionInfo.scrape_src.rsplit('/', 2)[1]
     html_name = html_name.replace('-android-apk-download', '') + '.html'
-    url       = APKMIRRORBASEURL + apkVersionInfo.scrape_url
+    url       = APKMIRRORBASEURL + apkVersionInfo.scrape_src
     html      = Debug.readFromFile(html_name)
 
     if html == '':
@@ -214,7 +214,7 @@ def getVersionInfo(apkVersionInfo):
         dl_button = postArea.findAll('a', {'type': 'button'})[1]
         blueFonts = postArea.findAll('span', {'class': 'fontBlue'})
 
-        apkVersionInfo.download_url = dl_button['href']
+        apkVersionInfo.download_src = dl_button['href']
 
         for blueFont in blueFonts:
             if blueFont.get_text() == 'File name: ':
@@ -273,7 +273,7 @@ def getAppVersions(apkInfo):
                                          ver=m.group('VERNAME'),
                                          vercode=int(m.group('VERCODE')),
                                          sdk=int(m.group('SDK')),
-                                         scrape_url=verName['href'])
+                                         scrape_src=verName['href'])
                     apkInfo.versions.append(avi)
                 else:
                     logging.info('!!! No Matchy: ' + verText)
@@ -291,12 +291,12 @@ def getAppVersions(apkInfo):
 
             for v in apkInfo.versions:
                 if v.ver == maxVersionByVerCode:
-                    logging.info('Getting Info for: "{0}" ({1})'.format(v.name, v.scrape_url))
+                    logging.info('Getting Info for: "{0}" ({1})'.format(v.name, v.scrape_src))
                     getVersionInfo(v)
                     logging.info('Downloading: "{0}"'.format(v.apk_name))
                     downloadApkFromVersionInfo(v)
                 else:
-                    logging.debug('Skipping: "{0}" ({1})'.format(v.name, v.scrape_url))
+                    logging.debug('Skipping: "{0}" ({1})'.format(v.name, v.scrape_src))
             # END: for v in apkInfo.versions:
         else:
             logging.info('No matching APKs found for: {0}'.format(apkInfo.apkmirror_name))

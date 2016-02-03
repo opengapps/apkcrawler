@@ -87,7 +87,7 @@ def downloadApk(apkInfo):
                                                  apkInfo.vercode,
                                                  apkInfo.sdk)
 
-    url     = getUrlFromRedirect(apkname, apkInfo.download_url)
+    url     = getUrlFromRedirect(apkname, apkInfo.download_src)
     if url == '':
         logging.error('Unable to determine redirect url for ' + apkname)
         return
@@ -170,9 +170,9 @@ def checkOneApp(apkid):
                                      #dpi='',
                                      ver=ver,
                                      vercode=vercode,
-                                     #scrape_url=''
+                                     #scrape_src=''
                                      )
-                avi.download_url = dApk['url']
+                avi.download_src = dApk['url']
 
                 if Global.report.isThisApkNeeded(avi):
                     downloadApk(avi)

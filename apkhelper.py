@@ -4,7 +4,7 @@ import re
 
 class ApkVersionInfo(object):
     """ApkVersionInfo"""
-    def __init__(self, name='', arch='', sdk='', dpi='', ver='', vercode='', scrape_url=''):
+    def __init__(self, name='', arch='', sdk='', dpi='', ver='', vercode='', scrape_src=''):
         super(ApkVersionInfo, self).__init__()
 
         sName  = '^(?P<name>.*)(?P<extra>\.(leanback|beta))$'
@@ -22,9 +22,9 @@ class ApkVersionInfo(object):
         self.realver      = ver  # used for full versions #TODO temporary hack by mfonville so that this value is not None for "replace"
         self.vercode      = 0 if vercode == '' else  int(vercode)
 
-        self.scrape_url   = scrape_url
+        self.scrape_src   = scrape_src
         self.apk_name     = ''
-        self.download_url = ''
+        self.download_src = ''
 
         m = reName.match(self.name)
         if m:

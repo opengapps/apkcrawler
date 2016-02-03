@@ -115,7 +115,7 @@ def checkOneApp(apkid):
                              #dpi='',
                              ver=item['version'].split(' ')[0],
                              vercode=item['versionCode'],
-                             #scrape_url=''
+                             #scrape_src=''
                              )
 
         if Global.report.isThisApkNeeded(avi):
