@@ -6,7 +6,7 @@ import logging
 import multiprocessing
 import time
 
-from googleplay import GooglePlayAPI
+from googleplayapi.googleplay import GooglePlayAPI
 
 from debug import Debug
 from apkhelper import ApkVersionInfo
