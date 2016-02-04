@@ -3,6 +3,7 @@
 import base64
 import json
 import gzip
+import logging
 import pprint
 import StringIO
 import requests
@@ -56,11 +57,10 @@ class GooglePlayAPI(object):
     # HTTP_PROXY = "http://81.137.100.158"
 
 
-    def __init__(self, androidId, lang, debug=False): # you must use a device-associated androidId value
+    def __init__(self, androidId, lang): # you must use a device-associated androidId value
         self.preFetch = {}
         self.androidId = androidId
         self.lang = lang
-        self.debug = debug
         # self.proxy_dict = {
         #         "http"  : "http://81.137.100.158:8080",
         #         "https" : "http://81.137.100.158:8080",
@@ -105,50 +105,56 @@ class GooglePlayAPI(object):
 
     def setAuthSubToken(self, authSubToken):
         self.authSubToken = authSubToken
-
-        # put your auth token in config.py to avoid multiple logins
-        if self.debug:
-            print "authSubToken: " + authSubToken
+        #print "authSubToken: " + authSubToken
 
     def login(self, email=None, password=None, authSubToken=None, proxy=None):
         """Login to your Google Account. You must provide either:
         - an email and password
         - a valid Google authSubToken"""
+        ret = False
         if (authSubToken is not None):
             self.setAuthSubToken(authSubToken)
+            logging.debug('Logged in with {0} using authSubToken: {1}'.format(self.androidId,authSubToken))
+            ret = True #TODO is not tested if it really works, silent assumption at the moment. Needs to e.g. try to fetch the auth-page too to verify and return a valid value
         else:
             if (email is None or password is None):
-                raise Exception("You should provide at least authSubToken or (email and password)")
-            params = {"Email": email,
-                                "Passwd": password,
-                                "service": self.SERVICE,
-                                "accountType": self.ACCOUNT_TYPE_HOSTED_OR_GOOGLE,
-                                "has_permission": "1",
-                                "source": "android",
-                                "androidId": self.androidId,
-                                "app": "com.android.vending",
-                                #"client_sig": self.client_sig,
-                                "device_country": "us",
-                                "operatorCountry": "us",
-                                "lang": "us",
-                                "sdk_version": "22"} #TODO make sdk_version flexible
-            headers = {
-                "Accept-Encoding": "",
-            }
-            self.proxy_dict = proxy
-            response = requests.post(self.URL_LOGIN, data=params, headers=headers, proxies=proxy, verify=False)
-            data = response.text.split()
-            params = {}
-            for d in data:
-                if not "=" in d: continue
-                k, v = d.split("=")
-                params[k.strip().lower()] = v.strip()
-            if "auth" in params:
-                self.setAuthSubToken(params["auth"])
-            elif "error" in params:
-                raise LoginError("server says: " + params["error"])
+                logging.error('Need a authSubToken or (email and password) for {0}'.format(self.androidId))
             else:
-                raise LoginError("Auth token not found.")
+                params = {"Email": email,
+                                    "Passwd": password,
+                                    "service": self.SERVICE,
+                                    "accountType": self.ACCOUNT_TYPE_HOSTED_OR_GOOGLE,
+                                    "has_permission": "1",
+                                    "source": "android",
+                                    "androidId": self.androidId,
+                                    "app": "com.android.vending",
+                                    #"client_sig": self.client_sig,
+                                    "device_country": "us",
+                                    "operatorCountry": "us",
+                                    "lang": "us",
+                                    "sdk_version": "22"} #TODO make sdk_version flexible
+                headers = {
+                    "Accept-Encoding": "",
+                }
+                self.proxy_dict = proxy
+                response = requests.post(self.URL_LOGIN, data=params, headers=headers, proxies=proxy, verify=False)
+                if response.status_code != 200:
+                    logging.error('Play Store login failed for {0}: {1}'.format(self.androidId,response.content))
+                else:
+                    data = response.text.split()
+                    params = {}
+                    for d in data:
+                        if not "=" in d: continue
+                        k, v = d.split("=")
+                        params[k.strip().lower()] = v.strip()
+                    if "auth" in params:
+                        self.setAuthSubToken(params["auth"])
+                        ret = True
+                    elif "error" in params:
+                        logging.error('Play Store login error for {0}: {1}'.format(self.androidId,params["error"]))
+                    else:
+                        logging.error('Play Store returned no auth token for {0}'.format(self.androidId))
+        return ret
 
     def executeRequestApi2(self, path, datapost=None, post_content_type="application/x-www-form-urlencoded; charset=UTF-8"):
         if (datapost is None and path in self.preFetch):

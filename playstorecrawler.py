@@ -104,6 +104,7 @@ def getApkInfo(playstore, apkid):
                                      vercode = res.body.docV2.details.appDetails.versionCode,
                                      )
                 avi.download_src = playstore
+                logging.debug('Found Play Store entry {0} {1}-{2}'.format(avi.name,avi.ver,avi.vercode))
                 return avi
             else:
                 logging.info('Play Store entry {0} using {1} is incompatible with the AndroidId\'s device'.format(apkid,playstore.androidId))
@@ -122,25 +123,28 @@ def getApkInfo(playstore, apkid):
     # END: for x in xrange(3)
 # END: def getApkInfo
 
-def checkPlayStore(credentials, lang="en_US", debug=False):
+def checkPlayStore(credentials, lang="en_US"):
     """
     checkPlayStore(androidId):
     """
     logging.debug('Logging in to Play Store with: ' + credentials.androidId)
-    playstore = GooglePlayAPI(credentials.androidId,lang,debug)
-    playstore.login(credentials.email,credentials.password,credentials.authSubToken)
-    for apkid in Global.report.dAllApks.keys():
-        avi = getApkInfo(playstore, apkid)
-        if avi:
-            if Global.report.isThisApkNeeded(avi):
-                logging.debug('Update {0} {1} ({2})'.format(avi.name,avi.ver,avi.vercode))
-                downloadApk(avi)
-            else:
-                logging.debug('Skip {0} {1} ({2})'.format(avi.name,avi.ver,avi.vercode))
-        #else:
-            #logging.debug('No Play Store results for {0}'.format(apkid))
-        # END: if avi
-    # END: for apkid in Global.report.dAllApks.keys()
+    playstore = GooglePlayAPI(credentials.androidId,lang)
+    if playstore.login(credentials.email,credentials.password,credentials.authSubToken):
+        for apkid in Global.report.dAllApks.keys():
+            avi = getApkInfo(playstore, apkid)
+            if avi:
+                if Global.report.isThisApkNeeded(avi):
+                    logging.debug('Update {0} {1}-{2}'.format(avi.name,avi.ver,avi.vercode))
+                    downloadApk(avi)
+                else:
+                    logging.debug('Skip {0} {1}-{2}'.format(avi.name,avi.ver,avi.vercode))
+            #else:
+                #logging.debug('No Play Store result for {0}'.format(apkid))
+            # END: if avi
+        # END: for apkid in Global.report.dAllApks.keys()
+    else:
+        logging.error('Play Store login failed for {0}'.format(credentials.androidId))
+    # END: if playstore.login()
 # END: def checkPlayStore
 
 def downloadApk(avi, isBeta=False):
@@ -215,7 +219,7 @@ def getCredentials():
                 if line:
                     try:
                         (androidId, email, password, authSubToken) = line.strip().split(',')
-                        logging.info('Adding credentials for: ' + androidId)
+                        logging.info('Found credentials for: ' + androidId)
                         credentials.append(PlayStoreCredentials(androidId, email, password, authSubToken))
                     except:
                         exit('Malformed line in Credentials file') #TODO make more nice logging + exit call
