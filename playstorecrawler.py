@@ -4,6 +4,7 @@ import sys
 import os
 import logging
 import multiprocessing
+import random
 import time
 
 from googleplayapi.googleplay import GooglePlayAPI
@@ -31,9 +32,13 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning) #suppress cer
 
 class PlayStoreCredentials(object):
     """PlayStoreCredentials"""
-    def __init__(self, androidId, email=None, password=None, authSubToken=None):
+    def __init__(self, androidId, delay=60, email=None, password=None, authSubToken=None):
         super(PlayStoreCredentials, self).__init__()
         self.androidId = androidId.strip()
+        if delay:
+            self.delay = int(delay)
+        else:
+            self.delay = 60
         if email:
             self.email = email.strip()
         else:
@@ -90,7 +95,7 @@ logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 # Functions       #
 ###################
 
-def getApkInfo(playstore, apkid):
+def getApkInfo(playstore, apkid, delay):
     """
     getApkInfo(playstore, apkid): Get APK specific information from the Play Store
                                          and return it as an ApkVersionInfo object
@@ -111,8 +116,9 @@ def getApkInfo(playstore, apkid):
         elif res.status_code == 404:
             logging.debug('No Play Store entry {0} using {1}'.format(apkid,playstore.androidId))
         elif res.status_code == 503:
-            logging.info('Too many sequential requests on the Play Store (503) using {0} for: {1}, waiting {2} seconds'.format(playstore.androidId,apkid,x*10))
-            time.sleep(x*10) # wait longer with each failed try
+            wait = delay*x
+            logging.info('Too many sequential requests on the Play Store (503) using {0} for: {1}, waiting {2} seconds'.format(playstore.androidId,apkid,wait))
+            time.sleep(wait) # wait longer with each failed try
             continue
         else:
             logging.error('Play Store entry {0} using {1} returned unknown HTTP status {2}'.format(apkid,playstore.androidId,res.status_code))
@@ -131,11 +137,14 @@ def checkPlayStore(credentials, lang="en_US"):
     playstore = GooglePlayAPI(credentials.androidId,lang)
     if playstore.login(credentials.email,credentials.password,credentials.authSubToken):
         for apkid in Global.report.dAllApks.keys():
-            avi = getApkInfo(playstore, apkid)
+            wait = credentials.delay+random.randint(0, credentials.delay)
+            logging.info('Pausing {0} before searching for: {1}, waiting {2} seconds'.format(playstore.androidId,apkid,wait))
+            time.sleep(wait)
+            avi = getApkInfo(playstore, apkid, credentials.delay)
             if avi:
                 if Global.report.isThisApkNeeded(avi):
                     logging.debug('Update {0} {1}-{2}'.format(avi.name,avi.ver,avi.vercode))
-                    downloadApk(avi)
+                    downloadApk(avi, delay)
                 else:
                     logging.debug('Skip {0} {1}-{2}'.format(avi.name,avi.ver,avi.vercode))
             #else:
@@ -170,15 +179,15 @@ def downloadApk(avi, isBeta=False):
             logging.info('Downloaded APK already exists (in ../apkcrawler/).')
             return
 
-
         for x in xrange(1,4): #up to three tries
             res = avi.download_src.download(avi.name, avi.vercode, Global.offerType)
             if res.body:
                 with open(apkname, 'wb') as local_file:
                     local_file.write(res.body)
             elif res.status_code == 503:
-                logging.info('Too many sequential requests for Play Store (503) using {0} for: {1}, waiting {2} seconds'.format(avi.download_src.androidId,avi.name,x*10))
-                time.sleep(x*10) # wait longer with each failed try
+                wait = delay*x
+                logging.info('Too many sequential requests on the Play Store (503) using {0} for: {1}, waiting {2} seconds'.format(avi.download_src.androidId,avi.name,wait))
+                time.sleep(wait) # wait longer with each failed try
                 continue
             elif res.status_code == 403:
                 logging.error('Play Store download of {0} using {1} is forbidden (403)'.format(apkname,avi.download_src.androidId))
@@ -218,9 +227,9 @@ def getCredentials():
                 line = line.partition('#')[0]
                 if line:
                     try:
-                        (androidId, email, password, authSubToken) = line.strip().split(',')
+                        (androidId, delay, email, password, authSubToken) = line.strip().split(',')
                         logging.info('Found credentials for: ' + androidId)
-                        credentials.append(PlayStoreCredentials(androidId, email, password, authSubToken))
+                        credentials.append(PlayStoreCredentials(androidId, delay, email, password, authSubToken))
                     except:
                         exit('Malformed line in Credentials file') #TODO make more nice logging + exit call
     else:
