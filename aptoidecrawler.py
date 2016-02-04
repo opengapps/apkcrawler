@@ -328,7 +328,8 @@ def main(param_list):
         print(' - stdin from report_sources.sh')
         return
 
-    repos = ['albrtkmxxo',
+    repos = ['abdallah23',
+             'albrtkmxxo',
              'android777',
              'apk-s',
              'aplicaciones-ceibal',
