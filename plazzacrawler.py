@@ -15,6 +15,7 @@ import multiprocessing
 
 from bs4 import BeautifulSoup
 import unicodedata
+import httplib
 
 from debug import Debug
 from apkhelper import ApkVersionInfo
@@ -114,37 +115,36 @@ def checkOneApp(apkid):
         session = requests.Session()
         session.proxies = Debug.getProxy()
         logging.debug('Requesting: ' + url)
-        resp    = session.get(url)
-        html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
-        Debug.writeToFile(html_name, html, resp.encoding)
+        resp    = session.get(url,allow_redirects=False) #we get a 302 if application is not found
+        if resp.status_code == httplib.OK:
+            html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
+            Debug.writeToFile(html_name, html, resp.encoding)
 
-    try:
-        dom       = BeautifulSoup(html, 'html5lib')
-        latesthref = dom.find('a', {'itemprop': 'downloadUrl'})['href']
-        latestver = dom.find('div', {'itemprop': 'softwareVersion'}).contents[0] #we need to get rid of the unicode in python2
-        appid     = re.search('(^\/dl\/)([0-9]+)(\/1$)', latesthref).group(2)
-        latesturl = session.head('http://www.plazza.ir' + latesthref,allow_redirects=True).url
-        #latestvercode = re.search('(_)([0-9]+)(\.apk)$', latesturl).group(2) #apparently this is NOT a (reliable?) versioncode
-        avi = ApkVersionInfo(name=apkid,
-                             ver=latestver,
-                             #vercode=latestvercode,
-                             download_src=latesturl
-                             )
-        if Global.report.isThisApkNeeded(avi):
-            downloadApk(avi)
+            try:
+                dom       = BeautifulSoup(html, 'html5lib')
+                latesthref = dom.find('a', {'itemprop': 'downloadUrl'})['href']
+                latestver = dom.find('div', {'itemprop': 'softwareVersion'}).contents[0]
+                appid     = re.search('(^\/dl\/)([0-9]+)(\/1$)', latesthref).group(2)
+                latesturl = session.head('http://www.plazza.ir' + latesthref,allow_redirects=True).url
+                #latestvercode = re.search('(_)([0-9]+)(\.apk)$', latesturl).group(2) #apparently this is NOT a (reliable?) versioncode
+                avi = ApkVersionInfo(name=apkid,
+                                     ver=latestver,
+                                     #vercode=latestvercode,
+                                     download_src=latesturl
+                                     )
+                if Global.report.isThisApkNeeded(avi):
+                    downloadApk(avi)
 
-        #Fetching of older versions is not completed, because it requires VIP accounts
-        #olderapks = dom.find('div', {'style': 'direction: rtl'}).findAll('a', {'target': '_blank'})
-        #for apk in olderapks:
-        #    apkver = re.search('(\/)([0-9]+)(\?.*$|$)', apk['href']).group(2) #number is either end of string or there can be an ? for extra GET parameters
-        #    apkurl = session.head('http://www.plazza.ir/dl_version/' + appid + '/' + apkver + '/1',allow_redirects=True).url
+                #Fetching of older versions is not completed, because it requires VIP accounts
+                #olderapks = dom.find('div', {'style': 'direction: rtl'}).findAll('a', {'target': '_blank'})
+                #for apk in olderapks:
+                #    apkver = re.search('(\/)([0-9]+)(\?.*$|$)', apk['href']).group(2) #number is either end of string or there can be an ? for extra GET parameters
+                #    apkurl = session.head('http://www.plazza.ir/dl_version/' + appid + '/' + apkver + '/1',allow_redirects=True).url
 
-    except AttributeError:
-        logging.info('{0} has an invalid version in the download URL'.format(apkid))
-    except IndexError:
-        logging.info('{0} not supported by plazza.ir'.format(apkid))
-    except:
-        logging.exception('!!! Error parsing html from: "{0}"'.format(url))
+            except:
+                logging.exception('!!! Error parsing html from: "{0}"'.format(url))
+        else:
+            logging.info('{0} not available on plazza.ir'.format(apkid))
 
 # END: def checkOneApp:
 

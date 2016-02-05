@@ -51,7 +51,7 @@ class ApkVersionInfo(object):
                                                 self.arch,
                                                 self.sdk,
                                                 self.dpi,
-                                                mymax
+                                                mymax,
                                                 self.vercode )
 
     def __lt__(self, other):
