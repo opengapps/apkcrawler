@@ -9,6 +9,8 @@
 #Temporary editor files
 *.bak
 *~
+
+#Python bytecode
 *.pyc
 
 #PlayStoreCredentials (those are super secret)
