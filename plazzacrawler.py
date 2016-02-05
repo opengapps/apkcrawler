@@ -45,6 +45,8 @@ else:
 manager = multiprocessing.Manager()
 Global  = manager.Namespace()
 Global.report = None
+Global.dlFiles     = []
+Global.dlFilesBeta = []
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(__file__))
@@ -52,14 +54,14 @@ logLevel  = (logging.DEBUG if Debug.DEBUG else logging.INFO)
 logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
 
-def downloadApk(url,package,vercode):
+def downloadApk(avi, isBeta=False):
     """
     downloadApk(apkInfo): Download the specified URL to APK file name
     """
-    apkname = '{0}-{1}.apk'.format(package,
-                                   vercode)
+    apkname = '{0}-{1}.apk'.format(avi.name.replace('.beta', ''),
+                                   avi.realver.replace(' ', '_'))
 
-    logging.info('Downloading "{0}" from: {1}'.format(apkname,url))
+    logging.info('Downloading "{0}" from: {1}'.format(apkname,avi.download_src))
 
     try:
         if os.path.exists(apkname):
@@ -78,13 +80,21 @@ def downloadApk(url,package,vercode):
         session = requests.Session()
         session.proxies = Debug.getProxy()
 
-        r = session.get(url,stream=True)
+        r = session.get(avi.download_src,stream=True) #plazza blocks fetching it at one go, we need to stream it in chunks
         with open(apkname, 'wb') as local_file:
             for chunk in r.iter_content(1024):
                 local_file.write(chunk)
-
-        print('{0} '.format(apkname)),
-        sys.stdout.flush()
+        if isBeta:
+            Global.dlFilesBeta.append(apkname)
+            logging.debug('beta: ' + ', '.join(Global.dlFilesBeta))
+        else:
+            tmp = Global.dlFiles
+            tmp.append(apkname)
+            Global.dlFiles = tmp
+            # Global.dlFiles.append(apkname)
+            logging.debug('reg : ' + ', '.join(Global.dlFiles))
+    except OSError:
+        logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
     except OSError:
         logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
 # END: def downloadApk
@@ -110,24 +120,29 @@ def checkOneApp(apkid):
 
     try:
         dom       = BeautifulSoup(html, 'html5lib')
-        latestapk = dom.findAll('a', {'itemprop': 'downloadUrl'})[0]
-        appid     = re.search('(^\/dl\/)([0-9]+)(\/1$)', latestapk['href']).group(2)
-        latesturl = session.head('http://www.plazza.ir' + latestapk['href'],allow_redirects=True).url
-        latestver = re.search('(_)([0-9]+)(\.apk)$', latesturl).group(2)
-
-        #We still miss versioncode comparison here
-        downloadApk(latesturl,apkid,latestver)
+        latesthref = dom.find('a', {'itemprop': 'downloadUrl'})['href']
+        latestver = dom.find('div', {'itemprop': 'softwareVersion'}).contents[0] #we need to get rid of the unicode in python2
+        appid     = re.search('(^\/dl\/)([0-9]+)(\/1$)', latesthref).group(2)
+        latesturl = session.head('http://www.plazza.ir' + latesthref,allow_redirects=True).url
+        #latestvercode = re.search('(_)([0-9]+)(\.apk)$', latesturl).group(2) #apparently this is NOT a (reliable?) versioncode
+        avi = ApkVersionInfo(name=apkid,
+                             ver=latestver,
+                             #vercode=latestvercode,
+                             download_src=latesturl
+                             )
+        if Global.report.isThisApkNeeded(avi):
+            downloadApk(avi)
 
         #Fetching of older versions is not completed, because it requires VIP accounts
-        #olderapks = dom.findAll('div', {'style': 'direction: rtl'})[0].findAll('a', {'target': '_blank'})
+        #olderapks = dom.find('div', {'style': 'direction: rtl'}).findAll('a', {'target': '_blank'})
         #for apk in olderapks:
         #    apkver = re.search('(\/)([0-9]+)(\?.*$|$)', apk['href']).group(2) #number is either end of string or there can be an ? for extra GET parameters
         #    apkurl = session.head('http://www.plazza.ir/dl_version/' + appid + '/' + apkver + '/1',allow_redirects=True).url
 
     except AttributeError:
-        logging.info('{0} has an invalid version in the download URL ...'.format(apkid))
+        logging.info('{0} has an invalid version in the download URL'.format(apkid))
     except IndexError:
-        logging.info('{0} not supported by plazza.ir ...'.format(apkid))
+        logging.info('{0} not supported by plazza.ir'.format(apkid))
     except:
         logging.exception('!!! Error parsing html from: "{0}"'.format(url))
 
@@ -156,8 +171,22 @@ def main(param_list):
         return
 
     # Start checking all apkids ...
-    p = multiprocessing.Pool(5)
+    p = multiprocessing.Pool(3) #lower pool, those servers are less well routed from most of the globe
     p.map(checkOneApp, keys)
+
+    logging.debug('Just before outputString creation')
+
+    outputString = ' '.join(Global.dlFiles)
+    if Global.dlFilesBeta:
+        outputString += ' beta ' + ' '.join(Global.dlFilesBeta)
+
+    logging.debug('Just after outputString creation')
+
+    if outputString:
+        print(outputString)
+        sys.stdout.flush()
+
+    logging.debug('Done ...')
 
 # END: main():
 
