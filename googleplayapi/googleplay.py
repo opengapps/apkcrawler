@@ -171,6 +171,8 @@ class GooglePlayAPI(object):
                                     # "User-Agent": "Android-Finsky/4.4.3 (api=3,versionCode=8016014,sdk=22,device=GT-I9300,hardware=aries,product=GT-I9300)",
                                     # "User-Agent": "Android-Finsky/4.4.3 (api=3,versionCode=8016014,sdk=22,device=hammerhead,hardware=hammerhead,product=hammerhead)",
                                     # "User-Agent": "Android-Finsky/3.7.13 (api=3,versionCode=8013013,sdk=22,device=crespo,hardware=herring,product=soju)",
+                                    # "User-Agent": "Android-Finsky/4.3.11 (api=3,versionCode=80230011,sdk=17,device=toro,hardware=tuna,product=mysid)",
+                                    # "User-Agent": "Android-Finsky/4.6.17 (api=3,versionCode=80260017,sdk=19,device=hammerhead,hardware=hammerhead,product=hammerhead)",
                                     # "X-DFE-SmallestScreenWidthDp": "335",
                                     "User-Agent": "Android-Finsky/5.4.12 (api=3,versionCode=80341200,sdk=17,device=tf101,hardware=ventana,product=US_epad,platformVersionRelease=4.2.1,model=Transformer,isWideScreen=0)",
                                     "X-DFE-SmallestScreenWidthDp": "320",
@@ -322,6 +324,8 @@ class GooglePlayAPI(object):
             }
 
             headers = {
+                       # "User-Agent" : "AndroidDownloadManager/4.2.2 (Linux; U; Android 4.2.2; Galaxy Nexus Build/JDQ39)",
+                       # "User-Agent" : "AndroidDownloadManager/4.4.2 (Linux; U; Android 4.4.2; Nexus 5 Build/KOT49H)",
                        "User-Agent" : "AndroidDownloadManager/4.1.1 (Linux; U; Android 4.1.1; Nexus S Build/JRO03E)",
                        "Accept-Encoding": "",
                       }
