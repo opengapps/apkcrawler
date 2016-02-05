@@ -1,11 +1,12 @@
 #!/usr/bin/python
+#from __future__ import unicode_literals
 
 import base64
 import json
 import gzip
 import logging
 import pprint
-import StringIO
+import StringIO #remove in python3
 import requests
 
 from google.protobuf import descriptor
