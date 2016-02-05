@@ -231,9 +231,9 @@ def getCredentials():
                         logging.info('Found credentials for: ' + androidId)
                         credentials.append(PlayStoreCredentials(androidId, delay, email, password, authSubToken))
                     except:
-                        exit('Malformed line in Credentials file') #TODO make more nice logging + exit call
+                        raise StandardError('Malformed line in Credentials file')
     else:
-        exit('Credentials file does not exist ({0})'.format(credentialsfile)) #TODO make more nice logging + exit call
+        raise StandardError('Credentials file {0} does not exist'.format(credentialsfile))
     return credentials
 # END: def getCredentials
 
