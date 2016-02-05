@@ -7,6 +7,8 @@ import multiprocessing
 import random
 import time
 
+import httplib #renamed to http.client in python3
+
 from googleplayapi.googleplay import GooglePlayAPI
 
 from debug import Debug
@@ -113,9 +115,9 @@ def getApkInfo(playstore, apkid, delay):
                 return avi
             else:
                 logging.info('Play Store entry {0} using {1} is incompatible with the AndroidId\'s device'.format(apkid,playstore.androidId))
-        elif res.status_code == 404:
+        elif res.status_code == httplib.NOT_FOUND:
             logging.debug('No Play Store entry {0} using {1}'.format(apkid,playstore.androidId))
-        elif res.status_code == 503:
+        elif res.status_code == httplib.SERVICE_UNAVAILABLE:
             wait = delay*x
             logging.info('Too many sequential requests on the Play Store (503) using {0} for: {1}, waiting {2} seconds'.format(playstore.androidId,apkid,wait))
             time.sleep(wait) # wait longer with each failed try
@@ -126,7 +128,7 @@ def getApkInfo(playstore, apkid, delay):
     else:
         logging.error('Play Store entry {0} using {1} failed with repetitive 503 errors'.format(apkid,playstore.androidId))
         return None #Kept receiving 503, return empty
-    # END: for x in xrange(3)
+    # END: for x
 # END: def getApkInfo
 
 def checkPlayStore(credentials, lang="en_US"):
@@ -184,18 +186,19 @@ def downloadApk(avi, isBeta=False):
             if res.body:
                 with open(apkname, 'wb') as local_file:
                     local_file.write(res.body)
-            elif res.status_code == 503:
+            elif res.status_code == httplib.SERVICE_UNAVAILABLE:
                 wait = delay*x
                 logging.info('Too many sequential requests on the Play Store (503) using {0} for: {1}, waiting {2} seconds'.format(avi.download_src.androidId,avi.name,wait))
                 time.sleep(wait) # wait longer with each failed try
                 continue
-            elif res.status_code == 403:
+            elif res.status_code == httplib.FORBIDDEN:
                 logging.error('Play Store download of {0} using {1} is forbidden (403)'.format(apkname,avi.download_src.androidId))
             else:
                 logging.error('Play Store download of {0} using {1} returned unknown HTTP status {2}'.format(apkname,avi.download_src.androidId,res.status_code))
             return None #Not downloadable, return empty
         else:
             logging.error('Play Store download of {0} using {1} failed with repetitive 503 errors'.format(apkname,avi.download_src.androidId))
+        # END: for x
         return None #Kept receiving 503, return empty
 
         if isBeta:
