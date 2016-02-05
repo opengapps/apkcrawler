@@ -10,7 +10,9 @@ import os
 import datetime
 import logging
 import multiprocessing
+import time
 
+import httplib
 import json
 
 from debug import Debug
@@ -40,6 +42,7 @@ else:
 ###################
 manager = multiprocessing.Manager()
 Global  = manager.Namespace()
+Global.delay       = 20
 Global.report      = None
 Global.dlFiles     = []
 Global.dlFilesBeta = []
@@ -60,35 +63,31 @@ def listRepo(repo, orderby=None):
     url       = 'http://webservices.aptoide.com/webservices/listRepository/{0}{1}/json'.format(repo, orderby)
     data      = Debug.readFromFile(file_name)
 
-    CODES = [200]
-
     if data == '':
         session = requests.Session()
         # session.proxies = Debug.getProxy()
 
-        retries = 3
-        while retries > 0:
+        for x in xrange(1,4): #up to three tries
+            wait = Global.delay*x
             try:
-                logging.debug('Requesting1 ({0}): {1}'.format(retries, url))
-                retries -= 1
+                logging.debug('Requesting1 ({0}): {1}'.format(x, url))
                 resp = session.get(url)
-                data = resp.json()
 
-                if resp.status_code in CODES:
+                if resp.status_code ==httplib.OK:
+                    data = resp.json()
                     if 'status' in data and data['status'] == 'OK':
                         Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
                                           indent=4, separators=(',', ': ')), resp.encoding)
                         return data
                     else:
-                        logging.error('data1[\'status\']: {0}, retries: {1} - {2}'.format(data.get('status', 'null'),
-                                                                                          retries, file_name))
+                        logging.error('data1[\'status\']: {0}, retry in: {1}s - {2}'.format(data.get('status', 'null'), wait, file_name))
                 else:
-                    logging.error('HTTPStatus1: {0}, retries: {1} - {2}'.format(resp.status_code,
-                                                                                retries, file_name))
+                    logging.error('HTTPStatus1: {0}, retry in: {1}s - {2}'.format(resp.status_code, wait, file_name))
             except:
-                logging.exception('!!! Invalid JSON from: "{0}"'.format(url))
-       # END: while
-    # END: if data == ''
+                logging.exception('!!! Invalid JSON from: "{0}", retry in: {1}s'.format(url,wait))
+            time.sleep(wait)
+        # END: for x
+    # END: if data
     return None
 # END: def listRepo
 
@@ -105,21 +104,18 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
                 version, repo, apkid, apkversion, options)
     data      = Debug.readFromFile(file_name)
 
-    CODES = [200]
-
     if data == '':
         session = requests.Session()
         # session.proxies = Debug.getProxy()
 
-        retries = 3
-        while retries > 0:
+        for x in xrange(1,4): #up to three tries
+            wait = Global.delay*x
             try:
-                logging.debug('Requesting2 ({0}): {1}'.format(retries, url))
-                retries -= 1
+                logging.debug('Requesting2 ({0}): {1}'.format(x, url))
                 resp = session.get(url)
-                data = resp.json()
 
-                if resp.status_code in CODES:
+                if resp.status_code == httplib.OK:
+                    data = resp.json()
                     if 'status' in data and data['status'] == 'OK':
                         avi = ApkVersionInfo(name    = data['apk']['package'],
                                              arch    = data['apk'].get('cpu', 'all'),
@@ -134,15 +130,14 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
                                           indent=4, separators=(',', ': ')), resp.encoding)
                         return avi
                     else:
-                        logging.error('data2[\'status\']: {0}, retries: {1} - {2}'.format(data.get('status', 'null'),
-                                                                                          retries, file_name))
+                        logging.error('data2[\'status\']: {0}, retry in: {1}s - {2}'.format(data.get('status', 'null'), wait, file_name))
                 else:
-                    logging.error('HTTPStatus2: {0}, retries: {1} - {2}'.format(resp.status_code,
-                                                                                retries, file_name))
+                    logging.error('HTTPStatus2: {0}, retry in: {1}s - {2}'.format(resp.status_code, wait, file_name))
             except:
-                logging.exception('!!! Invalid JSON from: "{0}"'.format(url))
-       # END: while
-    # END: if data == ''
+                logging.exception('!!! Invalid JSON from: "{0}", retry in: {1}s'.format(url,wait))
+            time.sleep(wait)
+        # END: for x
+    # END: if data
     return None
 # END: def getApkInfo
 
@@ -166,8 +161,6 @@ def downloadApk(avi, isBeta=False):
 
     logging.info('Downloading "{0}" from: {1}'.format(apkname,url))
 
-    CODES = [200]
-
     try:
         if os.path.exists(apkname):
             logging.info('Downloaded APK already exists.')
@@ -186,7 +179,7 @@ def downloadApk(avi, isBeta=False):
         session.proxies = Debug.getProxy()
         r = session.get(url)
 
-        if r.status_code not in CODES:
+        if r.status_code != httplib.OK:
             logging.error('HTTP Status {0}. Failed to download: {1}'.format(r.status_code,apkname))
             return
 
