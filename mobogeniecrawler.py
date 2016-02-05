@@ -27,7 +27,7 @@ else:
 # DEBUG VARS      #
 ###################
 
-Debug.DEBUG        = True
+# Debug.DEBUG        = True
 # Debug.READFROMFILE = True  # Read from file for debugging
 # Debug.SAVELASTFILE = True  # Write to file upon each request
 
@@ -42,22 +42,24 @@ Debug.DEBUG        = True
 manager = multiprocessing.Manager()
 Global  = manager.Namespace()
 Global.report = None
+Global.dlFiles     = []
+Global.dlFilesBeta = []
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(__file__))
 logLevel  = (logging.DEBUG if Debug.DEBUG else logging.INFO)
 logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
-def downloadApk(url, package, vername, vercode, minSdk):
+def downloadApk(avi, isBeta=False):
     """
     downloadApk(apkInfo): Download the specified URL to APK file name
     """
-    apkname = '{0}_{1}-{2}_minAPI{3}.apk'.format(package,
-                                                 vername.replace(' ', '_'),
-                                                 vercode,
-                                                 minSdk)
+    apkname = '{0}_{1}-{2}_minAPI{3}.apk'.format(avi.name.replace('.beta', ''),
+                                                 avi.realver.replace(' ', '_'),
+                                                 avi.vercode,
+                                                 avi.sdk)
 
-    logging.info('Downloading "{0}" from: {1}'.format(apkname,url))
+    logging.info('Downloading "{0}" from: {1}'.format(apkname,avi.download_src))
 
     try:
         if os.path.exists(apkname):
@@ -75,12 +77,19 @@ def downloadApk(url, package, vername, vercode, minSdk):
         # Open the url
         session = requests.Session()
         session.proxies = Debug.getProxy()
-        r = session.get(url)
+        r = session.get(avi.download_src)
 
         with open(apkname, 'wb') as local_file:
             local_file.write(r.content)
-        print('{0} '.format(apkname)),
-        sys.stdout.flush()
+        if isBeta:
+            Global.dlFilesBeta.append(apkname)
+            logging.debug('beta: ' + ', '.join(Global.dlFilesBeta))
+        else:
+            tmp = Global.dlFiles
+            tmp.append(apkname)
+            Global.dlFiles = tmp
+            # Global.dlFiles.append(apkname)
+            logging.debug('reg : ' + ', '.join(Global.dlFiles))
     except OSError:
         logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
 # END: def downloadApk
@@ -109,17 +118,15 @@ def checkOneApp(apkid):
                               indent=4, separators=(',', ': ')), resp.encoding)
 
         item=data['data']['appInfo']
-        avi = ApkVersionInfo(name=apkid,
-                             #arch='',
+        avi = ApkVersionInfo(name=item['apkId'],
                              sdk=item['sdkVersion'],
-                             #dpi='',
                              ver=item['version'].split(' ')[0],
                              vercode=item['versionCode'],
-                             #scrape_src=''
+                             download_src='http://download.mgccw.com/'+item['apkPath']
                              )
 
         if Global.report.isThisApkNeeded(avi):
-            downloadApk('http://download.mgccw.com/'+item['apkPath'], item['apkId'], item['version'], item['versionCode'], item['sdkVersion'])
+            downloadApk(avi)
 
     except ValueError:
         logging.info('{0} not supported by mobogenie ...'.format(apkid))
@@ -152,6 +159,20 @@ def main(param_list):
     # Start checking all apkids ...
     p = multiprocessing.Pool(5)
     p.map(checkOneApp, keys)
+
+    logging.debug('Just before outputString creation')
+
+    outputString = ' '.join(Global.dlFiles)
+    if Global.dlFilesBeta:
+        outputString += ' beta ' + ' '.join(Global.dlFilesBeta)
+
+    logging.debug('Just after outputString creation')
+
+    if outputString:
+        print(outputString)
+        sys.stdout.flush()
+
+    logging.debug('Done ...')
 
 # END: main():
 

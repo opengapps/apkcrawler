@@ -123,9 +123,9 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
                                              dpi     = doDpiStuff(data['apk'].get('screenCompat', 'nodpi')),
                                              ver     = data['apk']['vername'].split(' ')[0],  # Look at only the true version number
                                              vercode = data['apk']['vercode'],
-                                             #scrape_src=''
+                                             #scrape_src='',
+                                             download_src = data['apk']['path']
                                              )
-                        avi.download_src = data['apk']['path']
                         Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
                                           indent=4, separators=(',', ': ')), resp.encoding)
                         return avi

@@ -109,8 +109,8 @@ def getApkInfo(playstore, apkid, delay):
                 avi = ApkVersionInfo(name    = res.body.docV2.docid,
                                      ver     = res.body.docV2.details.appDetails.versionString.split(' ')[0],  # not sure if we need the split here
                                      vercode = res.body.docV2.details.appDetails.versionCode,
+                                     download_src = playstore
                                      )
-                avi.download_src = playstore
                 logging.debug('Found Play Store entry {0} {1}-{2}'.format(avi.name,avi.ver,avi.vercode))
                 return avi
             else:
