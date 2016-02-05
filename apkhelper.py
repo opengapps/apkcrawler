@@ -18,8 +18,8 @@ class ApkVersionInfo(object):
         self.arch         = arch
         self.sdk          = 0 if sdk == '' else int(sdk)
         self.dpi          = dpi
-        self.ver          = ver
-        self.realver      = ver  # used for full versions #TODO temporary hack by mfonville so that this value is not None for "replace"
+        self.ver          = ver   # used for comparing (could be shortened later)
+        self.realver      = ver   # used for full/original versions
         self.vercode      = 0 if vercode == '' else  int(vercode)
 
         self.scrape_src   = scrape_src
@@ -36,21 +36,23 @@ class ApkVersionInfo(object):
                 self.name = self.extraname
 
         if 'com.google.android.apps.docs' in self.name:
-            self.realver = self.ver[-3:]
+            self.ver = self.ver[0:-3]
 
         m = reVer.match(self.ver)
         if m:
-            self.ver     = m.group('ver')
-            self.realver = m.group('extra')
+            self.ver = m.group('ver')
 
     def fullString(self, max):
-        return '{0}|{1}|{2}|{3}|{4}{5}|{6}'.format(self.name,
-                                                   self.arch,
-                                                   self.sdk,
-                                                   self.dpi,
-                                                   max,
-                                                   self.realver if self.realver else '',
-                                                   self.vercode )
+        mymax = max
+        if self.realver != self.ver:
+            mymax += self.realver[len(self.ver):]
+
+        return '{0}|{1}|{2}|{3}|{4}|{5}'.format(self.name,
+                                                self.arch,
+                                                self.sdk,
+                                                self.dpi,
+                                                mymax
+                                                self.vercode )
 
     def __lt__(self, other):
         return self.__cmp__(other) == -1
