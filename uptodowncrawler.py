@@ -45,6 +45,8 @@ else:
 manager = multiprocessing.Manager()
 Global  = manager.Namespace()
 Global.report = None
+Global.dlFiles     = []
+Global.dlFilesBeta = []
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(__file__))
@@ -110,13 +112,14 @@ allUpToDownNames = {
     #com.google.android.youtube.tv
     'com.google.earth': 'google-earth'}
 
-def downloadApk(url,package):
+def downloadApk(avi, isBeta=False):
     """
     downloadApk(apkInfo): Download the specified URL to APK file name
     """
-    apkname = '{0}.apk'.format(package)
+    apkname = '{0}-{1}.apk'.format(avi.name.replace('.beta', ''),
+                                   avi.realver.replace(' ', '_'))
 
-    logging.info('Downloading "{0}" from: {1}'.format(apkname,url))
+    logging.info('Downloading "{0}" from: {1}'.format(apkname,avi.download_src))
 
     try:
         if os.path.exists(apkname):
@@ -135,12 +138,19 @@ def downloadApk(url,package):
         session = requests.Session()
         session.proxies = Debug.getProxy()
         user_agent = {'User-agent': 'Mozilla/5.0'} #they don't like scripted downloads and then offer their own app instead
-        r = session.get(url, headers = user_agent)
+        r = session.get(avi.download_src, headers = user_agent)
 
         with open(apkname, 'wb') as local_file:
             local_file.write(r.content)
-        print('{0} '.format(apkname)),
-        sys.stdout.flush()
+        if isBeta:
+            Global.dlFilesBeta.append(apkname)
+            logging.debug('beta: ' + ', '.join(Global.dlFilesBeta))
+        else:
+            tmp = Global.dlFiles
+            tmp.append(apkname)
+            Global.dlFiles = tmp
+            # Global.dlFiles.append(apkname)
+            logging.debug('reg : ' + ', '.join(Global.dlFiles))
     except OSError:
         logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
 # END: def downloadApk
@@ -151,36 +161,40 @@ def checkOneApp(apkid):
     checkOneApp(apkid):
     """
     logging.info('Checking app: {0}'.format(apkid))
-
     try:
         upToDownName = allUpToDownNames[apkid]
-        html_name = '{0}.html'.format(upToDownName)
-        url       = 'http://' + upToDownName + '.en.uptodown.com/android/download'
-        html      = Debug.readFromFile(html_name)
+        appurl      = 'http://' + upToDownName + '.en.uptodown.com/android'
+        downloadurl = 'http://' + upToDownName + '.en.uptodown.com/android/download'
 
-        if html == '':
-            session = requests.Session()
-            session.proxies = Debug.getProxy()
-            logging.debug('Requesting: ' + url)
-            resp    = session.get(url)
-            html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
-            Debug.writeToFile(html_name, html, resp.encoding)
-
+        session = requests.Session()
+        session.proxies = Debug.getProxy()
+        logging.debug('Requesting: ' + appurl)
         try:
-            dom       = BeautifulSoup(html, 'html5lib')
-            latestapk = dom.findAll('iframe', {'id': 'iframe_download'})[0]['src'] #note that this url will still result in a redirect 302
+            appresp = session.get(appurl)
+            apphtml = unicodedata.normalize('NFKD', appresp.text).encode('ascii', 'ignore')
+            appdom      = BeautifulSoup(apphtml, 'html5lib')
+            latestver   = appdom.find('span', {'itemprop': 'softwareVersion'}).contents[0]
+            logging.debug('Requesting: ' + downloadurl)
+            try:
+                downloadresp = session.get(downloadurl)
+                downloadhtml = unicodedata.normalize('NFKD', downloadresp.text).encode('ascii', 'ignore')
+                downloaddom = BeautifulSoup(downloadhtml, 'html5lib')
+                latesturl   = downloaddom.find('iframe', {'id': 'iframe_download'})['src'] #note that this url will still result in a redirect 302
 
-            #We still miss versioncode comparison here
-            downloadApk(latestapk,apkid)
+                avi = ApkVersionInfo(name=apkid,
+                                     ver=latestver,
+                                     download_src=latesturl
+                                     )
+                if Global.report.isThisApkNeeded(avi):
+                    downloadApk(avi)
 
-            #We still miss fetching older versions
-
-        except IndexError:
-            logging.info('{0} not supported by uptodown.com ...'.format(apkid))
+                #We still miss fetching older versions
+            except:
+                logging.exception('!!! Error parsing html from: "{0}"'.format(downloadurl))
         except:
-            logging.exception('!!! Error parsing html from: "{0}"'.format(url))
+            logging.exception('!!! Error parsing html from: "{0}"'.format(appurl))
     except KeyError:
-        logging.info('{0} not in uptodown.com dictionary...'.format(apkid))
+        logging.info('{0} not in uptodown.com dictionary'.format(apkid))
 # END: def checkOneApp:
 
 

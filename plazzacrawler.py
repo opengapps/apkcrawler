@@ -96,8 +96,6 @@ def downloadApk(avi, isBeta=False):
             logging.debug('reg : ' + ', '.join(Global.dlFiles))
     except OSError:
         logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
-    except OSError:
-        logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
 # END: def downloadApk
 
 
@@ -107,14 +105,12 @@ def checkOneApp(apkid):
     """
     logging.info('Checking app: {0}'.format(apkid))
 
-    html_name = '{0}.html'.format(apkid)
     url       = 'http://www.plazza.ir/app/' + apkid + '?hl=en'
-    html      = Debug.readFromFile(html_name)
 
-    if html == '':
-        session = requests.Session()
-        session.proxies = Debug.getProxy()
-        logging.debug('Requesting: ' + url)
+    session = requests.Session()
+    session.proxies = Debug.getProxy()
+    logging.debug('Requesting: ' + url)
+    try:
         resp    = session.get(url,allow_redirects=False) #we get a 302 if application is not found
         if resp.status_code == httplib.OK:
             html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
@@ -145,6 +141,8 @@ def checkOneApp(apkid):
                 logging.exception('!!! Error parsing html from: "{0}"'.format(url))
         else:
             logging.info('{0} not available on plazza.ir'.format(apkid))
+    except:
+        logging.exception('Connection error to plazza.ir when checking {0} at {1}'.format(apkid,url))
 
 # END: def checkOneApp:
 
