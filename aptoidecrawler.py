@@ -166,6 +166,8 @@ def downloadApk(avi, isBeta=False):
 
     logging.info('Downloading "{0}" from: {1}'.format(apkname,url))
 
+    CODES = [200]
+
     try:
         if os.path.exists(apkname):
             logging.info('Downloaded APK already exists.')
@@ -184,8 +186,8 @@ def downloadApk(avi, isBeta=False):
         session.proxies = Debug.getProxy()
         r = session.get(url)
 
-        if r.status_code == 500:
-            logging.error('HTTP Status 500. Failed to download: ' + apkname)
+        if r.status_code not in CODES:
+            logging.error('HTTP Status {0}. Failed to download: {1}'.format(r.status_code,apkname))
             return
 
         with open(apkname, 'wb') as local_file:
