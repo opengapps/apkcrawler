@@ -172,8 +172,12 @@ def checkOneApp(apkid):
         try:
             appresp = session.get(appurl)
             apphtml = unicodedata.normalize('NFKD', appresp.text).encode('ascii', 'ignore')
-            appdom      = BeautifulSoup(apphtml, 'html5lib')
-            latestver   = appdom.find('span', {'itemprop': 'softwareVersion'}).contents[0]
+            appdom  = BeautifulSoup(apphtml, 'html5lib')
+            appver = appdom.find('span', {'itemprop': 'softwareVersion'}).contents
+            if  appver: #sometimes there is no version number specified within the span
+                latestver   = appver[0].lstrip('v').strip().encode("ascii") #sometimes they set a v in front of the versionName and it presents unicode for some reason
+            else:
+                latestver   = ''
             logging.debug('Requesting: ' + downloadurl)
             try:
                 downloadresp = session.get(downloadurl)

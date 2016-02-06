@@ -56,21 +56,17 @@ def getUrlFromRedirect(apkname, url):
     """
     getUrlFromRedirect(url):
     """
-    html_name = '{0}_redirect.html'.format(apkname)
-    html      = Debug.readFromFile(html_name)
     link      = ''
 
-    if html == '':
-        session = requests.Session()
-        session.proxies = Debug.getProxy()
-        logging.debug('Requesting2: ' + url)
-        resp    = session.get(url)
-        html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
-        Debug.writeToFile(html_name, html, resp.encoding)
+    session = requests.Session()
+    session.proxies = Debug.getProxy()
+    logging.debug('Requesting2: ' + url)
+    resp    = session.get(url)
+    html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
 
     try:
         dom  = BeautifulSoup(html, 'html5lib')
-        link = dom.findAll('span', {'class': 'glyphicon glyphicon-cloud-download'})[0].parent['href']
+        link = dom.find('span', {'class': 'glyphicon glyphicon-cloud-download'}).parent['href']
     except:
         logging.exception('!!! Error parsing html from: "{0}"'.format(url))
 
@@ -127,17 +123,13 @@ def checkOneApp(apkid):
     """
     logging.info('Checking app: {0}'.format(apkid))
 
-    html_name = '{0}.html'.format(apkid)
     url       = 'http://apk-dl.com/' + apkid
-    html      = Debug.readFromFile(html_name)
 
-    if html == '':
-        session = requests.Session()
-        session.proxies = Debug.getProxy()
-        logging.debug('Requesting: ' + url)
-        resp    = session.get(url)
-        html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
-        Debug.writeToFile(html_name, html, resp.encoding)
+    session = requests.Session()
+    session.proxies = Debug.getProxy()
+    logging.debug('Requesting: ' + url)
+    resp    = session.get(url)
+    html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
 
     try:
         dom     = BeautifulSoup(html, 'html5lib')
@@ -153,29 +145,28 @@ def checkOneApp(apkid):
                 itextsp = itext.split(':', 1)
                 if len(itextsp) == 2:
                     dApk[str(itextsp[0])] = str(itextsp[1])
-            dApk['url'] = 'http:' + apk.find('a', {'class': 'btn btn-success'})['href']
+            apkurl = apk.find('a', {'class': 'btn btn-success'})
+            if apkurl:
+                dApk['url'] = 'http:' + apkurl['href']
 
-            Debug.printDictionary(dApk)
+                Debug.printDictionary(dApk)
 
-            if 'Version' in dApk and 'RequiresAndroid' in dApk:
-                (trash, sdk) = dApk['RequiresAndroid'].split('API:', 1)
-                sdk = sdk[0:-1]
-                (ver, vercode) = dApk['Version'].split('(Code:', 1)
-                ver     = ver.split('(', 1)[0]
-                vercode = vercode[0:-1]
+                if 'Version' in dApk and 'RequiresAndroid' in dApk:
+                    (trash, sdk) = dApk['RequiresAndroid'].split('API:', 1)
+                    sdk = sdk[0:-1]
+                    (ver, vercode) = dApk['Version'].split('(Code:', 1)
+                    ver     = ver.split('(', 1)[0].strip()
+                    vercode = vercode[0:-1].strip()
 
-                avi = ApkVersionInfo(name=apkid,
-                                     #arch='',
-                                     sdk=sdk,
-                                     #dpi='',
-                                     ver=ver,
-                                     vercode=vercode,
-                                     #scrape_src=''
-                                     )
-                avi.download_src = dApk['url']
+                    avi = ApkVersionInfo(name=apkid,
+                                         sdk=sdk,
+                                         ver=ver,
+                                         vercode=vercode,
+                                         download_src = dApk['url']
+                                         )
 
-                if Global.report.isThisApkNeeded(avi):
-                    downloadApk(avi)
+                    if Global.report.isThisApkNeeded(avi):
+                        downloadApk(avi)
 
     except IndexError:
         logging.info('{0} not supported by apk-dl.com ...'.format(apkid))

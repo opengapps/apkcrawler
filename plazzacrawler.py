@@ -114,12 +114,11 @@ def checkOneApp(apkid):
         resp    = session.get(url,allow_redirects=False) #we get a 302 if application is not found
         if resp.status_code == httplib.OK:
             html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
-            Debug.writeToFile(html_name, html, resp.encoding)
 
             try:
                 dom       = BeautifulSoup(html, 'html5lib')
                 latesthref = dom.find('a', {'itemprop': 'downloadUrl'})['href']
-                latestver = dom.find('div', {'itemprop': 'softwareVersion'}).contents[0]
+                latestver = dom.find('div', {'itemprop': 'softwareVersion'}).contents[0].strip()
                 appid     = re.search('(^\/dl\/)([0-9]+)(\/1$)', latesthref).group(2)
                 latesturl = session.head('http://www.plazza.ir' + latesthref,allow_redirects=True).url
                 #latestvercode = re.search('(_)([0-9]+)(\.apk)$', latesturl).group(2) #apparently this is NOT a (reliable?) versioncode
