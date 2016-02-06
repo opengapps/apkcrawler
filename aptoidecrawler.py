@@ -10,6 +10,7 @@ import os
 import datetime
 import logging
 import multiprocessing
+import random
 import time
 
 import httplib
@@ -60,8 +61,10 @@ def listRepo(repo, orderby=None):
     """
     file_name = '{0}{1}.json'.format(repo, '' if not orderby else '-' + '-'.join(orderby))
     orderby   = '' if not orderby else '/orderby/' + '/'.join(orderby)
-    url       = 'http://webservices.aptoide.com/webservices/listRepository/{0}{1}/json'.format(repo, orderby)
+    url       = 'http://' + repo + '.aptoide.com/webservices/listRepository/{0}{1}/json'.format(repo, orderby)
     data      = Debug.readFromFile(file_name)
+
+#TODO use http://www.aptoide.com/webservices/docs/2/listRepositoryChange to find if there are any updates for a repo
 
     if data == '':
         session = requests.Session()
@@ -100,7 +103,7 @@ def getApkInfo(repo, apkid, apkversion, options=None, doVersion1=False):
     version   = '1' if doVersion1 else '2'
     file_name = '{0}-{1}-{2}_{3}.json'.format(repo, apkid, apkversion, version)
     options   = '' if not options else '/options=({0})'.format(options)
-    url       = 'http://webservices.aptoide.com/webservices/{0}/getApkInfo/{1}/{2}/{3}{4}/json'.format(
+    url       = 'http://' + repo + '.aptoide.com/webservices/{0}/getApkInfo/{1}/{2}/{3}{4}/json'.format( #using an arbitrary subdomain prevents rate-limiting
                 version, repo, apkid, apkversion, options)
     data      = Debug.readFromFile(file_name)
 
@@ -246,53 +249,62 @@ def checkOneStore(repo):
         data = listRepo(repo, ('recent', '100', str(offset)))
         if data:
             if len(data['listing']) == 0:
-                break
-            else:
-                # Check each apk ...
-                for item in data['listing']:
-                    search_date = datetime.datetime.strptime(item['date'], '%Y-%m-%d').date()
+                logging.error('{0} has no recent applications listed'.format(repo))
+                print >> sys.stderr, 'NOTICE: {0} has no recent applications listed'.format(repo) #rewrite in python3
+                break #empty repository
 
-                    # If the version name contains 'beta' append '.beta' to the apkid
-                    extra  = ''
-                    if 'beta' in item['ver']:
-                        extra = '.beta'
+            if offset == 0: #check the most recent apk entry to find out if a repository is outdated
+                latestuploadtime = datetime.datetime.strptime(data['listing'][0]['date'], '%Y-%m-%d').date()
+                if today - datetime.timedelta(days=30) > latestuploadtime:
+                    logging.error('{0} has not been updated for a month, last update: {1}'.format(repo,latestuploadtime))
+                    print >> sys.stderr, 'NOTICE: {0} has not been updated for a month, last update: {1}'.format(repo,latestuploadtime) #rewrite in python3
 
-                    apkid    = item['apkid']
-                    apkextra = apkid + extra
-                    ver      = item['ver'].split(' ')[0]
+            # Check each apk ...
+            for item in data['listing']:
+                search_date = datetime.datetime.strptime(item['date'], '%Y-%m-%d').date()
 
-                    avi = ApkVersionInfo(name=apkid,
-                                         #arch='',
-                                         #sdk='',
-                                         #dpi='',
-                                         ver=ver,  # Look at only the true version number
-                                         vercode=item['vercode'],
-                                         #scrape_src=''
-                                         )
+                # If the version name contains 'beta' append '.beta' to the apkid
+                extra  = ''
+                if 'beta' in item['ver']:
+                    extra = '.beta'
 
-                    # Check for beta support
-                    bCheckMore = False
-                    if Global.report.needsBetaSupport(avi):
-                        import copy
-                        avibeta = copy.deepcopy(avi)
-                        avibeta.name += '.beta'
-                        needBeta = Global.report.isThisApkNeeded(avibeta)
+                apkid    = item['apkid']
+                apkextra = apkid + extra
+                ver      = item['ver'].split(' ')[0]
 
-                    # Do we already have it
-                    if Global.report.isThisApkNeeded(avi):
-                        # Get additional info
-                        avi = getApkInfo(repo, apkid, ver,
-                                         options='vercode=' + str(item['vercode']))
-                        if avi:
-                            # Still need it after additional info?
-                            if Global.report.isThisApkNeeded(avi):
-                                downloadApk(avi)
-                        # END: if avi:
-                    # END: if isThisApkNeeded
-                # END: for item
-            # END: if listing length
+                avi = ApkVersionInfo(name=apkid,
+                                     #arch='',
+                                     #sdk='',
+                                     #dpi='',
+                                     ver=ver,  # Look at only the true version number
+                                     vercode=item['vercode'],
+                                     #scrape_src=''
+                                     )
+
+                # Check for beta support
+                bCheckMore = False
+                if Global.report.needsBetaSupport(avi):
+                    import copy
+                    avibeta = copy.deepcopy(avi)
+                    avibeta.name += '.beta'
+                    needBeta = Global.report.isThisApkNeeded(avibeta)
+
+                # Do we already have it
+                if Global.report.isThisApkNeeded(avi):
+                    # Get additional info
+                    avi = getApkInfo(repo, apkid, ver,
+                                     options='vercode=' + str(item['vercode']))
+                    if avi:
+                        # Are we sure we still need it after the additional info?
+                        if Global.report.isThisApkNeeded(avi):
+                            downloadApk(avi)
+                    # END: if avi:
+                # END: if isThisApkNeeded
+            # END: for item
+            offset += 100
+        else:
+            break #retrieving the list of recents apps failed, skip repository
         # END: if data
-        offset += 100
     # END: while
 # END: def checkOneStore:
 
@@ -322,7 +334,7 @@ def main(param_list):
         return
 
     repos = ['abdallah23',
-             'albrtkmxxo',
+             #'albrtkmxxo',
              'android777',
              'apk-s',
              'aplicaciones-ceibal',
@@ -330,11 +342,12 @@ def main(param_list):
              'appstv',
              'austroid',
              'bazar-canaima',
-             'benny09',
+             #'blaccs',
+             #'benny09',
              'brainyideas',
-             'carefullycoosed',
+             #'carefullycoosed',
              'catnamiw',
-             'cesang7',
+             #'cesang7',
              'dalon',
              'darkkiller',
              'datawind-apps',
@@ -342,10 +355,11 @@ def main(param_list):
              'denis86',
              'donvito2021',
              'draconius666',
+             #'draydroid',
              'eearl',
              'elektron45',
              'eltremendo02',
-             'epsil',
+             #'epsil',
              'ezam-akmar',
              'gonzalo-rodriguez',
              'grungo2407',
@@ -357,36 +371,36 @@ def main(param_list):
              'hot105',
              'iosefirina22',
              'irishandroid',
-             'jaslibertas',
+             #'jaslibertas',
              'jdquila',
              'jodean',
              'kcprophet',
              'kryss974',
              'kvanzuijlen',
              'leighakat',
-             'letechest',
-             'lewy',
+             #'letechest',
+             #'lewy',
              'lonerfox2013',
-             'ludock96',
+             #'ludock96',
              'mark8',
-             'matandroid',
-             'megas0ra',
+             #'matandroid',
+             #'megas0ra',
              'mestruque',
-             'metin2ventor',
+             #'metin2ventor',
              'michael-belisle',
              'migatronic',
              'milaupv',
              'mine-t999',
              'msi8',
              'mygica',
-             'mys3',
+             #'mys3',
              'new-day-apps',
              'nowkin',
-             'orgia82',
+             #'orgia82',
              'pentacore',
              'perfect-electronic',
              'pocketappz',
-             'poulpe',
+             #'poulpe',
              'prozac4me',
              'rahullah',
              'rodrivergara',
@@ -394,14 +408,14 @@ def main(param_list):
              'sandro797',
              'scratchn63',
              'shotaro',
-             'slapchop',
+             #'slapchop',
              'snah',
              'sommydany',
-             'speny',
+             #'speny',
              'sprithansi',
-             'stein-gmg',
-             'story89998',
-             'sunnygnutz',
+             #'stein-gmg',
+             #'story89998',
+             #'sunnygnutz',
              'theaureli69',
              'tim-we',
              'tutu75',
@@ -411,9 +425,10 @@ def main(param_list):
              'xerodox',
              'yelbana2',
              'zinavivid']
+    random.shuffle(repos) #randomize the order of the repositories to improve the chance to quickly hit new apks (before aptoide starts complaining with 503s)
 
     # Start checking all stores ...
-    p = multiprocessing.Pool(5)
+    p = multiprocessing.Pool(5) #a lot of sequential requests from one IP still trigger 503, but the delay mechanism then kicks and in general fixes a retry
     p.map(checkOneStore, repos)
 
     logging.debug('Just before outputString creation')
