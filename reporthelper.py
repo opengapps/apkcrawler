@@ -9,7 +9,7 @@ class ReportHelper(object):
         self.maxVerEachApk = {}
         self.minSdkEachApk = {}
         self.appsNeeded    = []
-        
+
         # Fill member dict and lists
         self.processReportSourcesOutput(lines)
         self.getMaxVersionDict()
@@ -69,13 +69,7 @@ class ReportHelper(object):
                     max2 = max(apk for apk in self.dAllApks[k2]).ver
 
                 self.maxVerEachApk[k] = max(max1, max2)
-
-                # Special case for Drive, Docs, Sheets and Slides
-                # Remove the last '.XX' since it is CPU/DPI specific
-                if 'com.google.android.apps.docs' in k:
-                    self.maxVerEachApk[k] = self.maxVerEachApk[k][0:-3]
             # END: if not k
-
             logging.debug('{0} - maxVer: {1}'.format(k, self.maxVerEachApk[k]))
         # END: for k
     # END: def getMaxVersionDict
@@ -150,7 +144,7 @@ class ReportHelper(object):
 
         # Are we dealing with a app that has beta support?
         #   Examples: WebView, GoogleApp
-        if self.needsBetaSupport(avi): 
+        if self.needsBetaSupport(avi):
             # TODO: Needs more thought (?)
             if not avi.name.endswith('.beta'):  # Make sure we don't promote a beta app to non-beta
                 # Do we have the requested vercode (in beta) already?
@@ -164,7 +158,7 @@ class ReportHelper(object):
                     if avi >= maxApkInfo:
                         return False
 
-        # END: if self.needsBetaSupport(avi): 
+        # END: if self.needsBetaSupport(avi):
 
         return True
     # END: def isThisApkNeeded():
