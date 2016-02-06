@@ -11,6 +11,7 @@ import datetime
 import logging
 import multiprocessing
 import random
+import socket
 import time
 
 import httplib
@@ -19,6 +20,8 @@ import json
 from debug import Debug
 from apkhelper import ApkVersionInfo
 from reporthelper import ReportHelper
+
+from socket import error as socket_error
 
 # Debug.USE_SOCKS_PROXY = True
 if Debug.USE_SOCKS_PROXY:
@@ -183,7 +186,7 @@ def downloadApk(avi, isBeta=False):
         r = session.get(url)
 
         if r.status_code != httplib.OK:
-            logging.error('HTTP Status {0}. Failed to download: {1}'.format(r.status_code,apkname))
+            logging.exception('HTTP Status {0}. Failed to download: {1}'.format(r.status_code,apkname))
             return
 
         with open(apkname, 'wb') as local_file:
@@ -197,6 +200,8 @@ def downloadApk(avi, isBeta=False):
             Global.dlFiles = tmp
             # Global.dlFiles.append(apkname)
             logging.debug('reg : ' + ', '.join(Global.dlFiles))
+    except socket.error as serr:
+        logging.exception('Socket error {0}. Failed to download: {1}'.format(serr,apkname))
     except OSError:
         logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
 # END: def downloadApk
