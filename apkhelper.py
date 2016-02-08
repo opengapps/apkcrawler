@@ -20,7 +20,7 @@ class ApkVersionInfo(object):
         self.dpi          = dpi
         self.ver          = ver   # used for comparing (could be shortened later)
         self.realver      = ver   # used for full/original versions
-        self.vercode      = 0 if vercode == '' else  int(vercode)
+        self.vercode      = 0 if vercode == '' else int(vercode)
 
         self.scrape_src   = scrape_src
         self.apk_name     = ''
@@ -35,12 +35,12 @@ class ApkVersionInfo(object):
             if m.group('extra') == '.beta':
                 self.name = self.extraname
 
-        if 'com.google.android.apps.docs' in self.name:
-            self.ver = self.ver[0:-3]
-
         m = reVer.match(self.ver)
         if m:
             self.ver = m.group('ver')
+
+        if 'com.google.android.apps.docs' in self.name:
+            self.ver = '.'.join(self.ver.split('.')[0:4])
 
     def fullString(self, max):
         mymax = max

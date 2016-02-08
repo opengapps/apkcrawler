@@ -133,7 +133,6 @@ class ReportHelper(object):
         # Is it < maxVersion?
         if avi.ver != '':
             maxApkInfo = ApkVersionInfo(name=avi.name, ver=self.maxVerEachApk[avi.name])
-            maxApkInfo.ver=self.maxVerEachApk[avi.name] #very ugly hack to FORCE the correct ver used in comparioson for docs apks
             if avi < maxApkInfo:
                 return False
 
