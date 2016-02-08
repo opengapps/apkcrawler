@@ -335,7 +335,7 @@ class AptoideCrawler(object):
                  'gs3passion',
                  'gyjano',
                  'hampoo',
-                 'hfk217',
+                 #'hfk217',
                  'hoser98',
                  'hot105',
                  'iosefirina22',
