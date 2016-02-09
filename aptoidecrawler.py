@@ -130,7 +130,7 @@ class AptoideCrawler(object):
                                                  ver     = data['apk']['vername'].split(' ')[0],  # Look at only the true version number
                                                  vercode = data['apk']['vercode'],
                                                  download_src = data['apk']['path'],
-                                                 malware = data['malware'] #We only have this key if vercode is in options
+                                                 malware = (data['malware'] if 'malware' in data else '') #We only have this key if vercode is in options
                                                  )
                             Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
                                               indent=4, separators=(',', ': ')), resp.encoding)
