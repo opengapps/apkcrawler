@@ -187,6 +187,8 @@ class ApkMirrorCrawler(object):
         """
         logging.info('Checking app: {0}'.format(apkid))
 
+        filenames = []
+
         try:
             apkMirrorName = allApkMirrorNames[apkid]
             url = 'http://www.apkmirror.com/uploads/?app=' + apkMirrorName
@@ -203,7 +205,6 @@ class ApkMirrorCrawler(object):
                 versions = latest.findAll('div', {'class': 'latestPost'})
 
                 avis = []
-                filenames = []
 
                 for version in versions:
                     verName = version.findAll('a', {'class': 'fontBlack'})
@@ -261,7 +262,6 @@ class ApkMirrorCrawler(object):
         crawl(): check all ApkMirror apps
         """
         # Start checking all apkids ...
-        print('starting crawler')
         p = multiprocessing.Pool(threads)
         r = p.map_async(unwrap_self_checkOneApp, zip([self]*len(self.report.dAllApks.keys()), self.report.dAllApks.keys()), callback=unwrap_callback)
         r.wait()
