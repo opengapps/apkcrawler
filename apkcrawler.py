@@ -44,6 +44,9 @@ if __name__ == "__main__":
         print(' - stdin from report_sources.sh')
         exit(1)
 
+    nonbeta = []
+    beta    = []
+
     crawlers = [ApkdlCrawler(report),
                 #ApkmirrorCrawler(report),
                 AptoideCrawler(report),
@@ -53,12 +56,13 @@ if __name__ == "__main__":
 
     for crawler in crawlers:
         crawler.crawl()
+        nonbeta.extend(crawler.dlFiles)
+        beta.extend(crawler.dlFilesBeta)
 
-    logging.debug('Just before outputString creation')
-    outputString = ' '.join(crawler.dlFiles)
-    if crawler.dlFilesBeta:
-        outputString += ' beta ' + ' '.join(crawler.dlFilesBeta)
-    logging.debug('Just after outputString creation')
+    outputString = ' '.join(nonbeta)
+    if beta:
+        outputString += ' beta ' + ' '.join(beta)
+
     if outputString:
         print(outputString)
         sys.stdout.flush()
