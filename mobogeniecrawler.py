@@ -160,9 +160,6 @@ def unwrap_getresults():
 def unwrap_self_checkOneApp(arg, **kwarg):
     return MobogenieCrawler.checkOneApp(*arg, **kwarg)
 
-###################
-# END: Functions  #
-###################
 
 if __name__ == "__main__":
     """
@@ -174,7 +171,7 @@ if __name__ == "__main__":
 
     lines = ''
     if len(sys.argv[1:]) == 1:
-        with open(sys.argv[1:]) as report:
+        with open(sys.argv[1]) as report:
             lines = report.readlines()
     else:
         lines = sys.stdin.readlines()

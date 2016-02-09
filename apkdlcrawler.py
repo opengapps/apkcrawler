@@ -42,9 +42,6 @@ else:
 # Globals         #
 ###################
 
-manager = multiprocessing.Manager()
-Global  = manager.Namespace()
-
 # logging
 logFile   = '{0}.log'.format(os.path.basename(__file__))
 logLevel  = (logging.DEBUG if Debug.DEBUG else logging.INFO)
@@ -207,9 +204,6 @@ def unwrap_getresults():
 def unwrap_self_checkOneApp(arg, **kwarg):
     return ApkdlCrawler.checkOneApp(*arg, **kwarg)
 
-###################
-# END: Functions  #
-###################
 
 if __name__ == "__main__":
     """
@@ -221,7 +215,7 @@ if __name__ == "__main__":
 
     lines = ''
     if len(sys.argv[1:]) == 1:
-        with open(sys.argv[1:]) as report:
+        with open(sys.argv[1]) as report:
             lines = report.readlines()
     else:
         lines = sys.stdin.readlines()

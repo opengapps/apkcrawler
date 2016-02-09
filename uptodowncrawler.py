@@ -42,72 +42,69 @@ else:
 # Globals         #
 ###################
 
-manager = multiprocessing.Manager()
-Global  = manager.Namespace()
-
 # logging
 logFile   = '{0}.log'.format(os.path.basename(__file__))
 logLevel  = (logging.DEBUG if Debug.DEBUG else logging.INFO)
 logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
 allUpToDownNames = {
-    #com.android.chrome #they only have chrome beta
-    'com.android.vending' : 'google-play',
-    #com.google.android.androidforwork
-    'com.google.android.apps.books': 'google-play-books',
-    #com.google.android.apps.cloudprint
-    'com.google.android.apps.docs': 'google-drive',
-    'com.google.android.apps.docs.editors.docs': 'google-docs',
-    'com.google.android.apps.docs.editors.sheets': 'google-sheets',
-    'com.google.android.apps.docs.editors.slides': 'google-slides',
-    #com.google.android.apps.enterprise.dmagent
-    'com.google.android.apps.fitness': 'google-fit',
-    #com.google.android.apps.gcs
-    #com.google.android.apps.genie.geniewidget
-    'com.google.android.apps.inbox': 'inbox-by-gmail',
-    #com.google.android.apps.inputmethod.hindi
-    #com.google.android.apps.inputmethod.zhuyin
-    'com.google.android.apps.magazines': 'google-play-newsstand',
-    'com.google.android.apps.maps': 'google-maps',
-    #com.google.android.apps.mediashell
-    'com.google.android.apps.messaging': 'messenger',
-    #com.google.android.apps.photos
-    'com.google.android.apps.plus': 'google-plus',
-    'com.google.android.apps.translate': 'traductor-de-google',
-    #com.google.android.apps.tycho
-    #com.google.android.apps.walletnfcrel
-    #com.google.android.calculator
-    'com.google.android.calendar': 'google-calendar',
-    #com.google.android.contacts
-    'com.google.android.deskclock': 'clock',
-    #com.google.android.dialer
-    'com.google.android.ears': 'sound-search-for-google-play',
-    'com.google.android.gm': 'gmail',
-    #com.google.android.gm.exchange
-    'com.google.android.gms': 'google-play-services',
-    'com.google.android.googlecamera': 'google-camera',
-    'com.google.android.googlequicksearchbox': 'google-search',
-    'com.google.android.inputmethod.japanese': 'google-japanese-input',
-    #com.google.android.inputmethod.korean
-    'com.google.android.inputmethod.latin': 'google-keyboard',
-    #com.google.android.inputmethod.pinyin
-    #com.google.android.katniss
-    'com.google.android.keep': 'google-keep',
-    'com.google.android.launcher': 'google-now-launcher',
-    #com.google.android.leanbacklauncher
-    'com.google.android.marvin.talkback': 'google-talkback',
-    'com.google.android.music': 'google-play-music',
-    'com.google.android.play.games': 'google-play-games',
-    'com.google.android.street': 'street-view-on-google-maps',
-    'com.google.android.talk': 'hangouts',
-    #com.google.android.tts
-    #com.google.android.tv
-    #com.google.android.tv.remote
-    'com.google.android.videos': 'google-play-movies',
-    'com.google.android.webview': 'android-system-webview',
-    'com.google.android.youtube': 'youtube',
-    #com.google.android.youtube.tv
-    'com.google.earth': 'google-earth'}
+    #'com.android.chrome'                         : 'n/a',  # they only have chrome beta
+    'com.android.vending'                         : 'google-play',
+    #'com.google.android.androidforwork'          : 'n/a',
+    'com.google.android.apps.books'               : 'google-play-books',
+    #'com.google.android.apps.cloudprint'         : 'n/a',
+    'com.google.android.apps.docs'                : 'google-drive',
+    'com.google.android.apps.docs.editors.docs'   : 'google-docs',
+    'com.google.android.apps.docs.editors.sheets' : 'google-sheets',
+    'com.google.android.apps.docs.editors.slides' : 'google-slides',
+    #'com.google.android.apps.enterprise.dmagent' : 'n/a',
+    'com.google.android.apps.fitness'             : 'google-fit',
+    #'com.google.android.apps.gcs'                : 'n/a',
+    #'com.google.android.apps.genie.geniewidget'  : 'n/a',
+    'com.google.android.apps.inbox'               : 'inbox-by-gmail',
+    #'com.google.android.apps.inputmethod.hindi'  : 'n/a',
+    #'com.google.android.apps.inputmethod.zhuyin' : 'n/a',
+    'com.google.android.apps.magazines'           : 'google-play-newsstand',
+    'com.google.android.apps.maps'                : 'google-maps',
+    #'com.google.android.apps.mediashell'         : 'n/a',
+    'com.google.android.apps.messaging'           : 'messenger',
+    #'com.google.android.apps.photos'             : 'n/a',
+    'com.google.android.apps.plus'                : 'google-plus',
+    'com.google.android.apps.translate'           : 'traductor-de-google',
+    #'com.google.android.apps.tycho'              : 'n/a',
+    #'com.google.android.apps.walletnfcrel'       : 'n/a',
+    #'com.google.android.calculator'              : 'n/a',
+    'com.google.android.calendar'                 : 'google-calendar',
+    #'com.google.android.contacts'                : 'n/a',
+    'com.google.android.deskclock'                : 'clock',
+    #'com.google.android.dialer'                  : 'n/a',
+    'com.google.android.ears'                     : 'sound-search-for-google-play',
+    'com.google.android.gm'                       : 'gmail',
+    #'com.google.android.gm.exchange'             : 'n/a',
+    'com.google.android.gms'                      : 'google-play-services',
+    'com.google.android.googlecamera'             : 'google-camera',
+    'com.google.android.googlequicksearchbox'     : 'google-search',
+    'com.google.android.inputmethod.japanese'     : 'google-japanese-input',
+    #'com.google.android.inputmethod.korean'      : 'n/a',
+    'com.google.android.inputmethod.latin'        : 'google-keyboard',
+    #'com.google.android.inputmethod.pinyin'      : 'n/a',
+    #'com.google.android.katniss'                 : 'n/a',
+    'com.google.android.keep'                     : 'google-keep',
+    'com.google.android.launcher'                 : 'google-now-launcher',
+    #'com.google.android.leanbacklauncher'        : 'n/a',
+    'com.google.android.marvin.talkback'          : 'google-talkback',
+    'com.google.android.music'                    : 'google-play-music',
+    'com.google.android.play.games'               : 'google-play-games',
+    'com.google.android.street'                   : 'street-view-on-google-maps',
+    'com.google.android.talk'                     : 'hangouts',
+    #'com.google.android.tts'                     : 'n/a',
+    #'com.google.android.tv'                      : 'n/a',
+    #'com.google.android.tv.remote'               : 'n/a',
+    'com.google.android.videos'                   : 'google-play-movies',
+    'com.google.android.webview'                  : 'android-system-webview',
+    'com.google.android.youtube'                  : 'youtube',
+    #'com.google.android.youtube.tv'              : 'n/a',
+    'com.google.earth'                            : 'google-earth'}
 
 class UptodownCrawler(object):
     def __init__(self, report, dlFiles=[], dlFilesBeta=[]):
@@ -227,9 +224,6 @@ def unwrap_getresults():
 def unwrap_self_checkOneApp(arg, **kwarg):
     return UptodownCrawler.checkOneApp(*arg, **kwarg)
 
-###################
-# END: Functions  #
-###################
 
 if __name__ == "__main__":
     """
@@ -241,7 +235,7 @@ if __name__ == "__main__":
 
     lines = ''
     if len(sys.argv[1:]) == 1:
-        with open(sys.argv[1:]) as report:
+        with open(sys.argv[1]) as report:
             lines = report.readlines()
     else:
         lines = sys.stdin.readlines()

@@ -44,9 +44,7 @@ else:
 ###################
 # Globals         #
 ###################
-manager = multiprocessing.Manager()
-Global  = manager.Namespace()
-Global.delay       = 20
+GlobalDelay = 20
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(__file__))
@@ -76,7 +74,7 @@ class AptoideCrawler(object):
             # session.proxies = Debug.getProxy()
 
             for x in xrange(1,4): #up to three tries
-                wait = Global.delay*x
+                wait = GlobalDelay*x
                 try:
                     logging.debug('Requesting1 ({0}): {1}'.format(x, url))
                     resp = session.get(url)
@@ -117,7 +115,7 @@ class AptoideCrawler(object):
             # session.proxies = Debug.getProxy()
 
             for x in xrange(1,4): #up to three tries
-                wait = Global.delay*x
+                wait = GlobalDelay*x
                 try:
                     logging.debug('Requesting2 ({0}): {1}'.format(x, url))
                     resp = session.get(url)
@@ -449,7 +447,7 @@ if __name__ == "__main__":
 
     lines = ''
     if len(sys.argv[1:]) == 1:
-        with open(sys.argv[1:]) as report:
+        with open(sys.argv[1]) as report:
             lines = report.readlines()
     else:
         lines = sys.stdin.readlines()
