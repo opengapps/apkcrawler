@@ -257,12 +257,13 @@ if __name__ == "__main__":
 
     crawler = UptodownCrawler(report)
     crawler.crawl()
-    logging.debug('Just before outputString creation')
+
     outputString = ' '.join(crawler.dlFiles)
     if crawler.dlFilesBeta:
         outputString += ' beta ' + ' '.join(crawler.dlFilesBeta)
-    logging.debug('Just after outputString creation')
+
     if outputString:
         print(outputString)
         sys.stdout.flush()
+
     logging.debug('Done ...')

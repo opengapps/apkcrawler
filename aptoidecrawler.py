@@ -193,12 +193,9 @@ class AptoideCrawler(object):
 
             with open(apkname, 'wb') as local_file:
                 local_file.write(r.content)
-            if isBeta:
-                self.dlFilesBeta.append(apkname)
-                logging.debug('beta: ' + ', '.join(self.dlFilesBeta))
-            else:
-                self.dlFiles.append(apkname)
-                logging.debug('reg : ' + ', '.join(self.dlFiles))
+
+            logging.debug(('beta:' if isBeta else 'reg :') + apkname)
+            return       (('beta:' if isBeta else ''     ) + apkname)
         except socket.error as serr:
             logging.exception('Socket error {0}. Failed to download: {1}'.format(serr,apkname))
         except OSError:
@@ -234,6 +231,7 @@ class AptoideCrawler(object):
 
         search_date = today
         offset = 0
+        filenames = []
         while search_date > search_stop:
             data = self.listRepo(repo, ('recent', '100', str(offset)))
             if data:
@@ -286,7 +284,7 @@ class AptoideCrawler(object):
                         if avi:
                             # Are we sure we still need it after the additional info?
                             if self.report.isThisApkNeeded(avi):
-                                self.downloadApk(avi)
+                                filenames.append(self.downloadApk(avi))
                         # END: if avi:
                     # END: if isThisApkNeeded
                 # END: for item
@@ -295,6 +293,7 @@ class AptoideCrawler(object):
                 break #retrieving the list of recents apps failed, skip repository
             # END: if data
         # END: while
+        return filenames
     # END: def checkOneStore:
 
 
@@ -398,9 +397,25 @@ class AptoideCrawler(object):
 
         # Start checking all stores ...
         p = multiprocessing.Pool(threads) #a lot of sequential requests from one IP still trigger 503, but the delay mechanism then kicks and in general fixes a retry
-        p.map(unwrap_self_checkOneStore, zip([self]*len(repos), repos))
+        r = p.map_async(unwrap_self_checkOneStore, zip([self]*len(repos), repos), callback=unwrap_callback)
+        r.wait()
+        (self.dlFiles, self.dlFilesBeta) = unwrap_getresults()
     # END: crawl():
 # END: class AptoideCrawler
+
+nonbeta = []
+beta    = []
+def unwrap_callback(results):
+    for resultlist in results:
+        for result in resultlist:
+            if result:
+                if result.startswith('beta:'):
+                    beta.append(result[5:])
+                else:
+                    nonbeta.append(result)
+
+def unwrap_getresults():
+    return (nonbeta, beta)
 
 def unwrap_self_checkOneStore(arg, **kwarg):
     return AptoideCrawler.checkOneStore(*arg, **kwarg)
@@ -435,12 +450,13 @@ if __name__ == "__main__":
 
     crawler = AptoideCrawler(report)
     crawler.crawl()
-    logging.debug('Just before outputString creation')
+
     outputString = ' '.join(crawler.dlFiles)
     if crawler.dlFilesBeta:
         outputString += ' beta ' + ' '.join(crawler.dlFilesBeta)
-    logging.debug('Just after outputString creation')
+
     if outputString:
         print(outputString)
         sys.stdout.flush()
+
     logging.debug('Done ...')

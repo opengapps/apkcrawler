@@ -84,12 +84,9 @@ class MobogenieCrawler(object):
 
             with open(apkname, 'wb') as local_file:
                 local_file.write(r.content)
-            if isBeta:
-                self.dlFilesBeta.append(apkname)
-                logging.debug('beta: ' + ', '.join(self.dlFilesBeta))
-            else:
-                self.dlFiles.append(apkname)
-                logging.debug('reg : ' + ', '.join(self.dlFiles))
+
+            logging.debug(('beta:' if isBeta else 'reg :') + apkname)
+            return       (('beta:' if isBeta else ''     ) + apkname)
         except OSError:
             logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
     # END: def downloadApk
@@ -126,7 +123,7 @@ class MobogenieCrawler(object):
                                  )
 
             if self.report.isThisApkNeeded(avi):
-                self.downloadApk(avi)
+                return self.downloadApk(avi)
 
         except ValueError:
             logging.info('{0} not supported by mobogenie ...'.format(apkid))
@@ -141,9 +138,24 @@ class MobogenieCrawler(object):
         """
         # Start checking all apkids ...
         p = multiprocessing.Pool(threads)
-        p.map(unwrap_self_checkOneApp, zip([self]*len(self.report.dAllApks.keys()), self.report.dAllApks.keys()))
+        r = p.map_async(unwrap_self_checkOneApp, zip([self]*len(self.report.dAllApks.keys()), self.report.dAllApks.keys()), callback=unwrap_callback)
+        r.wait()
+        (self.dlFiles, self.dlFilesBeta) = unwrap_getresults()
     # END: crawl():
 # END: class MobogenieCrawler
+
+nonbeta = []
+beta    = []
+def unwrap_callback(results):
+    for result in results:
+        if result:
+            if result.startswith('beta:'):
+                beta.append(result[5:])
+            else:
+                nonbeta.append(result)
+
+def unwrap_getresults():
+    return (nonbeta, beta)
 
 def unwrap_self_checkOneApp(arg, **kwarg):
     return MobogenieCrawler.checkOneApp(*arg, **kwarg)
@@ -178,12 +190,13 @@ if __name__ == "__main__":
 
     crawler = MobogenieCrawler(report)
     crawler.crawl()
-    logging.debug('Just before outputString creation')
+
     outputString = ' '.join(crawler.dlFiles)
     if crawler.dlFilesBeta:
         outputString += ' beta ' + ' '.join(crawler.dlFilesBeta)
-    logging.debug('Just after outputString creation')
+
     if outputString:
         print(outputString)
         sys.stdout.flush()
+
     logging.debug('Done ...')
