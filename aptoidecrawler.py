@@ -131,8 +131,8 @@ class AptoideCrawler(object):
                                                  dpi     = self.doDpiStuff(data['apk'].get('screenCompat', 'nodpi')),
                                                  ver     = data['apk']['vername'].split(' ')[0],  # Look at only the true version number
                                                  vercode = data['apk']['vercode'],
-                                                 #scrape_src='',
-                                                 download_src = data['apk']['path']
+                                                 download_src = data['apk']['path'],
+                                                 malware = data['malware'] #We only have this key if vercode is in options
                                                  )
                             Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
                                               indent=4, separators=(',', ': ')), resp.encoding)
@@ -161,11 +161,25 @@ class AptoideCrawler(object):
         dpi = avi.dpi if avi.dpi != 'nodpi' else 'no'
         dpi = '({0}dpi)'.format(dpi)
 
-        apkname = '{0}_{1}-{2}_minAPI{3}{4}{5}.apk'.format(avi.name.replace('.beta', ''),
-                                                           avi.realver.replace(' ', '_'),
-                                                           avi.vercode,
-                                                           avi.sdk,
-                                                           cpu, dpi)
+        if (avi.malware['status']=="scanned" and
+            avi.malware['reason']['signature_validated']['status']=="passed" and
+            avi.malware['reason']['signature_validated']['signature_from']=="market"):
+            apkname = '{0}_{1}-{2}_minAPI{3}{4}{5}.apk'.format(avi.name.replace('.beta', ''),
+                                                               avi.realver.replace(' ', '_'),
+                                                               avi.vercode,
+                                                               avi.sdk,
+                                                               cpu, dpi)
+            ret = True
+        else: #IMPLIES avi.malware['reason']['signature_validated']['signature_from']=="user"
+            apkname = 'err.{0}_{1}-{2}_minAPI{3}{4}{5}.err'.format(avi.name.replace('.beta', ''),
+                                                               avi.realver.replace(' ', '_'),
+                                                               avi.vercode,
+                                                               avi.sdk,
+                                                               cpu, dpi)
+            logging.error('{0} is a signed with a non-Playstore signature, be VERY careful about its authenticity.'.format(apkname))
+            print >> sys.stderr, 'NOTICE: {0} is a signed with a non-Playstore signature, be VERY careful about its authenticity.'.format(apkname) #rewrite in python3
+            ret = False
+
 
         logging.info('Downloading "{0}" from: {1}'.format(apkname,url))
 
@@ -194,8 +208,9 @@ class AptoideCrawler(object):
             with open(apkname, 'wb') as local_file:
                 local_file.write(r.content)
 
-            logging.debug(('beta:' if isBeta else 'reg :') + apkname)
-            return       (('beta:' if isBeta else ''     ) + apkname)
+            if ret:
+                logging.debug(('beta:' if isBeta else 'reg :') + apkname)
+                return       (('beta:' if isBeta else ''     ) + apkname)
         except socket.error as serr:
             logging.exception('Socket error {0}. Failed to download: {1}'.format(serr,apkname))
         except OSError:
@@ -260,12 +275,8 @@ class AptoideCrawler(object):
                     ver      = item['ver'].split(' ')[0]
 
                     avi = ApkVersionInfo(name=apkid,
-                                         #arch='',
-                                         #sdk='',
-                                         #dpi='',
                                          ver=ver,  # Look at only the true version number
                                          vercode=item['vercode'],
-                                         #scrape_src=''
                                          )
 
                     # Check for beta support
@@ -282,10 +293,14 @@ class AptoideCrawler(object):
                         avi = self.getApkInfo(repo, apkid, ver,
                                          options='vercode=' + str(item['vercode']))
                         if avi:
-                            # Are we sure we still need it after the additional info?
-                            if self.report.isThisApkNeeded(avi):
-                                filenames.append(self.downloadApk(avi))
-                        # END: if avi:
+                            if avi.malware['status'] == "warn" and avi.malware['reason']['signature_validated']['status']=="failed" and avi.malware['reason']['signature_validated']['signature_from']=="market": #signature matches market, but it does not pass verification
+                                logging.error('{0} is a corrupt or incomplete APK, ignored.'.format(avi.download_src))
+                            else:
+                                # Are we sure we still need it after the additional info?
+                                if self.report.isThisApkNeeded(avi):
+                                    filenames.append(self.downloadApk(avi))
+                            # END: if avi.malware
+                        # END: if avi
                     # END: if isThisApkNeeded
                 # END: for item
                 offset += 100

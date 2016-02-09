@@ -4,7 +4,7 @@ import re
 
 class ApkVersionInfo(object):
     """ApkVersionInfo"""
-    def __init__(self, name='', arch='', sdk='', dpi='', ver='', vercode='', scrape_src='', download_src=''):
+    def __init__(self, name='', arch='', sdk='', dpi='', ver='', vercode='', scrape_src='', download_src='', malware=''):
         super(ApkVersionInfo, self).__init__()
 
         sName  = '^(?P<name>.*)(?P<extra>\.(leanback|beta))$'
@@ -25,6 +25,7 @@ class ApkVersionInfo(object):
         self.scrape_src   = scrape_src
         self.apk_name     = ''
         self.download_src = download_src
+        self.malware = malware
 
         m = reName.match(self.name)
         if m:
