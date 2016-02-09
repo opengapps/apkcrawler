@@ -44,9 +44,6 @@ else:
 
 manager = multiprocessing.Manager()
 Global  = manager.Namespace()
-Global.report = None
-Global.dlFiles     = []
-Global.dlFilesBeta = []
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(__file__))
@@ -112,130 +109,148 @@ allUpToDownNames = {
     #com.google.android.youtube.tv
     'com.google.earth': 'google-earth'}
 
-def downloadApk(avi, isBeta=False):
-    """
-    downloadApk(apkInfo): Download the specified URL to APK file name
-    """
-    apkname = '{0}-{1}.apk'.format(avi.name.replace('.beta', ''),
-                                   avi.realver.replace(' ', '_'))
+class UptodownCrawler(object):
+    def __init__(self, report, dlFiles=[], dlFilesBeta=[]):
+        self.report      = report
+        self.dlFiles     = dlFiles
+        self.dlFilesBeta = dlFilesBeta
 
-    logging.info('Downloading "{0}" from: {1}'.format(apkname,avi.download_src))
+    def downloadApk(self, avi, isBeta=False):
+        """
+        downloadApk(apkInfo): Download the specified URL to APK file name
+        """
+        apkname = '{0}-{1}.apk'.format(avi.name.replace('.beta', ''),
+                                       avi.realver.replace(' ', '_'))
 
-    try:
-        if os.path.exists(apkname):
-            logging.info('Downloaded APK already exists.')
-            return
+        logging.info('Downloading "{0}" from: {1}'.format(apkname,avi.download_src))
 
-        if os.path.exists(os.path.join('.', 'apkcrawler', apkname)):
-            logging.info('Downloaded APK already exists (in ./apkcrawler/).')
-            return
-
-        if os.path.exists(os.path.join('..', 'apkcrawler', apkname)):
-            logging.info('Downloaded APK already exists (in ../apkcrawler/).')
-            return
-
-        # Open the url
-        session = requests.Session()
-        session.proxies = Debug.getProxy()
-        user_agent = {'User-agent': 'Mozilla/5.0'} #they don't like scripted downloads and then offer their own app instead
-        r = session.get(avi.download_src, headers = user_agent)
-
-        with open(apkname, 'wb') as local_file:
-            local_file.write(r.content)
-        if isBeta:
-            Global.dlFilesBeta.append(apkname)
-            logging.debug('beta: ' + ', '.join(Global.dlFilesBeta))
-        else:
-            tmp = Global.dlFiles
-            tmp.append(apkname)
-            Global.dlFiles = tmp
-            # Global.dlFiles.append(apkname)
-            logging.debug('reg : ' + ', '.join(Global.dlFiles))
-    except OSError:
-        logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
-# END: def downloadApk
-
-
-def checkOneApp(apkid):
-    """
-    checkOneApp(apkid):
-    """
-    logging.info('Checking app: {0}'.format(apkid))
-    try:
-        upToDownName = allUpToDownNames[apkid]
-        appurl      = 'http://' + upToDownName + '.en.uptodown.com/android'
-        downloadurl = 'http://' + upToDownName + '.en.uptodown.com/android/download'
-
-        session = requests.Session()
-        session.proxies = Debug.getProxy()
-        logging.debug('Requesting: ' + appurl)
         try:
-            appresp = session.get(appurl)
-            apphtml = unicodedata.normalize('NFKD', appresp.text).encode('ascii', 'ignore')
-            appdom  = BeautifulSoup(apphtml, 'html5lib')
-            appver = appdom.find('span', {'itemprop': 'softwareVersion'}).contents
-            if  appver: #sometimes there is no version number specified within the span
-                latestver   = appver[0].lstrip('v').strip().encode("ascii") #sometimes they set a v in front of the versionName and it presents unicode for some reason
+            if os.path.exists(apkname):
+                logging.info('Downloaded APK already exists.')
+                return
+
+            if os.path.exists(os.path.join('.', 'apkcrawler', apkname)):
+                logging.info('Downloaded APK already exists (in ./apkcrawler/).')
+                return
+
+            if os.path.exists(os.path.join('..', 'apkcrawler', apkname)):
+                logging.info('Downloaded APK already exists (in ../apkcrawler/).')
+                return
+
+            # Open the url
+            session = requests.Session()
+            session.proxies = Debug.getProxy()
+            user_agent = {'User-agent': 'Mozilla/5.0'} #they don't like scripted downloads and then offer their own app instead
+            r = session.get(avi.download_src, headers = user_agent)
+
+            with open(apkname, 'wb') as local_file:
+                local_file.write(r.content)
+            if isBeta:
+                self.dlFilesBeta.append(apkname)
+                logging.debug('beta: ' + ', '.join(self.dlFilesBeta))
             else:
-                latestver   = ''
-            logging.debug('Requesting: ' + downloadurl)
+                self.dlFiles.append(apkname)
+                logging.debug('reg : ' + ', '.join(self.dlFiles))
+        except OSError:
+            logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
+    # END: def downloadApk
+
+
+    def checkOneApp(self, apkid):
+        """
+        checkOneApp(apkid):
+        """
+        logging.info('Checking app: {0}'.format(apkid))
+        try:
+            upToDownName = allUpToDownNames[apkid]
+            appurl      = 'http://' + upToDownName + '.en.uptodown.com/android'
+            downloadurl = 'http://' + upToDownName + '.en.uptodown.com/android/download'
+
+            session = requests.Session()
+            session.proxies = Debug.getProxy()
+            logging.debug('Requesting: ' + appurl)
             try:
-                downloadresp = session.get(downloadurl)
-                downloadhtml = unicodedata.normalize('NFKD', downloadresp.text).encode('ascii', 'ignore')
-                downloaddom = BeautifulSoup(downloadhtml, 'html5lib')
-                latesturl   = downloaddom.find('iframe', {'id': 'iframe_download'})['src'] #note that this url will still result in a redirect 302
+                appresp = session.get(appurl)
+                apphtml = unicodedata.normalize('NFKD', appresp.text).encode('ascii', 'ignore')
+                appdom  = BeautifulSoup(apphtml, 'html5lib')
+                appver = appdom.find('span', {'itemprop': 'softwareVersion'}).contents
+                if  appver: #sometimes there is no version number specified within the span
+                    latestver   = appver[0].lstrip('v').strip().encode("ascii") #sometimes they set a v in front of the versionName and it presents unicode for some reason
+                else:
+                    latestver   = ''
+                logging.debug('Requesting: ' + downloadurl)
+                try:
+                    downloadresp = session.get(downloadurl)
+                    downloadhtml = unicodedata.normalize('NFKD', downloadresp.text).encode('ascii', 'ignore')
+                    downloaddom = BeautifulSoup(downloadhtml, 'html5lib')
+                    latesturl   = downloaddom.find('iframe', {'id': 'iframe_download'})['src'] #note that this url will still result in a redirect 302
 
-                avi = ApkVersionInfo(name=apkid,
-                                     ver=latestver,
-                                     download_src=latesturl
-                                     )
-                if Global.report.isThisApkNeeded(avi):
-                    downloadApk(avi)
+                    avi = ApkVersionInfo(name=apkid,
+                                         ver=latestver,
+                                         download_src=latesturl
+                                         )
+                    if self.report.isThisApkNeeded(avi):
+                        self.downloadApk(avi)
 
-                #We still miss fetching older versions
+                    #We still miss fetching older versions
+                except:
+                    logging.exception('!!! Error parsing html from: "{0}"'.format(downloadurl))
             except:
-                logging.exception('!!! Error parsing html from: "{0}"'.format(downloadurl))
-        except:
-            logging.exception('!!! Error parsing html from: "{0}"'.format(appurl))
-    except KeyError:
-        logging.info('{0} not in uptodown.com dictionary'.format(apkid))
-# END: def checkOneApp:
+                logging.exception('!!! Error parsing html from: "{0}"'.format(appurl))
+        except KeyError:
+            logging.info('{0} not in uptodown.com dictionary'.format(apkid))
+    # END: def checkOneApp:
 
 
-def main(param_list):
-    """
-    main(): single parameter for report_sources.sh output
-    """
-    lines = ''
-    if len(param_list) == 1:
-        with open(param_list[0]) as report:
-            lines = report.readlines()
-    else:
-        lines = sys.stdin.readlines()
+    def crawl(self, threads=5):
+        """
+        crawl(): check all uptodown apps
+        """
+        # Start checking all apkids ...
+        p = multiprocessing.Pool(threads)
+        p.map(unwrap_self_checkOneApp, zip([self]*len(report.dAllApks.keys()), report.dAllApks.keys()))
+    # END: crawl():
+# END: class UptodownCrawler
 
-    Global.report = ReportHelper(lines)
-    keys = Global.report.dAllApks.keys()
-
-    if len(keys) == 0:
-        print('ERROR: expecting:')
-        print(' - 1 parameter (report file from output of report_sources.sh)')
-        print(' or ')
-        print(' - stdin from report_sources.sh')
-        return
-
-    # Start checking all apkids ...
-    p = multiprocessing.Pool(5)
-    p.map(checkOneApp, keys)
-
-# END: main():
+def unwrap_self_checkOneApp(arg, **kwarg):
+    return UptodownCrawler.checkOneApp(*arg, **kwarg)
 
 ###################
 # END: Functions  #
 ###################
 
 if __name__ == "__main__":
+    """
+    main(): single parameter for report_sources.sh output
+    """
     logging.basicConfig(filename = logFile, filemode = 'w', level = logLevel, format = logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("requesocks").setLevel(logging.WARNING)
 
-    main(sys.argv[1:])
+    lines = ''
+    if len(sys.argv[1:]) == 1:
+        with open(sys.argv[1:]) as report:
+            lines = report.readlines()
+    else:
+        lines = sys.stdin.readlines()
+
+    report = ReportHelper(lines)
+
+    if len(report.dAllApks.keys()) == 0:
+        print('ERROR: expecting:')
+        print(' - 1 parameter (report file from output of report_sources.sh)')
+        print(' or ')
+        print(' - stdin from report_sources.sh')
+        exit(1)
+
+    crawler = UptodownCrawler(report)
+    crawler.crawl()
+    logging.debug('Just before outputString creation')
+    outputString = ' '.join(crawler.dlFiles)
+    if crawler.dlFilesBeta:
+        outputString += ' beta ' + ' '.join(crawler.dlFilesBeta)
+    logging.debug('Just after outputString creation')
+    if outputString:
+        print(outputString)
+        sys.stdout.flush()
+    logging.debug('Done ...')
