@@ -208,7 +208,7 @@ class UptodownCrawler(object):
         """
         # Start checking all apkids ...
         p = multiprocessing.Pool(threads)
-        p.map(unwrap_self_checkOneApp, zip([self]*len(report.dAllApks.keys()), report.dAllApks.keys()))
+        p.map(unwrap_self_checkOneApp, zip([self]*len(self.report.dAllApks.keys()), self.report.dAllApks.keys()))
     # END: crawl():
 # END: class UptodownCrawler
 
