@@ -7,7 +7,7 @@ import logging
 from debug import Debug
 from reporthelper import ReportHelper
 from apkdlcrawler import ApkdlCrawler
-#from apkmirrorcrawler import ApkmirrorCrawler
+from apkmirrorcrawler import ApkMirrorCrawler
 from aptoidecrawler import AptoideCrawler
 from mobogeniecrawler import MobogenieCrawler
 from plazzacrawler import PlazzaCrawler
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     beta    = []
 
     crawlers = [ApkdlCrawler(report),
-                #ApkmirrorCrawler(report),
+                ApkMirrorCrawler(report),
                 AptoideCrawler(report),
                 MobogenieCrawler(report),
                 PlazzaCrawler(report),

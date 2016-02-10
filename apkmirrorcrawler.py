@@ -50,7 +50,7 @@ logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 allApkMirrorNames = {
     'com.android.chrome'                          : 'chrome',
     'com.android.vending'                         : 'google-play-store',
-    #'com.google.android.androidforwork'           : '',
+    # 'com.google.android.androidforwork'           : '',
     'com.google.android.apps.books'               : 'google-play-books',
     'com.google.android.apps.cloudprint'          : 'cloud-print',
     'com.google.android.apps.docs'                : 'drive',
@@ -117,7 +117,6 @@ class ApkMirrorCrawler(object):
         self.sReVerInfo = '(?P<VERNAME>\S*) \((?P<VERCODE>\d*)\).* API (?P<SDK>\d*)\)'
         self.reVersion  = re.compile(self.sReVerInfo)
 
-
     def downloadApk(self, avi, isBeta=False):
         """
         downloadApk(avi): downloads the give APK
@@ -143,12 +142,11 @@ class ApkMirrorCrawler(object):
             with open(avi.apk_name, 'wb') as local_file:
                 local_file.write(r.content)
 
-            logging.debug(('beta:' if isBeta else 'reg :') + apkname)
-            return       (('beta:' if isBeta else ''     ) + apkname)
+            logging.debug(('beta:' if isBeta else 'reg :') + avi.apk_name)
+            return (('beta:' if isBeta else ''     ) + avi.apk_name)
         except OSError:
             logging.exception('!!! Filename is not valid: "{0}"'.format(avi.apk_name))
     # END: def downloadApk(avi):
-
 
     def getVersionInfo(self, avi):
         """
@@ -174,12 +172,9 @@ class ApkMirrorCrawler(object):
             for blueFont in blueFonts:
                 if blueFont.get_text() == 'File name: ':
                     avi.apk_name = blueFont.next_sibling
-                if blueFont.get_text() == 'Version: ':
-                    avi.ver = blueFont.next_sibling
         except:
             logging.exception('!!! Error parsing html from: "{0}"'.format(url))
     # END: def getVersionInfo(avi):
-
 
     def checkOneApp(self, apkid):
         """
@@ -225,7 +220,7 @@ class ApkMirrorCrawler(object):
 
                         m = self.reVersion.search(verInfo)
                         if m:
-                            avi = ApkVersionInfo(name=verText + ('.beta' if isBeta else ''),
+                            avi = ApkVersionInfo(name=apkid + ('.beta' if isBeta else ''),
                                                  ver=m.group('VERNAME'),
                                                  vercode=int(m.group('VERCODE')),
                                                  sdk=int(m.group('SDK')),
@@ -256,14 +251,15 @@ class ApkMirrorCrawler(object):
         return filenames
     # END: def checkOneApp:
 
-
     def crawl(self, threads=5):
         """
         crawl(): check all ApkMirror apps
         """
         # Start checking all apkids ...
         p = multiprocessing.Pool(threads)
-        r = p.map_async(unwrap_self_checkOneApp, zip([self]*len(self.report.dAllApks.keys()), self.report.dAllApks.keys()), callback=unwrap_callback)
+        r = p.map_async(unwrap_self_checkOneApp,
+                        zip([self]*len(self.report.dAllApks.keys()), self.report.dAllApks.keys()),
+                        callback=unwrap_callback)
         r.wait()
         (self.dlFiles, self.dlFilesBeta) = unwrap_getresults()
     # END: crawl():
@@ -271,16 +267,21 @@ class ApkMirrorCrawler(object):
 
 nonbeta = []
 beta    = []
+
+
 def unwrap_callback(results):
-    for result in results:
-        if result:
-            if result.startswith('beta:'):
-                beta.append(result[5:])
-            else:
-                nonbeta.append(result)
+    for result_list in results:
+        for result in result_list:
+            if result:
+                if result.startswith('beta:'):
+                    beta.append(result[5:])
+                else:
+                    nonbeta.append(result)
+
 
 def unwrap_getresults():
     return (nonbeta, beta)
+
 
 def unwrap_self_checkOneApp(arg, **kwarg):
     return ApkMirrorCrawler.checkOneApp(*arg, **kwarg)
