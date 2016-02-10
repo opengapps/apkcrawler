@@ -121,16 +121,20 @@ class ApkMirrorCrawler(object):
         """
         downloadApk(avi): downloads the give APK
         """
+        if isBeta:
+            apk_name = 'beta.'+avi.apk_name
+        else:
+            apk_name = avi.apk_name
         try:
-            if os.path.exists(avi.apk_name):
+            if os.path.exists(apk_name):
                 logging.info('Downloaded APK already exists.')
                 return
 
-            if os.path.exists(os.path.join('.', 'apkcrawler', avi.apk_name)):
+            if os.path.exists(os.path.join('.', 'apkcrawler', apk_name)):
                 logging.info('Downloaded APK already exists (in ./apkcrawler/).')
                 return
 
-            if os.path.exists(os.path.join('..', 'apkcrawler', avi.apk_name)):
+            if os.path.exists(os.path.join('..', 'apkcrawler', apk_name)):
                 logging.info('Downloaded APK already exists (in ../apkcrawler/).')
                 return
 
@@ -139,13 +143,13 @@ class ApkMirrorCrawler(object):
             session.proxies = Debug.getProxy()
             r = session.get(avi.download_src)
 
-            with open(avi.apk_name, 'wb') as local_file:
+            with open(apk_name, 'wb') as local_file:
                 local_file.write(r.content)
 
-            logging.debug(('beta:' if isBeta else 'reg :') + avi.apk_name)
-            return (('beta:' if isBeta else ''     ) + avi.apk_name)
+            logging.debug(('beta:' if isBeta else 'reg :') + apk_name)
+            return (('beta:' if isBeta else ''     ) + apk_name)
         except OSError:
-            logging.exception('!!! Filename is not valid: "{0}"'.format(avi.apk_name))
+            logging.exception('!!! Filename is not valid: "{0}"'.format(apk_name))
     # END: def downloadApk(avi):
 
     def getVersionInfo(self, avi):
@@ -237,7 +241,7 @@ class ApkMirrorCrawler(object):
                             logging.info('Getting Info for: "{0}" ({1})'.format(avi.name, avi.scrape_src))
                             self.getVersionInfo(avi)
                             logging.info('Downloading: "{0}"'.format(avi.apk_name))
-                            filenames.append(self.downloadApk(avi))
+                            filenames.append(self.downloadApk(avi,avi.name.endswith('.beta')))
                         else:
                             logging.debug('Skipping: "{0}" ({1})'.format(avi.name, avi.scrape_src))
                     # END: for avi in avis:
@@ -268,7 +272,6 @@ class ApkMirrorCrawler(object):
 nonbeta = []
 beta    = []
 
-
 def unwrap_callback(results):
     for result_list in results:
         for result in result_list:
@@ -278,14 +281,11 @@ def unwrap_callback(results):
                 else:
                     nonbeta.append(result)
 
-
 def unwrap_getresults():
     return (nonbeta, beta)
 
-
 def unwrap_self_checkOneApp(arg, **kwarg):
     return ApkMirrorCrawler.checkOneApp(*arg, **kwarg)
-
 
 if __name__ == "__main__":
     """

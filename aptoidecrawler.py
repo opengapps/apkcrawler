@@ -435,10 +435,6 @@ def unwrap_getresults():
 def unwrap_self_checkOneStore(arg, **kwarg):
     return AptoideCrawler.checkOneStore(*arg, **kwarg)
 
-###################
-# END: Functions  #
-###################
-
 if __name__ == "__main__":
     """
     main(): single parameter for report_sources.sh output
