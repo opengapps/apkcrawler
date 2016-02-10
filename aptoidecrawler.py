@@ -75,6 +75,8 @@ class AptoideCrawler(object):
 
             for x in xrange(1,4): #up to three tries
                 wait = GlobalDelay*x
+                logging.info('Waiting {0} seconds before fetching {1}'.format(wait, file_name))
+                time.sleep(wait)
                 try:
                     logging.debug('Requesting1 ({0}): {1}'.format(x, url))
                     resp = session.get(url)
@@ -86,12 +88,11 @@ class AptoideCrawler(object):
                                               indent=4, separators=(',', ': ')), resp.encoding)
                             return data
                         else:
-                            logging.error('data1[\'status\']: {0}, retry in: {1}s - {2}'.format(data.get('status', 'null'), wait, file_name))
+                            logging.error('data1[\'status\']: {0}, when fetching {1}, try {2}'.format(data.get('status', 'null'), file_name, x))
                     else:
-                        logging.error('HTTPStatus1: {0}, retry in: {1}s - {2}'.format(resp.status_code, wait, file_name))
+                        logging.error('HTTPStatus1: {0}, when fetching {1}, try {2}'.format(resp.status_code, file_name, x))
                 except:
                     logging.exception('!!! Invalid JSON from: "{0}", retry in: {1}s'.format(url,wait))
-                time.sleep(wait)
             # END: for x
         # END: if data
         return None
@@ -116,6 +117,8 @@ class AptoideCrawler(object):
 
             for x in xrange(1,4): #up to three tries
                 wait = GlobalDelay*x
+                logging.info('Waiting {0} seconds before fetching {1}'.format(wait, file_name))
+                time.sleep(wait)
                 try:
                     logging.debug('Requesting2 ({0}): {1}'.format(x, url))
                     resp = session.get(url)
@@ -136,12 +139,11 @@ class AptoideCrawler(object):
                                               indent=4, separators=(',', ': ')), resp.encoding)
                             return avi
                         else:
-                            logging.error('data2[\'status\']: {0}, retry in: {1}s - {2}'.format(data.get('status', 'null'), wait, file_name))
+                            logging.error('data2[\'status\']: {0}, when fetching {1}, try {2}'.format(data.get('status', 'null'), file_name, x))
                     else:
-                        logging.error('HTTPStatus2: {0}, retry in: {1}s - {2}'.format(resp.status_code, wait, file_name))
+                        logging.error('HTTPStatus2: {0}, when fetching {1}, try {2}'.format(resp.status_code, file_name, x))
                 except:
                     logging.exception('!!! Invalid JSON from: "{0}", retry in: {1}s'.format(url,wait))
-                time.sleep(wait)
             # END: for x
         # END: if data
         return None
