@@ -355,7 +355,7 @@ class AptoideCrawler(object):
                  #'jaslibertas',
                  'jdquila',
                  'jodean',
-                 'kcprophet',
+                 #'kcprophet',
                  'kryss974',
                  'kvanzuijlen',
                  'leighakat',
