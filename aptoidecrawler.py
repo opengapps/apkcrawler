@@ -163,7 +163,7 @@ class AptoideCrawler(object):
 
         if (avi.malware['status']=="scanned" and
             avi.malware['reason']['signature_validated']['status']=="passed" and
-            avi.malware['reason']['signature_validated']['signature_from']=="market"):
+            (avi.malware['reason']['signature_validated']['signature_from']=="market" or avi.malware['reason']['signature_validated']['signature_from']=="tester")):
             apkname = '{0}_{1}-{2}_minAPI{3}{4}{5}.apk'.format(avi.name.replace('.beta', ''),
                                                                avi.realver.replace(' ', '_'),
                                                                avi.vercode,
