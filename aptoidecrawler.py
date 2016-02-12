@@ -44,7 +44,7 @@ else:
 ###################
 # Globals         #
 ###################
-GlobalDelay = 20
+GlobalDelay = 30
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(__file__))
