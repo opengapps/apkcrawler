@@ -400,6 +400,7 @@ class AptoideCrawler(object):
                  'prozac4me',
                  'rahullah',
                  'raypino',
+                 'rehak',
                  'rodrivergara',
                  'ryoma3ch1z3n',
                  'sandro797',
