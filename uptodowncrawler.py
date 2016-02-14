@@ -155,10 +155,11 @@ class UptodownCrawler(object):
         checkOneApp(apkid):
         """
         logging.info('Checking app: {0}'.format(apkid))
+        avis = []
+        filenames = []
         try:
             upToDownName = allUpToDownNames[apkid]
-            appurl      = 'http://' + upToDownName + '.en.uptodown.com/android'
-            downloadurl = 'http://' + upToDownName + '.en.uptodown.com/android/download'
+            appurl      = 'http://' + upToDownName + '.en.uptodown.com/android/old'
 
             session = requests.Session()
             session.proxies = Debug.getProxy()
@@ -167,33 +168,42 @@ class UptodownCrawler(object):
                 appresp = session.get(appurl)
                 apphtml = unicodedata.normalize('NFKD', appresp.text).encode('ascii', 'ignore')
                 appdom  = BeautifulSoup(apphtml, 'html5lib')
-                appver = appdom.find('span', {'itemprop': 'softwareVersion'}).contents
-                if  appver: #sometimes there is no version number specified within the span
-                    latestver   = appver[0].lstrip('v').strip().encode("ascii") #sometimes they set a v in front of the versionName and it presents unicode for some reason
+
+                latestver = appdom.find('span', {'itemprop': 'softwareVersion'})
+                if latestver:   # sometimes there is only 1 version and no old versions, and you get the latest-version page of the app instead of the overview of old versions
+                    avis.append(ApkVersionInfo(name=apkid,
+                                         ver=(latestver.contents[0].lstrip('v').strip().encode("ascii") if latestver.contents else ''),  # sometimes there is no versionnumber, or they set a v in front of the versionName; it presents unicode for some reason
+                                         scrape_src='http://' + upToDownName + '.en.uptodown.com/android/download'))
                 else:
-                    latestver   = ''
-                logging.debug('Requesting: ' + downloadurl)
-                try:
-                    downloadresp = session.get(downloadurl)
-                    downloadhtml = unicodedata.normalize('NFKD', downloadresp.text).encode('ascii', 'ignore')
-                    downloaddom = BeautifulSoup(downloadhtml, 'html5lib')
-                    latesturl   = downloaddom.find('iframe', {'id': 'iframe_download'})['src'] #note that this url will still result in a redirect 302
+                    appversions = appdom.findAll('section', {'class': 'container'})
+                    for apk in appversions[0:5]:    # limit ourself to only the first 5 results; the chance that there are updates beyond that point is smaller than the chance of having errors in the versionname
+                        apkurl = apk.find('a')['href']
+                        apkver = apk.find('span', {'class': 'app_card_version'}).contents
+                        avis.append(ApkVersionInfo(name=apkid,
+                                             ver=(apkver[0].lstrip('v').strip().encode("ascii") if apkver else ''),  # sometimes there is no versionnumber, or they set a v in front of the versionName; it presents unicode for some reason
+                                             scrape_src=apkurl))
+                    # END: for appversions
+                # END: if lastestver
 
-                    avi = ApkVersionInfo(name=apkid,
-                                         ver=latestver,
-                                         download_src=latesturl
-                                         )
+                for avi in avis:
                     if self.report.isThisApkNeeded(avi):
-                        return self.downloadApk(avi)
-
-                    #We still miss fetching older versions
-                except:
-                    logging.exception('!!! Error parsing html from: "{0}"'.format(downloadurl))
+                        logging.debug('Requesting: ' + avi.scrape_src)
+                        try:
+                            downloadresp     = session.get(avi.scrape_src)
+                            downloadhtml     = unicodedata.normalize('NFKD', downloadresp.text).encode('ascii', 'ignore')
+                            downloaddom      = BeautifulSoup(downloadhtml, 'html5lib')
+                            avi.download_src = downloaddom.find('iframe', {'id': 'iframe_download'})['src'] #note that this url will still result in a redirect 302
+                            filenames.append(self.downloadApk(avi))
+                        except:
+                            logging.exception('!!! Error parsing html from: "{0}"'.format(avi.scrape_src))
+                    # END: if isThisApkNeeded
+                # END: for avis
             except:
                 logging.exception('!!! Error parsing html from: "{0}"'.format(appurl))
         except KeyError:
             logging.info('{0} not in uptodown.com dictionary'.format(apkid))
-    # END: def checkOneApp:
+        return filenames
+    # END: def checkOneApp
 
 
     def crawl(self, threads=5):
@@ -211,12 +221,13 @@ class UptodownCrawler(object):
 nonbeta = []
 beta    = []
 def unwrap_callback(results):
-    for result in results:
-        if result:
-            if result.startswith('beta:'):
-                beta.append(result[5:])
-            else:
-                nonbeta.append(result)
+    for resultlist in results:
+        for result in resultlist:
+            if result:
+                if result.startswith('beta:'):
+                    beta.append(result[5:])
+                else:
+                    nonbeta.append(result)
 
 def unwrap_getresults():
     return (nonbeta, beta)
