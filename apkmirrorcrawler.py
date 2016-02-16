@@ -114,17 +114,17 @@ class ApkMirrorCrawler(object):
         self.dlFiles     = dlFiles
         self.dlFilesBeta = dlFilesBeta
 
-        self.sReVerInfo = '(?P<VERNAME>\S*) \((?P<VERCODE>\d*)\).* API (?P<SDK>\d*)\)'
+        self.sReVerInfo = 'Version:\s(?P<VERNAME>.*)\s\((?P<VERCODE>\d*)\)'
         self.reVersion  = re.compile(self.sReVerInfo)
+
+        self.sReSdkInfo = 'Min:\s.*,\sAPI\s(?P<SDK>\d*)\)'
+        self.reSdk      = re.compile(self.sReSdkInfo)
 
     def downloadApk(self, avi, isBeta=False):
         """
         downloadApk(avi): downloads the give APK
         """
-        if isBeta:
-            apk_name = 'beta.'+avi.apk_name
-        else:
-            apk_name = avi.apk_name
+        apk_name = 'beta.' if isBeta else '' + avi.get_apk_name()
         try:
             if os.path.exists(apk_name):
                 logging.info('Downloaded APK already exists.')
@@ -152,9 +152,49 @@ class ApkMirrorCrawler(object):
             logging.exception('!!! Filename is not valid: "{0}"'.format(apk_name))
     # END: def downloadApk(avi):
 
-    def getVersionInfo(self, avi):
+    def getMultipleVersionInfo(self, avi):
         """
-        getVersionInfo(avi): Determines each versions information
+        getMultipleVersionInfo(avi): Determines each version information for multiple
+                                     arch/dpi variants
+        """
+        try:
+            url = 'http://www.apkmirror.com' + avi.scrape_src
+
+            session = requests.Session()
+            session.proxies = Debug.getProxy()
+            logging.debug('Requesting3: ' + url)
+
+            resp    = session.get(url)
+            html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
+
+            dom          = BeautifulSoup(html, 'html5lib')
+            downloadArea = dom.findAll('div', {'class': 'listWidget'})[0]
+            tablerows    = downloadArea.findAll('div', {'class': 'table-row'})
+
+            avis = []
+
+            bOnce = True  # Skip header row
+            for tr in tablerows:
+                if bOnce:
+                    bOnce = False
+                    continue
+
+                cells = tr.findAll('div', {'class': 'table-cell'})
+                avi.scrape_src = cells[0].find('a')['href']
+                avi.arch = cells[1].get_text()
+
+                tmp = self.getOneVersionInfo(avi)
+                if tmp:
+                    avis.append(tmp)
+
+            return avis
+        except:
+            logging.exception('!!! Error parsing html from: "{0}"'.format(url))
+    # END: def getMultipleVersionInfo(avi):
+
+    def getOneVersionInfo(self, avi):
+        """
+        getOneVersionInfo(avi): Determines each versions information
         """
         try:
             url = 'http://www.apkmirror.com' + avi.scrape_src
@@ -166,19 +206,43 @@ class ApkMirrorCrawler(object):
             resp    = session.get(url)
             html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
 
-            dom       = BeautifulSoup(html, 'html5lib')
-            postArea  = dom.findAll('div', {'class': 'post-area'})[0]
-            dl_button = postArea.findAll('a', {'type': 'button'})[1]
-            blueFonts = postArea.findAll('span', {'class': 'fontBlue'})
+            dom         = BeautifulSoup(html, 'html5lib')
+            contentArea = dom.findAll('div', {'class': 'tab-content'})[0]
+            dl_button   = contentArea.findAll('a', {'type': 'button'})[0]
+            appspecs    = contentArea.findAll('div', {'class': 'appspec-row'})
 
-            avi.download_src = dl_button['href']
+            avivername = ''
+            avivercode = ''
+            avisdk     = ''
+            avidpi     = ''
+            for appspec in appspecs:
+                # Version
+                if appspec.find('svg', {'class': 'apkm-icon-file'}):
+                    m = self.reVersion.search(appspec.find('div', {'class': 'appspec-value'}).get_text())
+                    if m:
+                        avivername = m.group('VERNAME')
+                        avivercode = m.group('VERCODE')
+                # SDK
+                if appspec.find('svg', {'class': 'apkm-icon-sdk'}):
+                    m = self.reSdk.search(appspec.find('div', {'class': 'appspec-value'}).get_text())
+                    if m:
+                        avisdk = m.group('SDK')
+                # DPI
+                if appspec.find('svg', {'class': 'apkm-icon-dpi'}):
+                    avidpi = appspec.find('div', {'class': 'appspec-value'}).get_text()
 
-            for blueFont in blueFonts:
-                if blueFont.get_text() == 'File name: ':
-                    avi.apk_name = blueFont.next_sibling
+            return ApkVersionInfo(name=avi.name,
+                                  ver=avivername,
+                                  vercode=avivercode,
+                                  sdk=avisdk,
+                                  dpi=avidpi,
+                                  arch=avi.arch,
+                                  scrape_src=avi.scrape_src,
+                                  download_src='http://www.apkmirror.com' + dl_button['href'])
+
         except:
             logging.exception('!!! Error parsing html from: "{0}"'.format(url))
-    # END: def getVersionInfo(avi):
+    # END: def getOneVersionInfo(avi):
 
     def checkOneApp(self, apkid):
         """
@@ -190,7 +254,11 @@ class ApkMirrorCrawler(object):
 
         try:
             apkMirrorName = allApkMirrorNames[apkid]
-            url = 'http://www.apkmirror.com/uploads/?app=' + apkMirrorName
+
+            # Using the "uploads/?q=" page sorts newest first but is slower
+            # Using the "apk/google-inc/" page is faster loading
+            # For now favor slow load and skip checking all versions (below)
+            url = 'http://www.apkmirror.com/uploads/?q={0}'.format(apkMirrorName)
 
             session = requests.Session()
             session.proxies = Debug.getProxy()
@@ -200,53 +268,52 @@ class ApkMirrorCrawler(object):
                 html = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
 
                 dom      = BeautifulSoup(html, 'html5lib')
-                latest   = dom.findAll('div', {'class': 'latestWidget'})[1]
-                versions = latest.findAll('div', {'class': 'latestPost'})
+                versions = dom.findAll('div', {'class': 'infoSlide'})
+
+                hasVariants = dom.find('svg', {'class': 'tag-icon'})
 
                 avis = []
 
-                for version in versions:
-                    verName = version.findAll('a', {'class': 'fontBlack'})
-                    if verName:
-                        verName = verName[0]
-                    else:
-                        continue
+                # Skip all version since it is sorted (above)
+                # for version in versions:
+                version = versions[0]
 
-                    verText = '{0}'.format(verName.get_text().encode('ascii', 'ignore'))
-                    if 'preview' in verText.lower():
-                        logging.info('!!! Preview Found: ' + verText)
-                    else:
-                        isBeta = 'beta' in verText.lower()
+                verName = version.findAll('span', {'class': 'infoslide-value'})
+                verName = verName[0].get_text()
 
-                        blues = version.findAll('span', {'class': 'fontBlue'})
-                        blueVer = [blue for blue in blues if 'Version' in blue.get_text()][0]
-                        verInfo = blueVer.findNext('strong').get_text()
+                appNameRow  = version.find_previous_sibling('div', {'class': 'appRow'})
+                appNameLink = appNameRow.find('a', {'class': 'fontBlack'})
+                appName     = appNameLink.get_text()
+                appUrl      = appNameLink['href']
 
-                        m = self.reVersion.search(verInfo)
-                        if m:
-                            avi = ApkVersionInfo(name=apkid + ('.beta' if isBeta else ''),
-                                                 ver=m.group('VERNAME'),
-                                                 vercode=int(m.group('VERCODE')),
-                                                 sdk=int(m.group('SDK')),
-                                                 scrape_src=verName['href'])
-                            avis.append(avi)
+                if 'preview' in appName.lower():
+                    logging.info('!!! Preview Found: ' + appName)
+                else:
+                    isBeta = 'beta' in appName.lower()
+
+                    avi = ApkVersionInfo(name=apkid + ('.beta' if isBeta else ''),
+                                         ver=verName,
+                                         #vercode=0,
+                                         #sdk=0,
+                                         scrape_src=appUrl)
+
+                    if self.report.isThisApkNeeded(avi):
+                        if hasVariants:
+                            avis.extend(self.getMultipleVersionInfo(avi))
                         else:
-                            logging.info('!!! No Matchy: ' + verText)
+                            tmp = self.getOneVersionInfo(avi)
+                            if tmp:
+                                avis.append(tmp)
                 # END: for version in versions:
 
                 # Determine which versions to download
-                if len(avis) > 0:
-                    for avi in avis:
-                        if self.report.isThisApkNeeded(avi):
-                            logging.info('Getting Info for: "{0}" ({1})'.format(avi.name, avi.scrape_src))
-                            self.getVersionInfo(avi)
-                            logging.info('Downloading: "{0}"'.format(avi.apk_name))
-                            filenames.append(self.downloadApk(avi,avi.name.endswith('.beta')))
-                        else:
-                            logging.debug('Skipping: "{0}" ({1})'.format(avi.name, avi.scrape_src))
-                    # END: for avi in avis:
-                else:
-                    logging.info('No matching APKs found for: {0}'.format(apkMirrorName))
+                for avi in avis:
+                    if self.report.isThisApkNeeded(avi):
+                        logging.info('Downloading: "{0}"'.format(avi.apk_name))
+                        filenames.append(self.downloadApk(avi, avi.name.endswith('.beta')))
+                    else:
+                        logging.debug('Skipping: "{0}" ({1})'.format(avi.name, avi.scrape_src))
+                # END: for avi in avis:
             except:
                 logging.exception('!!! Error parsing html from: "{0}"'.format(url))
         except KeyError:
@@ -323,3 +390,4 @@ if __name__ == "__main__":
         sys.stdout.flush()
 
     logging.debug('Done ...')
+

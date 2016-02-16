@@ -83,6 +83,12 @@ class ApkVersionInfo(object):
             return 0
     # END: def cmp:
 
+    def get_apk_name(self):
+        return '{0}_{1}-{2}_minAPI{3}{4}{5}.apk'.format(self.name, '_'.join(self.realver.split(' ')),
+                                                        self.vercode, self.sdk,
+                                                        '' if not self.arch else '({0})'.format(self.arch),
+                                                        '({0})'.format(self.dpi))
+
     def __str__(self):
         return str(self.__dict__)
 # END: class ApkVersionInfo()
