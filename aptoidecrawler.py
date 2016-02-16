@@ -326,6 +326,7 @@ class AptoideCrawler(object):
                  'apps',
                  'appstv',
                  'arkz',
+                 'ashley88',
                  'austroid',
                  'bazar-canaima',
                  #'blaccs',
