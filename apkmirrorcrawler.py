@@ -262,7 +262,7 @@ class ApkMirrorCrawler(object):
 
             session = requests.Session()
             session.proxies = Debug.getProxy()
-            logging.debug('Requesting: ' + url)
+            logging.debug('Requesting1: ' + url)
             try:
                 resp = session.get(url)
                 html = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
@@ -390,4 +390,3 @@ if __name__ == "__main__":
         sys.stdout.flush()
 
     logging.debug('Done ...')
-
