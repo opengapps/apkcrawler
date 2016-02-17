@@ -293,8 +293,6 @@ class ApkMirrorCrawler(object):
 
                     avi = ApkVersionInfo(name=apkid + ('.beta' if isBeta else ''),
                                          ver=verName,
-                                         #vercode=0,
-                                         #sdk=0,
                                          scrape_src=appUrl)
 
                     if self.report.isThisApkNeeded(avi):
@@ -309,7 +307,7 @@ class ApkMirrorCrawler(object):
                 # Determine which versions to download
                 for avi in avis:
                     if self.report.isThisApkNeeded(avi):
-                        logging.info('Downloading: "{0}"'.format(avi.apk_name))
+                        logging.info('Downloading: "{0}"'.format(avi.get_apk_name()))
                         filenames.append(self.downloadApk(avi, avi.name.endswith('.beta')))
                     else:
                         logging.debug('Skipping: "{0}" ({1})'.format(avi.name, avi.scrape_src))
