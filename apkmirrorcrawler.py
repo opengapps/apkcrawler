@@ -124,7 +124,7 @@ class ApkMirrorCrawler(object):
         """
         downloadApk(avi): downloads the give APK
         """
-        apk_name = 'beta.' if isBeta else '' + avi.get_apk_name()
+        apk_name = ('beta.' if isBeta else '') + avi.get_apk_name()
         try:
             if os.path.exists(apk_name):
                 logging.info('Downloaded APK already exists.')
