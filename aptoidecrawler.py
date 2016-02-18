@@ -382,6 +382,7 @@ class AptoideCrawler(object):
                  #'lewy',
                  'lonerfox2013',
                  #'ludock96',
+                 'mancmonkey',
                  'mark8',
                  #'matandroid',
                  'maxxthor',
