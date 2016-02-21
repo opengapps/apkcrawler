@@ -441,6 +441,7 @@ class AptoideCrawler(object):
                  'vitonline',
                  'wanky',
                  'westcoastandroid',
+                 'wo88les',
                  'xavimetal',
                  'xerodox',
                  'yelbana2',
