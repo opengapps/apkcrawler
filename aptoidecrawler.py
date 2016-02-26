@@ -332,6 +332,7 @@ class AptoideCrawler(object):
                  'avsm',
                  'barnabas-horvath',
                  'bazar-canaima',
+                 'bettyswollocks',
                  #'blaccs',
                  #'benny09',
                  'brainyideas',
