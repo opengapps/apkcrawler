@@ -49,6 +49,7 @@ logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
 allApkMirrorNames = {
     'com.android.chrome'                          : 'chrome',
+    'com.android.facelock'                        : 'trusted-face',
     'com.android.vending'                         : 'google-play-store',
     # 'com.google.android.androidforwork'           : '',
     'com.google.android.apps.books'               : 'google-play-books',
@@ -84,6 +85,7 @@ allApkMirrorNames = {
     'com.google.android.gms'                      : 'google-play-services',
     'com.google.android.googlecamera'             : 'camera',
     'com.google.android.googlequicksearchbox'     : 'google-search',
+    'com.google.android.gsf'                      : 'google-services-framework',
     'com.google.android.inputmethod.japanese'     : 'google-japanese-input',
     'com.google.android.inputmethod.korean'       : 'google-korean-input',
     'com.google.android.inputmethod.latin'        : 'google-keyboard',
@@ -94,8 +96,10 @@ allApkMirrorNames = {
     'com.google.android.leanbacklauncher'         : 'leanback-launcher',
     'com.google.android.marvin.talkback'          : 'talkback',
     'com.google.android.music'                    : 'google-play-music',
+    'com.google.android.partnersetup'             : 'google-partner-setup',
     'com.google.android.play.games'               : 'google-play-games',
     'com.google.android.street'                   : 'street-view',
+    'com.google.android.syncadapters.contacts'    : 'google-contacts-sync',
     'com.google.android.tag'                      : 'tags',
     'com.google.android.talk'                     : 'hangouts',
     'com.google.android.tts'                      : 'google-text-to-speech-engine',
