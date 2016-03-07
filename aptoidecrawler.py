@@ -319,6 +319,7 @@ class AptoideCrawler(object):
         repos = ['28122014',
                  'abdallah23',
                  'abdullah-mohsen',
+                 'aceapks',
                  'adgilapps2011',
                  'adjrl',
                  #'advcfs',
