@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #
 # Required Modules
@@ -152,7 +152,7 @@ class ApkMirrorCrawler(object):
                 local_file.write(r.content)
 
             logging.debug(('beta:' if isBeta else 'reg :') + apk_name)
-            return (('beta:' if isBeta else ''     ) + apk_name)
+            return (('beta:' if isBeta else '') + apk_name)
         except OSError:
             logging.exception('!!! Filename is not valid: "{0}"'.format(apk_name))
     # END: def downloadApk(avi):
@@ -335,7 +335,7 @@ class ApkMirrorCrawler(object):
         # Start checking all apkids ...
         p = multiprocessing.Pool(threads)
         r = p.map_async(unwrap_self_checkOneApp,
-                        zip([self]*len(self.report.dAllApks.keys()), self.report.dAllApks.keys()),
+                        list(zip([self] * len(list(self.report.dAllApks.keys())), list(self.report.dAllApks.keys()))),
                         callback=unwrap_callback)
         r.wait()
         (self.dlFiles, self.dlFilesBeta) = unwrap_getresults()
@@ -344,6 +344,7 @@ class ApkMirrorCrawler(object):
 
 nonbeta = []
 beta    = []
+
 
 def unwrap_callback(results):
     for result_list in results:
@@ -354,8 +355,10 @@ def unwrap_callback(results):
                 else:
                     nonbeta.append(result)
 
+
 def unwrap_getresults():
     return (nonbeta, beta)
+
 
 def unwrap_self_checkOneApp(arg, **kwarg):
     return ApkMirrorCrawler.checkOneApp(*arg, **kwarg)
@@ -364,7 +367,7 @@ if __name__ == "__main__":
     """
     main(): single parameter for report_sources.sh output
     """
-    logging.basicConfig(filename = logFile, filemode = 'w', level = logLevel, format = logFormat)
+    logging.basicConfig(filename=logFile, filemode='w', level=logLevel, format=logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("requesocks").setLevel(logging.WARNING)
 
@@ -377,7 +380,7 @@ if __name__ == "__main__":
 
     report = ReportHelper(lines)
 
-    if len(report.dAllApks.keys()) == 0:
+    if len(list(report.dAllApks.keys())) == 0:
         print('ERROR: expecting:')
         print(' - 1 parameter (report file from output of report_sources.sh)')
         print(' or ')

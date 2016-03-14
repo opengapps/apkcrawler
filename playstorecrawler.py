@@ -1,13 +1,17 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import sys
-import os
+# NOTICE: YOU NEED THE BETA PROTOBUF INSTALLED FROM THE PIP3 REPOSITORIES
+# DEBIAN/UBUNTU DID NOT PACKAGE ANY PYTHON3 VERSION YET
+# run: pip3 install --pre protobuf
+
 import logging
 import multiprocessing
+import os
 import random
+import sys
 import time
 
-import httplib #renamed to http.client in python3
+import http.client
 
 from googleplayapi.googleplay import GooglePlayAPI
 
@@ -31,6 +35,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning) #suppress cer
 ###################
 # CLASSES         #
 ###################
+
 
 class PlayStoreCredentials(object):
     """PlayStoreCredentials"""
@@ -80,7 +85,7 @@ class PlayStoreCredentials(object):
 manager = multiprocessing.Manager()
 Global  = manager.Namespace()
 Global.report      = None
-Global.offerType = 1 #safe to assume for all our downloads
+Global.offerType = 1  # safe to assume for all our downloads
 Global.dlFiles     = []
 Global.dlFilesBeta = []
 
@@ -97,60 +102,62 @@ logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 # Functions       #
 ###################
 
+
 def getApkInfo(playstore, apkid, delay):
     """
     getApkInfo(playstore, apkid): Get APK specific information from the Play Store
                                          and return it as an ApkVersionInfo object
     """
-    for x in xrange(1,4): #up to three tries
+    for x in range(1, 4):  # up to three tries
         res = playstore.details(apkid)
         if res.body:
-            if res.body.docV2.details.appDetails.versionCode: #if the versioncode does not exist; it is not offered as a valid download for this device by the Play Store
-                avi = ApkVersionInfo(name    = res.body.docV2.docid,
-                                     ver     = res.body.docV2.details.appDetails.versionString.split(' ')[0],  # not sure if we need the split here
-                                     vercode = res.body.docV2.details.appDetails.versionCode,
-                                     download_src = playstore
+            if res.body.docV2.details.appDetails.versionCode:  # if the versioncode does not exist; it is not offered as a valid download for this device by the Play Store
+                avi = ApkVersionInfo(name        =res.body.docV2.docid,
+                                     ver         =res.body.docV2.details.appDetails.versionString.split(' ')[0],  # not sure if we need the split here
+                                     vercode     =res.body.docV2.details.appDetails.versionCode,
+                                     download_src=playstore
                                      )
-                logging.debug('Found Play Store entry {0} {1}-{2}'.format(avi.name,avi.ver,avi.vercode))
+                logging.debug('Found Play Store entry {0} {1}-{2}'.format(avi.name, avi.ver, avi.vercode))
                 return avi
             else:
-                logging.info('Play Store entry {0} using {1} is incompatible with the AndroidId\'s device'.format(apkid,playstore.androidId))
-        elif res.status_code == httplib.NOT_FOUND:
-            logging.debug('No Play Store entry {0} using {1}'.format(apkid,playstore.androidId))
-        elif res.status_code == httplib.SERVICE_UNAVAILABLE:
-            wait = delay*x
-            logging.info('Too many sequential requests on the Play Store (503) using {0} for: {1}, waiting {2} seconds'.format(playstore.androidId,apkid,wait))
-            time.sleep(wait) # wait longer with each failed try
+                logging.info('Play Store entry {0} using {1} is incompatible with the AndroidId\'s device'.format(apkid, playstore.androidId))
+        elif res.status_code == http.client.NOT_FOUND:
+            logging.debug('No Play Store entry {0} using {1}'.format(apkid, playstore.androidId))
+        elif res.status_code == http.client.SERVICE_UNAVAILABLE:
+            wait = delay * x
+            logging.info('Too many sequential requests on the Play Store (503) using {0} for: {1}, waiting {2} seconds'.format(playstore.androidId, apkid, wait))
+            time.sleep(wait)  # wait longer with each failed try
             continue
         else:
-            logging.error('Play Store entry {0} using {1} returned unknown HTTP status {2}'.format(apkid,playstore.androidId,res.status_code))
-        return None #Not found, return empty
+            logging.error('Play Store entry {0} using {1} returned unknown HTTP status {2}'.format(apkid, playstore.androidId, res.status_code))
+        return None  # Not found, return empty
     else:
-        logging.error('Play Store entry {0} using {1} failed with repetitive 503 errors'.format(apkid,playstore.androidId))
-        return None #Kept receiving 503, return empty
+        logging.error('Play Store entry {0} using {1} failed with repetitive 503 errors'.format(apkid, playstore.androidId))
+        return None  # Kept receiving 503, return empty
     # END: for x
 # END: def getApkInfo
+
 
 def checkPlayStore(credentials, lang="en_US"):
     """
     checkPlayStore(androidId):
     """
     logging.debug('Logging in to Play Store with: ' + credentials.androidId)
-    playstore = GooglePlayAPI(credentials.androidId,lang)
-    if playstore.login(credentials.email,credentials.password,credentials.authSubToken):
-        for apkid in Global.report.dAllApks.keys():
-            wait = credentials.delay+random.randint(0, credentials.delay)
-            logging.info('Pausing {0} before searching for: {1}, waiting {2} seconds'.format(playstore.androidId,apkid,wait))
+    playstore = GooglePlayAPI(credentials.androidId, lang)
+    if playstore.login(credentials.email, credentials.password, credentials.authSubToken):
+        for apkid in list(Global.report.dAllApks.keys()):
+            wait = credentials.delay + random.randint(0, credentials.delay)
+            logging.info('Pausing {0} before searching for: {1}, waiting {2} seconds'.format(playstore.androidId, apkid, wait))
             time.sleep(wait)
             avi = getApkInfo(playstore, apkid, credentials.delay)
             if avi:
                 if Global.report.isThisApkNeeded(avi):
-                    logging.debug('Update {0} {1}-{2}'.format(avi.name,avi.ver,avi.vercode))
-                    downloadApk(avi, delay)
+                    logging.debug('Update {0} {1}-{2}'.format(avi.name, avi.ver, avi.vercode))
+                    downloadApk(avi, credentials.delay)
                 else:
-                    logging.debug('Skip {0} {1}-{2}'.format(avi.name,avi.ver,avi.vercode))
-            #else:
-                #logging.debug('No Play Store result for {0}'.format(apkid))
+                    logging.debug('Skip {0} {1}-{2}'.format(avi.name, avi.ver, avi.vercode))
+            # else:
+                # logging.debug('No Play Store result for {0}'.format(apkid))
             # END: if avi
         # END: for apkid in Global.report.dAllApks.keys()
     else:
@@ -158,15 +165,16 @@ def checkPlayStore(credentials, lang="en_US"):
     # END: if playstore.login()
 # END: def checkPlayStore
 
-def downloadApk(avi, isBeta=False):
+
+def downloadApk(avi, delay, isBeta=False):
     """
-    downloadApk(avi, isBeta): Download the specified ApkInfo from the Play Store to APK file name
+    downloadApk(avi, delay, isBeta): Download the specified ApkInfo from the Play Store to APK file name
     """
     apkname = '{0}_{1}-{2}.apk'.format(avi.name.replace('.beta', ''),
-                                                       avi.realver.replace(' ', '_'),
-                                                       avi.vercode)
+                                       avi.realver.replace(' ', '_'),
+                                       avi.vercode)
 
-    logging.info('Downloading "{0}" using: {1}'.format(apkname,avi.download_src.androidId))
+    logging.info('Downloading "{0}" using: {1}'.format(apkname, avi.download_src.androidId))
 
     try:
         if os.path.exists(apkname):
@@ -181,25 +189,25 @@ def downloadApk(avi, isBeta=False):
             logging.info('Downloaded APK already exists (in ../apkcrawler/).')
             return
 
-        for x in xrange(1,4): #up to three tries
+        for x in range(1, 4):  # up to three tries
             res = avi.download_src.download(avi.name, avi.vercode, Global.offerType)
             if res.body:
                 with open(apkname, 'wb') as local_file:
                     local_file.write(res.body)
-            elif res.status_code == httplib.SERVICE_UNAVAILABLE:
-                wait = delay*x
-                logging.info('Too many sequential requests on the Play Store (503) using {0} for: {1}, waiting {2} seconds'.format(avi.download_src.androidId,avi.name,wait))
-                time.sleep(wait) # wait longer with each failed try
+            elif res.status_code == http.client.SERVICE_UNAVAILABLE:
+                wait = delay * x
+                logging.info('Too many sequential requests on the Play Store (503) using {0} for: {1}, waiting {2} seconds'.format(avi.download_src.androidId, avi.name, wait))
+                time.sleep(wait)  # wait longer with each failed try
                 continue
-            elif res.status_code == httplib.FORBIDDEN:
-                logging.error('Play Store download of {0} using {1} is forbidden (403)'.format(apkname,avi.download_src.androidId))
+            elif res.status_code == http.client.FORBIDDEN:
+                logging.error('Play Store download of {0} using {1} is forbidden (403)'.format(apkname, avi.download_src.androidId))
             else:
-                logging.error('Play Store download of {0} using {1} returned unknown HTTP status {2}'.format(apkname,avi.download_src.androidId,res.status_code))
-            return None #Not downloadable, return empty
+                logging.error('Play Store download of {0} using {1} returned unknown HTTP status {2}'.format(apkname, avi.download_src.androidId, res.status_code))
+            return None  # Not downloadable, return empty
         else:
-            logging.error('Play Store download of {0} using {1} failed with repetitive 503 errors'.format(apkname,avi.download_src.androidId))
+            logging.error('Play Store download of {0} using {1} failed with repetitive 503 errors'.format(apkname, avi.download_src.androidId))
         # END: for x
-        return None #Kept receiving 503, return empty
+        return None  # Kept receiving 503, return empty
 
         if isBeta:
             Global.dlFilesBeta.append(apkname)
@@ -213,6 +221,7 @@ def downloadApk(avi, isBeta=False):
     except OSError:
         logging.exception('!!! Filename is not valid: "{0}"'.format(apkVersionInfo.apk_name))
 # END: def downloadApk
+
 
 def getCredentials():
     '''
@@ -234,11 +243,12 @@ def getCredentials():
                         logging.info('Found credentials for: ' + androidId)
                         credentials.append(PlayStoreCredentials(androidId, delay, email, password, authSubToken))
                     except:
-                        raise StandardError('Malformed line in Credentials file')
+                        raise Exception('Malformed line in Credentials file')
     else:
-        raise StandardError('Credentials file {0} does not exist'.format(credentialsfile))
+        raise Exception('Credentials file {0} does not exist'.format(credentialsfile))
     return credentials
 # END: def getCredentials
+
 
 def main(param_list):
     """
@@ -256,7 +266,7 @@ def main(param_list):
     Global.dlFiles     = []
     Global.dlFilesBeta = []
 
-    if len(Global.report.dAllApks.keys()) == 0:
+    if len(list(Global.report.dAllApks.keys())) == 0:
         print('ERROR: expecting:')
         print(' - 1 parameter (report file from output of report_sources.sh)')
         print(' or ')
@@ -265,7 +275,7 @@ def main(param_list):
 
     allCredentials = getCredentials()
     # Start checking with allCredentials
-    p = multiprocessing.Pool(1) #TODO no multithreading activated yet
+    p = multiprocessing.Pool(1)  # TODO no multithreading activated yet
     p.map(checkPlayStore, allCredentials)
 
     logging.debug('Just before outputString creation')
@@ -288,7 +298,7 @@ def main(param_list):
 ###################
 
 if __name__ == "__main__":
-    logging.basicConfig(filename = logFile, filemode = 'w', level = logLevel, format = logFormat)
+    logging.basicConfig(filename=logFile, filemode='w', level=logLevel, format=logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("requesocks").setLevel(logging.WARNING)
 

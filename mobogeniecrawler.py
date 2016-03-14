@@ -1,17 +1,17 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #
 # Required Modules
 # - requests
 #
 
-import sys
-import os
-import re
+import json
+import http.client
 import logging
 import multiprocessing
-
-import json
+import os
+import re
+import sys
 
 from debug import Debug
 from apkhelper import ApkVersionInfo
@@ -47,6 +47,7 @@ logFile   = '{0}.log'.format(os.path.basename(__file__))
 logLevel  = (logging.DEBUG if Debug.DEBUG else logging.INFO)
 logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
+
 class MobogenieCrawler(object):
     def __init__(self, report, dlFiles=[], dlFilesBeta=[]):
         self.report      = report
@@ -62,7 +63,7 @@ class MobogenieCrawler(object):
                                                      avi.vercode,
                                                      avi.sdk)
 
-        logging.info('Downloading "{0}" from: {1}'.format(apkname,avi.download_src))
+        logging.info('Downloading "{0}" from: {1}'.format(apkname, avi.download_src))
 
         try:
             if os.path.exists(apkname):
@@ -91,7 +92,6 @@ class MobogenieCrawler(object):
             logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
     # END: def downloadApk
 
-
     def checkOneApp(self, apkid):
         """
         checkOneApp(apkid):
@@ -107,19 +107,19 @@ class MobogenieCrawler(object):
                 session = requests.Session()
                 # session.proxies = Debug.getProxy()
                 logging.debug('Requesting: ' + url)
-                resp    = session.get(url,allow_redirects=False)
-                if (resp.status_code) == 302:
+                resp    = session.get(url, allow_redirects=False)
+                if (resp.status_code) == http.client.FOUND:
                     raise ValueError
                 data    = json.loads(resp.text)
                 Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
                                   indent=4, separators=(',', ': ')), resp.encoding)
 
-            item=data['data']['appInfo']
+            item = data['data']['appInfo']
             avi = ApkVersionInfo(name=item['apkId'],
                                  sdk=item['sdkVersion'],
                                  ver=item['version'].split(' ')[0],
                                  vercode=item['versionCode'],
-                                 download_src='http://download.mgccw.com/'+item['apkPath']
+                                 download_src='http://download.mgccw.com/' + item['apkPath']
                                  )
 
             if self.report.isThisApkNeeded(avi):
@@ -131,14 +131,13 @@ class MobogenieCrawler(object):
             logging.exception('!!! Invalid JSON from: "{0}"'.format(url))
     # END: def checkOneApp:
 
-
     def crawl(self, threads=5):
         """
         crawl(): check all mobogenie apps
         """
         # Start checking all apkids ...
         p = multiprocessing.Pool(threads)
-        r = p.map_async(unwrap_self_checkOneApp, zip([self]*len(self.report.dAllApks.keys()), self.report.dAllApks.keys()), callback=unwrap_callback)
+        r = p.map_async(unwrap_self_checkOneApp, list(zip([self] * len(list(self.report.dAllApks.keys())), list(self.report.dAllApks.keys()))), callback=unwrap_callback)
         r.wait()
         (self.dlFiles, self.dlFilesBeta) = unwrap_getresults()
     # END: crawl():
@@ -146,6 +145,8 @@ class MobogenieCrawler(object):
 
 nonbeta = []
 beta    = []
+
+
 def unwrap_callback(results):
     for result in results:
         if result:
@@ -154,8 +155,10 @@ def unwrap_callback(results):
             else:
                 nonbeta.append(result)
 
+
 def unwrap_getresults():
     return (nonbeta, beta)
+
 
 def unwrap_self_checkOneApp(arg, **kwarg):
     return MobogenieCrawler.checkOneApp(*arg, **kwarg)
@@ -165,7 +168,7 @@ if __name__ == "__main__":
     """
     main(): single parameter for report_sources.sh output
     """
-    logging.basicConfig(filename = logFile, filemode = 'w', level = logLevel, format = logFormat)
+    logging.basicConfig(filename=logFile, filemode='w', level=logLevel, format=logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("requesocks").setLevel(logging.WARNING)
 
@@ -178,7 +181,7 @@ if __name__ == "__main__":
 
     report = ReportHelper(lines)
 
-    if len(report.dAllApks.keys()) == 0:
+    if len(list(report.dAllApks.keys())) == 0:
         print('ERROR: expecting:')
         print(' - 1 parameter (report file from output of report_sources.sh)')
         print(' or ')

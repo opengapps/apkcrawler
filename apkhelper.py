@@ -1,7 +1,9 @@
+from functools import total_ordering
 import logging
 import re
 
 
+@total_ordering
 class ApkVersionInfo(object):
     """ApkVersionInfo"""
     def __init__(self, name='', arch='', sdk='', dpi='', ver='', vercode='', scrape_src='', download_src='', malware=''):
@@ -42,6 +44,7 @@ class ApkVersionInfo(object):
 
         if 'com.google.android.apps.docs' in self.name:
             self.ver = '.'.join(self.ver.split('.')[0:4])
+    # END: def init
 
     def fullString(self, max):
         mymax = max
@@ -53,42 +56,67 @@ class ApkVersionInfo(object):
                                                 self.sdk,
                                                 self.dpi,
                                                 mymax,
-                                                self.vercode )
-
-    def __lt__(self, other):
-        return self.__cmp__(other) == -1
-
-    def __cmp__(self, other):
-        if self.ver == '' or other.ver == '':
-            logging.error('AVI.cmp(): self.ver or other.ver is empty [{0},{1}]'.format(self.ver, other.ver))
-            return cmp(self.name, other.name)
-        else:
-            import re
-
-            # Make blank-->'0', replace - and _ with . and split into parts
-            p1 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '',  self.ver.replace('-', '.').replace('_', '.')).split('.')]
-            p2 = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', other.ver.replace('-', '.').replace('_', '.')).split('.')]
-
-            # fill up the shorter version with zeros ...
-            lendiff = len(p1) - len(p2)
-            if lendiff > 0:
-                p2.extend([0] * lendiff)
-            elif lendiff < 0:
-                p1.extend([0] * (-lendiff))
-
-            for i, p in enumerate(p1):
-                ret = cmp(p, p2[i])
-                if ret:
-                    return ret
-            return 0
-    # END: def cmp:
+                                                self.vercode)
+    # END: def fullString
 
     def get_apk_name(self):
         return '{0}_{1}-{2}_minAPI{3}{4}{5}.apk'.format(self.name, '_'.join(self.realver.split(' ')),
                                                         self.vercode, self.sdk,
                                                         '' if not self.arch else '({0})'.format(self.arch),
                                                         '({0})'.format(self.dpi))
+    # END: def get_apk_name
+
+    def __lt__(self, other):
+        if self.ver == '':
+            logging.error('AVI.cmp(): self.ver is empty [{0}]'.format(self.ver))
+            return NotImplemented
+        elif other.ver == '':
+            logging.error('AVI.cmp(): other.ver is empty [{0}]'.format(other.ver))
+            return NotImplemented
+        else:
+
+            # Make blank-->'0', replace - and _ with . and split into parts
+            ps = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', self.ver.replace('-', '.').replace('_', '.')).split('.')]
+            po = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', other.ver.replace('-', '.').replace('_', '.')).split('.')]
+
+            # fill up the shorter version with zeros ...
+            lendiff = len(ps) - len(po)
+            if lendiff > 0:
+                po.extend([0] * lendiff)
+            elif lendiff < 0:
+                ps.extend([0] * (-lendiff))
+
+            for i, p in enumerate(ps):
+                if p != po[i]:
+                    return p < po[i]
+
+            return ps < po
+    # END: def __lt__
+
+    def __eq__(self, other):
+        if self.ver == '':
+            logging.error('AVI.cmp(): self.ver is empty [{0}]'.format(self.ver))
+            return NotImplemented
+        elif other.ver == '':
+            logging.error('AVI.cmp(): other.ver is empty [{0}]'.format(other.ver))
+            return NotImplemented
+        else:
+            import re
+
+            # Make blank-->'0', replace - and _ with . and split into parts
+            ps = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', self.ver.replace('-', '.').replace('_', '.')).split('.')]
+            po = [int(x if x != '' else '0') for x in re.sub('[A-Za-z]+', '', other.ver.replace('-', '.').replace('_', '.')).split('.')]
+
+            # fill up the shorter version with zeros ...
+            lendiff = len(ps) - len(po)
+            if lendiff > 0:
+                po.extend([0] * lendiff)
+            elif lendiff < 0:
+                ps.extend([0] * (-lendiff))
+
+            return ps == (po)
+    # END: def __eq__
 
     def __str__(self):
         return str(self.__dict__)
-# END: class ApkVersionInfo()
+# END: class ApkVersionInfo

@@ -1,6 +1,6 @@
-import os
 import codecs
 import logging
+import os
 
 
 class Debug(object):
@@ -41,7 +41,7 @@ class Debug(object):
         """
         printDictionary(d): Prints well spaced key value pairs
         """
-        maxKeyFmt = '{0: <' + str(len(max(d, key = len))) + '}'
+        maxKeyFmt = '{0: <' + str(len(max(d, key=len))) + '}'
         for k in sorted(d.keys()):
             logging.debug(maxKeyFmt.format(k) + ' - ' + str(d[k]))
     # END: def printDictionary(d):
@@ -53,7 +53,7 @@ class Debug(object):
         """
         PROXIES = {}
         if Debug.USE_SOCKS_PROXY:
-            PROXIES = { 'http': 'socks5://127.0.0.1:9999', 'https': 'socks5://127.0.0.1:9999' }
+            PROXIES = {'http': 'socks5://127.0.0.1:9999', 'https': 'socks5://127.0.0.1:9999'}
         return PROXIES
     # END: def getProxy:
 # END: class Debug

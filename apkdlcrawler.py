@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #
 # Required Modules
@@ -47,6 +47,7 @@ logFile   = '{0}.log'.format(os.path.basename(__file__))
 logLevel  = (logging.DEBUG if Debug.DEBUG else logging.INFO)
 logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
+
 class ApkdlCrawler(object):
     def __init__(self, report, dlFiles=[], dlFilesBeta=[]):
         self.report      = report
@@ -74,7 +75,6 @@ class ApkdlCrawler(object):
         return link
     # END: def getUrlFromRedirect:
 
-
     def downloadApk(self, apkInfo, isBeta=False):
         """
         downloadApk(apkInfo): Download the specified URL to APK file name
@@ -89,7 +89,7 @@ class ApkdlCrawler(object):
             logging.error('Unable to determine redirect url for ' + apkname)
             return
 
-        logging.info('Downloading "{0}" from: {1}'.format(apkname,url))
+        logging.info('Downloading "{0}" from: {1}'.format(apkname, url))
 
         try:
             if os.path.exists(apkname):
@@ -117,7 +117,6 @@ class ApkdlCrawler(object):
         except OSError:
             logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
     # END: def downloadApk
-
 
     def checkOneApp(self, apkid):
         """
@@ -164,7 +163,7 @@ class ApkdlCrawler(object):
                                              sdk=sdk,
                                              ver=ver,
                                              vercode=vercode,
-                                             download_src = dApk['url']
+                                             download_src=dApk['url']
                                              )
 
                         if self.report.isThisApkNeeded(avi):
@@ -182,7 +181,7 @@ class ApkdlCrawler(object):
         """
         # Start checking all apkids ...
         p = multiprocessing.Pool(threads)
-        r = p.map_async(unwrap_self_checkOneApp, zip([self]*len(self.report.dAllApks.keys()), self.report.dAllApks.keys()), callback=unwrap_callback)
+        r = p.map_async(unwrap_self_checkOneApp, list(zip([self] * len(list(self.report.dAllApks.keys())), list(self.report.dAllApks.keys()))), callback=unwrap_callback)
         r.wait()
         (self.dlFiles, self.dlFilesBeta) = unwrap_getresults()
     # END: crawl():
@@ -190,6 +189,8 @@ class ApkdlCrawler(object):
 
 nonbeta = []
 beta    = []
+
+
 def unwrap_callback(results):
     for result in results:
         if result:
@@ -198,8 +199,10 @@ def unwrap_callback(results):
             else:
                 nonbeta.append(result)
 
+
 def unwrap_getresults():
     return (nonbeta, beta)
+
 
 def unwrap_self_checkOneApp(arg, **kwarg):
     return ApkdlCrawler.checkOneApp(*arg, **kwarg)
@@ -209,7 +212,7 @@ if __name__ == "__main__":
     """
     main(): single parameter for report_sources.sh output
     """
-    logging.basicConfig(filename = logFile, filemode = 'w', level = logLevel, format = logFormat)
+    logging.basicConfig(filename=logFile, filemode='w', level=logLevel, format=logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("requesocks").setLevel(logging.WARNING)
 
@@ -222,7 +225,7 @@ if __name__ == "__main__":
 
     report = ReportHelper(lines)
 
-    if len(report.dAllApks.keys()) == 0:
+    if len(list(report.dAllApks.keys())) == 0:
         print('ERROR: expecting:')
         print(' - 1 parameter (report file from output of report_sources.sh)')
         print(' or ')

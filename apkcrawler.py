@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import sys
-import os
 import logging
+import os
+import sys
 
 from debug import Debug
 from reporthelper import ReportHelper
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     """
     main(): single parameter for report_sources.sh output
     """
-    logging.basicConfig(filename = logFile, filemode = 'w', level = logLevel, format = logFormat)
+    logging.basicConfig(filename=logFile, filemode='w', level=logLevel, format=logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("requesocks").setLevel(logging.WARNING)
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     report = ReportHelper(lines)
 
-    keys = report.dAllApks.keys()
+    keys = list(report.dAllApks.keys())
 
     if len(keys) == 0:
         print('ERROR: expecting:')

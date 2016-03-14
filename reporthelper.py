@@ -1,6 +1,7 @@
-import re
 import logging
+import re
 from apkhelper import ApkVersionInfo
+
 
 class ReportHelper(object):
     """ReportHelper"""
@@ -41,10 +42,10 @@ class ReportHelper(object):
                 avi  = ApkVersionInfo(name, arch, sdk, dpi, ver, code)
 
                 # Check if supported and add if it is
-                if avi.vercode in [1, 19, 22, 23]:  # Ignore factory image files
+                if avi.vercode in [1, 19, 21, 22, 23]:  # Ignore factory image files
                     continue
 
-                if avi.name not in self.dAllApks.keys():
+                if avi.name not in list(self.dAllApks.keys()):
                     self.dAllApks[avi.name] = []
 
                 self.dAllApks[avi.name].append(avi)
@@ -100,10 +101,10 @@ class ReportHelper(object):
         # NOTE: This code currently only shows older apks (that need updating).
         #       @mfonville has another scheme based up vercode rules for each
         #       apkid that would be more complete
-        for k in self.dAllApks.keys():
+        for k in list(self.dAllApks.keys()):
             thisappsneeded = []
             for a in self.dAllApks[k]:
-                maxApk = ApkVersionInfo(ver = self.maxVerEachApk[k])
+                maxApk = ApkVersionInfo(ver=self.maxVerEachApk[k])
                 if a.ver < maxApk.ver:
                     logging.debug('{0}: {1} < maxApk.ver: {2}'.format(k, a.ver, maxApk.ver))
                     thisappsneeded.append(a.fullString(self.maxVerEachApk[k]))
@@ -121,14 +122,14 @@ class ReportHelper(object):
                                that this class was initialized with
         """
         # Against the list we are looking for
-        if avi.name not in self.dAllApks.keys():
+        if avi.name not in list(self.dAllApks.keys()):
             return False
 
         logging.debug(avi.fullString(avi.ver))
         logging.debug('Do we have already vercode?')
         # Do we have the requested vercode already?
         if avi.vercode != 0:
-            if filter(lambda apk: apk.vercode == avi.vercode, self.dAllApks[avi.name]):
+            if [apk for apk in self.dAllApks[avi.name] if apk.vercode == avi.vercode]:
                 logging.debug('    DON\'T NEED')
                 return False
 
@@ -156,7 +157,7 @@ class ReportHelper(object):
                 logging.debug('Do we have already vercode? (beta)')
                 # Do we have the requested vercode (in beta) already?
                 if avi.vercode != 0:
-                    if filter(lambda apk: apk.vercode == avi.vercode, self.dAllApks[avi.name + '.beta']):
+                    if [apk for apk in self.dAllApks[avi.name + '.beta'] if apk.vercode == avi.vercode]:
                         logging.debug('    DON\'T NEED')
                         return False
 
