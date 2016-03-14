@@ -163,7 +163,7 @@ class UptodownCrawler(object):
 
             session = requests.Session()
             session.proxies = Debug.getProxy()
-            logging.debug('Requesting: ' + appurl)
+            logging.debug('Requesting1: ' + appurl)
             try:
                 appresp = session.get(appurl)
                 apphtml = unicodedata.normalize('NFKD', appresp.text).encode('ascii', 'ignore')
@@ -181,18 +181,18 @@ class UptodownCrawler(object):
                         apkver = apk.find('span', {'class': 'app_card_version'}).contents
                         avis.append(ApkVersionInfo(name=apkid,
                                              ver=(apkver[0].lstrip('v').strip().encode("ascii") if apkver else ''),  # sometimes there is no versionnumber, or they set a v in front of the versionName; it presents unicode for some reason
-                                             scrape_src=apkurl))
+                                             scrape_src='http:' + apkurl))
                     # END: for appversions
                 # END: if lastestver
 
                 for avi in avis:
                     if self.report.isThisApkNeeded(avi):
-                        logging.debug('Requesting: ' + avi.scrape_src)
+                        logging.debug('Requesting2: ' + avi.scrape_src)
                         try:
                             downloadresp     = session.get(avi.scrape_src)
                             downloadhtml     = unicodedata.normalize('NFKD', downloadresp.text).encode('ascii', 'ignore')
                             downloaddom      = BeautifulSoup(downloadhtml, 'html5lib')
-                            avi.download_src = downloaddom.find('iframe', {'id': 'iframe_download'})['src'] #note that this url will still result in a redirect 302
+                            avi.download_src = 'http:' + downloaddom.find('iframe', {'id': 'iframe_download'})['src'] #note that this url will still result in a redirect 302
                             filenames.append(self.downloadApk(avi))
                         except:
                             logging.exception('!!! Error parsing html from: "{0}"'.format(avi.scrape_src))
