@@ -405,6 +405,7 @@ class AptoideCrawler(object):
                  'jdquila',
                  'jecabra',
                  'jodean',
+                 'joshua-j-aldrich',
                  'kcprophet',
                  'kipidap',
                  'kryss974',
