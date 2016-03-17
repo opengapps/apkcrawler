@@ -74,6 +74,7 @@ allApkMirrorNames = {
     'com.google.android.apps.translate'           : 'translate',
     'com.google.android.apps.tycho'               : 'project-fi',
     'com.google.android.apps.walletnfcrel'        : 'android-pay',
+    'com.google.android.backdrop'                 : 'backdrop-daydream',
     'com.google.android.calculator'               : 'google-calculator',
     'com.google.android.calendar'                 : 'calendar',
     'com.google.android.contacts'                 : 'google-contacts',
