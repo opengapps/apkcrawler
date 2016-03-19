@@ -438,6 +438,7 @@ class AptoideCrawler(object):
                  'mygica',
                  # 2015-12-11 'mys3',
                  'nadmom',
+                 'neco',
                  'netogdiaz',
                  'new-day-apps',
                  'nndmt',
