@@ -443,6 +443,7 @@ class AptoideCrawler(object):
                  'nndmt',
                  'nowkin',
                  'onairda',
+                 'onoik',
                  # 2015-11-21 'orgia82',
                  'ortumatrix',
                  'pcastillo',
