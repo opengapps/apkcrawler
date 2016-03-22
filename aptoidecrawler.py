@@ -317,6 +317,7 @@ class AptoideCrawler(object):
         crawl(): check all aptoide stores
         """
         repos = ['28122014',
+                 '382ben75',
                  'abdallah23',
                  'abdullah-mohsen',
                  'aceapks',
@@ -328,6 +329,7 @@ class AptoideCrawler(object):
                  'alcabon',
                  'alexander7855',
                  'algabe',
+                 'andro',
                  'android777',
                  'apk-s',
                  'aplicaciones-ceibal',
