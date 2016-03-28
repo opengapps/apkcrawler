@@ -491,6 +491,7 @@ class AptoideCrawler(object):
                  'tiendacanaima',
                  'tim-we',
                  'tironpickaxe',
+                 'tricolor1903',
                  'trotuman',
                  'tutu75',
                  'vc007',
