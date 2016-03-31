@@ -180,7 +180,7 @@ class UptodownCrawler(object):
                         apkurl = apk.find('a')['href']
                         apkver = apk.find('span', {'class': 'app_card_version'}).contents
                         avis.append(ApkVersionInfo(name=apkid,
-                                                   ver=(apkver[0].lstrip('v').strip().encode("ascii") if apkver else ''),  # sometimes there is no versionnumber, or they set a v in front of the versionName; it presents unicode for some reason
+                                                   ver=(apkver[0].lstrip('v').strip().encode("ascii").decode('utf-8') if apkver else ''),  # sometimes there is no versionnumber, or they set a v in front of the versionName; it presents unicode for some reason
                                                    scrape_src='http:' + apkurl))
                     # END: for appversions
                 # END: if lastestver

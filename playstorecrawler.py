@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-# NOTICE: YOU NEED THE BETA PROTOBUF INSTALLED FROM THE PIP3 REPOSITORIES
-# DEBIAN/UBUNTU DID NOT PACKAGE ANY PYTHON3 VERSION YET
-# run: pip3 install --pre protobuf
-
 import logging
 import multiprocessing
 import os

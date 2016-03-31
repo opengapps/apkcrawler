@@ -14,7 +14,7 @@ from google.protobuf.internal.containers import RepeatedCompositeFieldContainer
 from google.protobuf import text_format
 from google.protobuf.message import Message, DecodeError
 
-from . import googleplay_pb2
+import googleplayapi.googleplay_pb2
 
 
 class LoginError(Exception):
