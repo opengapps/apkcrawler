@@ -141,6 +141,11 @@ class ReportHelper(object):
                 logging.debug('    DON\'T NEED')
                 return False
 
+        logging.debug('Is SDK a number?')  # If it is not a number, but a letter it is a preview and undesired by Open GApps
+        if avi.sdk and not isinstance(avi.sdk, int):
+            logging.debug('SdkNotNumber: {0}({1})'.format(avi.name, avi.sdk))
+            return False
+
         logging.debug('Is it less than minSdk?')
         # Is it < minSdk?
         if avi.sdk != 0:

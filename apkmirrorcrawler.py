@@ -122,7 +122,7 @@ class ApkMirrorCrawler(object):
         self.sReVerInfo = 'Version:\s(?P<VERNAME>.*)\s\((?P<VERCODE>\d*)\)'
         self.reVersion  = re.compile(self.sReVerInfo)
 
-        self.sReSdkInfo = 'Min:\s.*,\sAPI\s(?P<SDK>\d*)\)'
+        self.sReSdkInfo = 'Min:\s.*API\s(?P<SDK>\w*)\)'
         self.reSdk      = re.compile(self.sReSdkInfo)
 
     def downloadApk(self, avi, isBeta=False):
