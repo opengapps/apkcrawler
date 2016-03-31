@@ -194,7 +194,10 @@ class ApkMirrorCrawler(object):
 
             return avis
         except:
-            logging.exception('!!! Error parsing html from: "{0}"'.format(url))
+            try:
+                return [self.getOneVersionInfo(avi)]
+            except:
+                logging.exception('!!! Error parsing html from: "{0}"'.format(url))
     # END: def getMultipleVersionInfo(avi):
 
     def getOneVersionInfo(self, avi):
