@@ -19,6 +19,10 @@ class ApkVersionInfo(object):
         self.extraname    = None  # used for beta/leanback versions
         self.arch         = arch
         self.sdk          = 0 if sdk == '' else sdk
+        try:
+            self.sdk      = int(self.sdk)
+        except:
+            pass
         self.dpi          = dpi
         self.ver          = ver   # used for comparing (could be shortened later)
         self.realver      = ver   # used for full/original versions
