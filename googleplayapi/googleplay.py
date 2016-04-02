@@ -202,7 +202,7 @@ class GooglePlayAPI(object):
         gzipper = gzip.GzipFile(fileobj=data)
         data = gzipper.read()
         '''
-        message = googleplay_pb2.ResponseWrapper.FromString(data)
+        message = googleplayapi.googleplay_pb2.ResponseWrapper.FromString(data)
         self._try_register_preFetch(message)
 
         # print text_format.MessageToString(message)
@@ -242,7 +242,7 @@ class GooglePlayAPI(object):
 
         packageNames is a list of app ID (usually starting with 'com.')."""
         path = "bulkDetails"
-        req = googleplay_pb2.BulkDetailsRequest()
+        req = googleplayapi.googleplay_pb2.BulkDetailsRequest()
         req.docid.extend(packageNames)
         data = req.SerializeToString()
         (status_code, message) = self.executeRequestApi2(path, data, "application/x-protobuf")
