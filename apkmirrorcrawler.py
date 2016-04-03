@@ -125,6 +125,9 @@ class ApkMirrorCrawler(object):
         self.sReSdkInfo = 'Min:\s.*API\s(?P<SDK>\w*)\)'
         self.reSdk      = re.compile(self.sReSdkInfo)
 
+        self.sReTargetInfo = 'Target:\s.*API\s(?P<Target>\w*)\)'
+        self.reTarget      = re.compile(self.sReTargetInfo)
+
     def downloadApk(self, avi, isBeta=False):
         """
         downloadApk(avi): downloads the give APK
@@ -222,6 +225,7 @@ class ApkMirrorCrawler(object):
             avivername = ''
             avivercode = ''
             avisdk     = ''
+            avitarget  = ''
             avidpi     = ''
             for appspec in appspecs:
                 # Version
@@ -230,11 +234,14 @@ class ApkMirrorCrawler(object):
                     if m:
                         avivername = m.group('VERNAME')
                         avivercode = m.group('VERCODE')
-                # SDK
+                # SDK & Target
                 if appspec.find('svg', {'class': 'apkm-icon-sdk'}):
                     m = self.reSdk.search(appspec.find('div', {'class': 'appspec-value'}).get_text())
                     if m:
                         avisdk = m.group('SDK')
+                    m = self.reTarget.search(appspec.find('div', {'class': 'appspec-value'}).get_text())
+                    if m:
+                        avitarget = m.group('Target')
                 # DPI
                 if appspec.find('svg', {'class': 'apkm-icon-dpi'}):
                     avidpi = appspec.find('div', {'class': 'appspec-value'}).get_text()
@@ -243,6 +250,7 @@ class ApkMirrorCrawler(object):
                                   ver=avivername,
                                   vercode=avivercode,
                                   sdk=avisdk,
+                                  target=avitarget,
                                   dpi=avidpi,
                                   arch=avi.arch,
                                   scrape_src=avi.scrape_src,

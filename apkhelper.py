@@ -6,7 +6,7 @@ import re
 @total_ordering
 class ApkVersionInfo(object):
     """ApkVersionInfo"""
-    def __init__(self, name='', arch='', sdk='', dpi='', ver='', vercode='', scrape_src='', download_src='', malware=''):
+    def __init__(self, name='', arch='', sdk='', target='', dpi='', ver='', vercode='', scrape_src='', download_src='', malware=''):
         super(ApkVersionInfo, self).__init__()
 
         sName  = '^(?P<name>.*)(?P<extra>\.(leanback|beta))$'
@@ -21,6 +21,11 @@ class ApkVersionInfo(object):
         self.sdk          = 0 if sdk == '' else sdk
         try:
             self.sdk      = int(self.sdk)
+        except:
+            pass
+        self.target       = 0 if target == '' else target
+        try:
+            self.target      = int(self.target)
         except:
             pass
         self.dpi          = dpi
