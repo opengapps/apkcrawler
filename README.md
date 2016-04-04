@@ -8,6 +8,7 @@ Fetch all Open GApps [supported](https://github.com/opengapps/opengapps/wiki/Adv
 ```
 or
 ```sh
+./report_sources.sh nosig | ./apkbeastcrawler.py
 ./report_sources.sh nosig | ./apkdlcrawler.py
 ./report_sources.sh nosig | ./apkmirrorcrawler.py
 ./report_sources.sh nosig | ./aptoidecrawler.py
@@ -24,6 +25,7 @@ APK Crawlers emits the downloaded filename(s) so it can be used inline with Open
 ```
 or
 ```sh
+./add_sourceapp.sh $(./apkbeastcrawler.py   report.txt)
 ./add_sourceapp.sh $(./apkdlcrawler.py      report.txt)
 ./add_sourceapp.sh $(./apkmirrorcrawler.py  report.txt)
 ./add_sourceapp.sh $(./aptoidecrawler.py    report.txt)
@@ -34,6 +36,7 @@ or
 ```
 
 ## Supported Sites
+- [APK Beast](http://apkbeast.com)
 - [APK Mirror](http://apkmirror.com)
 - [Aptoide](http://aptoide.com)
 - [APK Downloader](http://apk-dl.com)
