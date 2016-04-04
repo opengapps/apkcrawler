@@ -172,7 +172,7 @@ class ApkdlCrawler(object):
         crawl(): check all apk-dl apps
         """
         # Start checking all apkids ...
-        p = multiprocessing.Pool(threads)
+        p = multiprocessing.Pool(processes=threads, maxtasksperchild=5)  # Run only 5 tasks before re-placing the process
         r = p.map_async(unwrap_self_checkOneApp, list(zip([self] * len(list(self.report.dAllApks.keys())), list(self.report.dAllApks.keys()))), callback=unwrap_callback)
         r.wait()
         (self.dlFiles, self.dlFilesBeta) = unwrap_getresults()

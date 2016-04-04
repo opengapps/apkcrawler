@@ -502,7 +502,7 @@ class AptoideCrawler(object):
         random.shuffle(repos)  # randomize the order of the repositories to improve the chance to quickly hit new apks (before aptoide starts complaining with 503s)
 
         # Start checking all stores ...
-        p = multiprocessing.Pool(threads)  # a lot of sequential requests from one IP still trigger 503, but the delay mechanism then kicks and in general fixes a retry
+        p = multiprocessing.Pool(processes=threads, maxtasksperchild=5)  # Run only 5 tasks before re-placing the process; a lot of sequential requests from one IP still trigger 503, but the delay mechanism then kicks and in general fixes a retry
         r = p.map_async(unwrap_self_checkOneStore, list(zip([self] * len(repos), repos)), callback=unwrap_callback)
         r.wait()
         (self.dlFiles, self.dlFilesBeta) = unwrap_getresults()

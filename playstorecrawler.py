@@ -203,7 +203,7 @@ class PlayStoreCrawler(object):
         credentialsfile = path + os.path.splitext(os.path.basename(__file__))[0] + '.config'
 
         stores = getCredentials(credentialsfile)
-        p = multiprocessing.Pool(threads)
+        p = multiprocessing.Pool(processes=threads, maxtasksperchild=5)  # Run only 5 tasks before re-placing the process
         r = p.map_async(unwrap_self_checkPlayStore, list(zip([self] * len(stores), stores)), callback=unwrap_callback)
         r.wait()
         (self.dlFiles, self.dlFilesBeta) = unwrap_getresults()
