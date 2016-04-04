@@ -117,6 +117,8 @@ class ApkdlCrawler(object):
         """
         logging.info('Checking app: {0}'.format(apkid))
 
+        filenames = []
+
         url       = 'http://apk-dl.com/' + apkid
 
         session = requests.Session()
@@ -159,12 +161,14 @@ class ApkdlCrawler(object):
                                              )
 
                         if self.report.isThisApkNeeded(avi):
-                            return self.downloadApk(avi)
+                            filenames.append(self.downloadApk(avi))
 
         except IndexError:
             logging.info('{0} not supported by apk-dl.com ...'.format(apkid))
         except:
             logging.exception('!!! Error parsing html from: "{0}"'.format(url))
+
+        return filenames
     # END: def checkOneApp:
 
     def crawl(self, threads=5):
