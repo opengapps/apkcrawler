@@ -303,202 +303,11 @@ class AptoideCrawler(object):
         """
         crawl(): check all aptoide stores
         """
-        repos = ['28122014',
-                 '382ben75',
-                 'abdallah23',
-                 'abdullah-mohsen',
-                 'aceapks',
-                 'adgilapps2011',
-                 'adjrl',
-                 # private 'advcfs',
-                 'agiraud',
-                 # 2015-12-22 'albrtkmxxo',
-                 'alcabon',
-                 'alexander7855',
-                 'algabe',
-                 'andriodappslanaipicked',
-                 'andro',
-                 'android777',
-                 'apk-s',
-                 'aplicaciones-ceibal',
-                 'apps',
-                 'appstorevn',
-                 'appstv',
-                 'appswatch',
-                 'arsene-lupin',
-                 'arzk',
-                 'ashley88',
-                 'austroid',
-                 'avsm',
-                 # 2016-03-01 'badjos',
-                 # 2016-02-24 'barnabas-horvath',
-                 'bazar-canaima',
-                 'bettyswollocks',
-                 # 2015-11-12 'benny09',
-                 'blase',
-                 # 2015-11-10 'blaccs',
-                  # invalid 'brainyideas',
-                 'brianlotfi',
-                 'buddahchong',
-                 # 2016-03-03 'buster-hymen',
-                 'calystos',
-                 # 2016-01-06 'carefullycoosed',
-                 'catnamiw',
-                 # 2015-11-21 'cesang7',
-                 'chen72',
-                 # 2016-03-01 'cinnguy',
-                 'cryslux',
-                 'd802',
-                 'dagokayaker',
-                 'dalon',
-                 'damienkram',
-                 # private 'damv',
-                 'darkkiller',
-                 'datawind-apps',
-                 'dazzajaysemporiumofcrap',
-                 'dazzwillbe',
-                 'ddnut',
-                 'deejayzgz',
-                 'denis86',
-                 'desirae',
-                 # 2016-02-07 'dominic-armes',
-                 'donvito2021',
-                 # 2016-01-01 'downapk',
-                 # 2016-02-20 'draconius666',
-                 # 2015-12-10 'draydroid',
-                 'eearl',
-                 'elektron45',
-                 'eltremendo02',
-                 'emmanuel-prada',
-                 # 2015-12-16 'epsil',
-                 'esquinatech',
-                 'erriperry',
-                 'ezam-akmar',
-                 # 2016-02-23 'fedex-bermu',
-                 'fetek',
-                 # 2016-02-20 'fmendes',
-                 'fodie',
-                 'foosty666',
-                 'gonzalo-rodriguez',
-                 'greenraccoon23',
-                 'grungo2407',
-                 'gs3passion',
-                 'gyjano',
-                 'hamayk',
-                 'hampoo',
-                 # 2016-02-26 'handyapk',
-                 'haward-tj',
-                 # 2016-01-09 'hfk217',
-                 'hidiho',
-                 'hoser98',
-                 'hot105',
-                 # 2016-02-22 'idavidef',
-                 'iosefirina22',
-                 'irishandroid',
-                 'jaslibertas',
-                 # 2016-02-22 'jaden-anthony',
-                 'jay0v',
-                 'jayala19store',
-                 'jdquila',
-                 'jecabra',
-                 'jodean',
-                 'joshua-j-aldrich',
-                 'kaztstore',
-                 'kcprophet',
-                 'kipidap',
-                 'kryss974',
-                 'kvanzuijlen',
-                 'leighakat',
-                 # 2016-02-12 'letechest',
-                 # 2015-12-28 'lewy',
-                 'lonerfox2013',
-                 # 2015-10-17 'ludock96',
-                 'mancmonkey',
-                 'manuelivanmtz',
-                 'mark8',
-                 # 2015-05-05 'matandroid',
-                 'maxxthor',
-                 'mc0',
-                 # 2015-12-14 'megas0ra',
-                 'merdad-j-j',
-                 'mestruque',
-                 # 2016-01-05 'metin2ventor',
-                 # 2016-03-03 'michael-belisle',
-                 'migatronic',
-                 'milaupv',
-                 'mine-t999',
-                 'mohammedmaster76314278',
-                 'morphmex',
-                 'mrunknownkisser',
-                 'msi8',
-                 'mygica',
-                 # 2015-12-11 'mys3',
-                 'nadmom',
-                 'neco',
-                 'netogdiaz',
-                 'new-day-apps',
-                 'nndmt',
-                 'nowkin',
-                 'odin2212',
-                 'onairda',
-                 'onoik',
-                 'orgia82',
-                 'ortumatrix',
-                 # 2016-02-29 'pcastillo',
-                 'pentacore',
-                 'perfect-electronic',
-                 'pinco77',
-                 'pocketappz',
-                 # 2015-12-08 'poulpe',
-                 'pp-apk',
-                 'provocative',
-                 'prozac4me',
-                 'qweargs',
-                 'rahullah',
-                 'raypino',
-                 'reepje123',
-                  # 2016-02-13 'rehak',
-                 'richardhood84',
-                 'riverdroid',
-                 'rodrivergara',
-                 'ryoma3ch1z3n',
-                 'sandro797',
-                 'scratchn63',
-                 'sebastiano82',
-                 'sf49ers',
-                 'shotaro',
-                 'skydrop',
-                 # 2015-11-05 'slapchop',
-                 'snah',
-                 'sommydany',
-                 # 2015-11-21 'speny',
-                 'sprithansi',
-                 # 2015-12-24 'stein-gmg',
-                 # 2015-11-27 'story89998',
-                 # 2015-12-18 'sunnygnutz',
-                 'theaureli69',
-                 'thegooch',
-                 'tiendacanaima',
-                 'tim-we',
-                 'tironpickaxe',
-                 'top-paid-apps',
-                 'tricolor1903',
-                 'trotuman',
-                 'tutu75',
-                 'vc007',
-                 'victorxd70',
-                 'vip-apk',
-                 'viratgeneral',
-                 'vitonline',
-                 'w33d5m0k3r5',
-                 'wanky',
-                 'wcd',
-                 'westcoastandroid',
-                 'wo88les',
-                 'xavimetal',
-                 'xerodox',
-                 'yelbana2',
-                 'zinavivid']
+        path = os.path.dirname(__file__)
+        if path:
+            path += '/'
+        storesfile = path + os.path.splitext(os.path.basename(__file__))[0] + '.config'
+        repos = getStores(storesfile)
         random.shuffle(repos)  # randomize the order of the repositories to improve the chance to quickly hit new apks (before aptoide starts complaining with 503s)
 
         # Start checking all stores ...
@@ -508,6 +317,35 @@ class AptoideCrawler(object):
         (self.dlFiles, self.dlFilesBeta) = unwrap_getresults()
     # END: crawl():
 # END: class AptoideCrawler
+
+
+class StoresException(Exception):
+    def __init__(self, *args, **kwargs):
+        Exception.__init__(self, *args, **kwargs)
+
+
+def getStores(storesfile):
+    '''
+    getStores(): Retrieve Aptoide stores from the file
+    '''
+    stores = []
+    if os.path.isfile(storesfile):
+        with open(storesfile, 'r') as f:
+            for line in f:
+                line = line.partition('#')[0]
+                if line:
+                    try:
+                        (store) = line.strip()
+                        logging.info('Found store: ' + store)
+                        stores.append(store)
+                    except:
+                        pass
+                        raise StoresException('Malformed line in Stores file', storesfile)
+    else:
+        pass
+        raise StoresException('Stores file does not exist', storesfile)
+    return stores
+# END: def getStores
 
 nonbeta = []
 beta    = []

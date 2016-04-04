@@ -14,6 +14,7 @@ from playstorecrawler import PlayStoreCrawler
 from plazzacrawler import PlazzaCrawler
 from uptodowncrawler import UptodownCrawler
 
+from aptoidecrawler import StoresException as AptoideStoresException
 from playstorecrawler import CredentialsException as PlayStoreCredentialsException
 
 # logging
@@ -61,6 +62,10 @@ if __name__ == "__main__":
         try:
             logging.debug('Crawling {0}'.format(crawler.__class__.__name__))
             crawler.crawl()
+        except AptoideStoresException as e:
+            pass
+            logging.info('AptoideStoresException {0}'.format(e))
+            print('AptoideStoresException: {0}'.format(e))
         except PlayStoreCredentialsException as e:
             pass
             logging.info('PlayStoreCredentialsException {0}'.format(e))
