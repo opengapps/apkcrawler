@@ -39,7 +39,12 @@ class ReportHelper(object):
                 dpi  = m.group('dpi').strip()
                 ver  = m.group('ver').strip()
                 code = m.group('code').strip()
-                avi  = ApkVersionInfo(name, arch, sdk, dpi, ver, code)
+                avi  = ApkVersionInfo(name=name,
+                                      arch=arch,
+                                      sdk=sdk,
+                                      dpi=dpi,
+                                      ver=ver,
+                                      vercode=code)
 
                 # Check if supported and add if it is
                 if avi.vercode in [1, 19, 21, 22, 23]:  # Ignore factory image files
