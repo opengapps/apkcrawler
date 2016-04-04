@@ -12,6 +12,7 @@ import logging
 import multiprocessing
 import os
 import re
+import requests
 import sys
 import unicodedata
 
@@ -19,12 +20,6 @@ from bs4 import BeautifulSoup
 from debug import Debug
 from apkhelper import ApkVersionInfo
 from reporthelper import ReportHelper
-
-# Debug.USE_SOCKS_PROXY = True
-if Debug.USE_SOCKS_PROXY:
-    import requesocks as requests
-else:
-    import requests
 
 ###################
 # DEBUG VARS      #
@@ -78,7 +73,6 @@ class PlazzaCrawler(object):
 
             # Open the url
             session = requests.Session()
-            session.proxies = Debug.getProxy()
 
             r = session.get(avi.download_src, stream=True)  # plazza blocks fetching it at one go, we need to stream it in chunks
             with open(apkname, 'wb') as local_file:
@@ -100,7 +94,6 @@ class PlazzaCrawler(object):
         url       = 'http://www.plazza.ir/app/' + apkid + '?hl=en'
 
         session = requests.Session()
-        session.proxies = Debug.getProxy()
         logging.debug('Requesting: ' + url)
         try:
             resp    = session.get(url, allow_redirects=False)  # we get a 302 if application is not found
@@ -176,7 +169,6 @@ if __name__ == "__main__":
     """
     logging.basicConfig(filename=logFile, filemode='w', level=logLevel, format=logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("requesocks").setLevel(logging.WARNING)
 
     lines = ''
     if len(sys.argv[1:]) == 1:

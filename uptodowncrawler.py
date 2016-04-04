@@ -12,6 +12,7 @@ import multiprocessing
 import os
 import sys
 import re
+import requests
 
 from bs4 import BeautifulSoup
 import unicodedata
@@ -19,12 +20,6 @@ import unicodedata
 from debug import Debug
 from apkhelper import ApkVersionInfo
 from reporthelper import ReportHelper
-
-# Debug.USE_SOCKS_PROXY = True
-if Debug.USE_SOCKS_PROXY:
-    import requesocks as requests
-else:
-    import requests
 
 ###################
 # DEBUG VARS      #
@@ -137,7 +132,6 @@ class UptodownCrawler(object):
 
             # Open the url
             session = requests.Session()
-            session.proxies = Debug.getProxy()
             user_agent = {'User-agent': 'Mozilla/5.0'}  # they don't like scripted downloads and then offer their own app instead
             r = session.get(avi.download_src, headers=user_agent)
 
@@ -162,7 +156,6 @@ class UptodownCrawler(object):
             appurl      = 'http://' + upToDownName + '.en.uptodown.com/android/old'
 
             session = requests.Session()
-            session.proxies = Debug.getProxy()
             logging.debug('Requesting1: ' + appurl)
             try:
                 appresp = session.get(appurl)

@@ -12,6 +12,7 @@ import logging
 import multiprocessing
 import os
 import random
+import requests
 import socket
 import sys
 import time
@@ -21,12 +22,6 @@ from apkhelper import ApkVersionInfo
 from reporthelper import ReportHelper
 
 from socket import error as socket_error
-
-# Debug.USE_SOCKS_PROXY = True
-if Debug.USE_SOCKS_PROXY:
-    import requesocks as requests
-else:
-    import requests
 
 ###################
 # DEBUG VARS      #
@@ -71,7 +66,6 @@ class AptoideCrawler(object):
 
         if data == '':
             session = requests.Session()
-            # session.proxies = Debug.getProxy()
 
             for x in range(1, 4):  # up to three tries
                 wait = GlobalDelay * x
@@ -112,7 +106,6 @@ class AptoideCrawler(object):
 
         if data == '':
             session = requests.Session()
-            # session.proxies = Debug.getProxy()
 
             for x in range(1, 4):  # up to three tries
                 wait = GlobalDelay * x
@@ -196,7 +189,6 @@ class AptoideCrawler(object):
 
             # Open the url
             session = requests.Session()
-            session.proxies = Debug.getProxy()
             r = session.get(url)
 
             if r.status_code != http.client.OK:
@@ -544,7 +536,6 @@ if __name__ == "__main__":
     """
     logging.basicConfig(filename=logFile, filemode='w', level=logLevel, format=logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("requesocks").setLevel(logging.WARNING)
 
     lines = ''
     if len(sys.argv[1:]) == 1:

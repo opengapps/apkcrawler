@@ -10,8 +10,11 @@ from apkdlcrawler import ApkdlCrawler
 from apkmirrorcrawler import ApkMirrorCrawler
 from aptoidecrawler import AptoideCrawler
 from mobogeniecrawler import MobogenieCrawler
+from playstorecrawler import PlayStoreCrawler
 from plazzacrawler import PlazzaCrawler
 from uptodowncrawler import UptodownCrawler
+
+from playstorecrawler import CredentialsException as PlayStoreCredentialsException
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(__file__))
@@ -24,7 +27,6 @@ if __name__ == "__main__":
     """
     logging.basicConfig(filename=logFile, filemode='w', level=logLevel, format=logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("requesocks").setLevel(logging.WARNING)
 
     lines = ''
     if len(sys.argv[1:]) == 1:
@@ -51,11 +53,18 @@ if __name__ == "__main__":
                 ApkMirrorCrawler(report),
                 AptoideCrawler(report),
                 MobogenieCrawler(report),
+                PlayStoreCrawler(report),
                 PlazzaCrawler(report),
                 UptodownCrawler(report)]
 
     for crawler in crawlers:
-        crawler.crawl()
+        try:
+            logging.debug('Crawling {0}'.format(crawler.__class__.__name__))
+            crawler.crawl()
+        except PlayStoreCredentialsException as e:
+            pass
+            logging.info('PlayStoreCredentialsException {0}'.format(e))
+            print('PlayStoreCredentialsException: {0}'.format(e))
         nonbeta.extend(crawler.dlFiles)
         beta.extend(crawler.dlFilesBeta)
 

@@ -12,6 +12,7 @@ import os
 import re
 import logging
 import multiprocessing
+import requests
 
 from bs4 import BeautifulSoup
 import unicodedata
@@ -19,12 +20,6 @@ import unicodedata
 from debug import Debug
 from apkhelper import ApkVersionInfo
 from reporthelper import ReportHelper
-
-# Debug.USE_SOCKS_PROXY = True
-if Debug.USE_SOCKS_PROXY:
-    import requesocks as requests
-else:
-    import requests
 
 ###################
 # DEBUG VARS      #
@@ -61,7 +56,6 @@ class ApkdlCrawler(object):
         link      = ''
 
         session = requests.Session()
-        session.proxies = Debug.getProxy()
         logging.debug('Requesting2: ' + url)
         resp    = session.get(url)
         html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
@@ -106,7 +100,6 @@ class ApkdlCrawler(object):
 
             # Open the url
             session = requests.Session()
-            session.proxies = Debug.getProxy()
             r = session.get(url)
 
             with open(apkname, 'wb') as local_file:
@@ -127,7 +120,6 @@ class ApkdlCrawler(object):
         url       = 'http://apk-dl.com/' + apkid
 
         session = requests.Session()
-        session.proxies = Debug.getProxy()
         logging.debug('Requesting: ' + url)
         resp    = session.get(url)
         html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
@@ -214,7 +206,6 @@ if __name__ == "__main__":
     """
     logging.basicConfig(filename=logFile, filemode='w', level=logLevel, format=logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("requesocks").setLevel(logging.WARNING)
 
     lines = ''
     if len(sys.argv[1:]) == 1:

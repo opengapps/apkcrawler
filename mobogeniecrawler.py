@@ -11,17 +11,12 @@ import logging
 import multiprocessing
 import os
 import re
+import requests
 import sys
 
 from debug import Debug
 from apkhelper import ApkVersionInfo
 from reporthelper import ReportHelper
-
-# Debug.USE_SOCKS_PROXY = True
-if Debug.USE_SOCKS_PROXY:
-    import requesocks as requests
-else:
-    import requests
 
 ###################
 # DEBUG VARS      #
@@ -80,7 +75,6 @@ class MobogenieCrawler(object):
 
             # Open the url
             session = requests.Session()
-            session.proxies = Debug.getProxy()
             r = session.get(avi.download_src)
 
             with open(apkname, 'wb') as local_file:
@@ -105,7 +99,6 @@ class MobogenieCrawler(object):
         try:
             if data == '':
                 session = requests.Session()
-                # session.proxies = Debug.getProxy()
                 logging.debug('Requesting: ' + url)
                 resp    = session.get(url, allow_redirects=False)
                 if (resp.status_code) == http.client.FOUND:
@@ -170,7 +163,6 @@ if __name__ == "__main__":
     """
     logging.basicConfig(filename=logFile, filemode='w', level=logLevel, format=logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("requesocks").setLevel(logging.WARNING)
 
     lines = ''
     if len(sys.argv[1:]) == 1:

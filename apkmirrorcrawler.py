@@ -12,6 +12,7 @@ import os
 import re
 import logging
 import multiprocessing
+import requests
 
 from bs4 import BeautifulSoup
 import unicodedata
@@ -19,12 +20,6 @@ import unicodedata
 from debug import Debug
 from apkhelper import ApkVersionInfo
 from reporthelper import ReportHelper
-
-# Debug.USE_SOCKS_PROXY = True
-if Debug.USE_SOCKS_PROXY:
-    import requesocks as requests
-else:
-    import requests
 
 ###################
 # DEBUG VARS      #
@@ -148,7 +143,6 @@ class ApkMirrorCrawler(object):
 
             # Open the url
             session = requests.Session()
-            session.proxies = Debug.getProxy()
             r = session.get(avi.download_src)
 
             with open(apk_name, 'wb') as local_file:
@@ -169,7 +163,6 @@ class ApkMirrorCrawler(object):
             url = 'http://www.apkmirror.com' + avi.scrape_src
 
             session = requests.Session()
-            session.proxies = Debug.getProxy()
             logging.debug('Requesting3: ' + url)
 
             resp    = session.get(url)
@@ -211,7 +204,6 @@ class ApkMirrorCrawler(object):
             url = 'http://www.apkmirror.com' + avi.scrape_src
 
             session = requests.Session()
-            session.proxies = Debug.getProxy()
             logging.debug('Requesting2: ' + url)
 
             resp    = session.get(url)
@@ -277,7 +269,6 @@ class ApkMirrorCrawler(object):
             url = 'http://www.apkmirror.com/uploads/?q={0}'.format(apkMirrorName)
 
             session = requests.Session()
-            session.proxies = Debug.getProxy()
             logging.debug('Requesting1: ' + url)
             try:
                 resp = session.get(url)
@@ -377,7 +368,6 @@ if __name__ == "__main__":
     """
     logging.basicConfig(filename=logFile, filemode='w', level=logLevel, format=logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("requesocks").setLevel(logging.WARNING)
 
     lines = ''
     if len(sys.argv[1:]) == 1:

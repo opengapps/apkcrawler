@@ -8,8 +8,6 @@ class Debug(object):
     READFROMFILE = False  # Read from file for debugging
     SAVELASTFILE = False  # Write to file upon each request
 
-    USE_SOCKS_PROXY = False
-
     @staticmethod
     def readFromFile(file_name):
         """
@@ -45,15 +43,4 @@ class Debug(object):
         for k in sorted(d.keys()):
             logging.debug(maxKeyFmt.format(k) + ' - ' + str(d[k]))
     # END: def printDictionary(d):
-
-    @staticmethod
-    def getProxy():
-        """
-        getProxy(): Gets the proxy settings
-        """
-        PROXIES = {}
-        if Debug.USE_SOCKS_PROXY:
-            PROXIES = {'http': 'socks5://127.0.0.1:9999', 'https': 'socks5://127.0.0.1:9999'}
-        return PROXIES
-    # END: def getProxy:
 # END: class Debug

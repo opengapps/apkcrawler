@@ -4,21 +4,31 @@ APK Crawler is a tool to automatically retrieve APKs from various internet sourc
 ## Usage
 Fetch all Open GApps [supported](https://github.com/opengapps/opengapps/wiki/Advanced-Features-and-Options#include-and-exclude-google-applications) APKs from a given source
 ```sh
+./report_sources.sh nosig | ./apkcrawler.py
+```
+or
+```sh
 ./report_sources.sh nosig | ./apkdlcrawler.py
 ./report_sources.sh nosig | ./apkmirrorcrawler.py
 ./report_sources.sh nosig | ./aptoidecrawler.py
 ./report_sources.sh nosig | ./mobogeniecrawler.py
+./report_sources.sh nosig | ./playstorecrawler.py
 ./report_sources.sh nosig | ./plazzacrawler.py
 ./report_sources.sh nosig | ./uptodowncrawler.py
 ```
 
 ### Inline
-APK Crawlers emits the downloaded filename so it can be used inline
+APK Crawlers emits the downloaded filename(s) so it can be used inline with Open GApps' `add_sourceapp.sh`
+```sh
+./add_sourceapp.sh $(./apkcrawler.py        report.txt)
+```
+or
 ```sh
 ./add_sourceapp.sh $(./apkdlcrawler.py      report.txt)
 ./add_sourceapp.sh $(./apkmirrorcrawler.py  report.txt)
 ./add_sourceapp.sh $(./aptoidecrawler.py    report.txt)
 ./add_sourceapp.sh $(./mobogeniecrawler.py  report.txt)
+./add_sourceapp.sh $(./playstorecrawler.py  report.txt)
 ./add_sourceapp.sh $(./plazzacrawler.py     report.txt)
 ./add_sourceapp.sh $(./uptodowncrawler.py   report.txt)
 ```
@@ -27,21 +37,24 @@ APK Crawlers emits the downloaded filename so it can be used inline
 - [APK Mirror](http://apkmirror.com)
 - [Aptoide](http://aptoide.com)
 - [APK Downloader](http://apk-dl.com)
+- [Google Play Store](https://play.google.com/store/)
 - [Mobogenie](http://mobogenie.com/)
 - [Plazza.ir](http://plazza.ir)
 - [UpToDown](http://en.uptodown.com/android)
-- ~~Google Play~~ (Not yet added)
 
 ## Requirements
 - [python3](https://www.python.org/downloads/)
 - [requests](https://pypi.python.org/pypi/requests)
 - [beautifulsoup4](https://pypi.python.org/pypi/beautifulsoup4/)
 - [html5lib](https://pypi.python.org/pypi/html5lib)
-- [requesocks](https://pypi.python.org/pypi/requesocks) (ONLY for SOCKS5 support)
 
 ## Installation
 ```sh
-pip3 install requests beautifulsoup4 html5lib requesocks
+sudo apt-get install python3-requests python3-bs4 python3-html5lib
+```
+or
+```sh
+pip3 install requests beautifulsoup4 html5lib
 ```
 
 ## Known Issues

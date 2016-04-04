@@ -4,6 +4,7 @@ import logging
 import multiprocessing
 import os
 import random
+import requests
 import sys
 import time
 
@@ -14,12 +15,6 @@ from googleplayapi.googleplay import GooglePlayAPI
 from debug import Debug
 from apkhelper import ApkVersionInfo
 from reporthelper import ReportHelper
-
-# Debug.USE_SOCKS_PROXY = True
-if Debug.USE_SOCKS_PROXY:
-    import requesocks as requests
-else:
-    import requests
 
 ###########################
 # DO NOT TRY THIS AT HOME #
@@ -216,6 +211,11 @@ class PlayStoreCrawler(object):
 # END: class PlayStoreCrawler
 
 
+class CredentialsException(Exception):
+    def __init__(self, *args, **kwargs):
+        Exception.__init__(self, *args, **kwargs)
+
+
 def getCredentials(credentialsfile):
     '''
     getCredentials(): Retrieve Play Store credentials from the file
@@ -231,9 +231,11 @@ def getCredentials(credentialsfile):
                         logging.info('Found credentials for: ' + androidId)
                         credentials.append(PlayStoreCredentials(androidId, delay, email, password, authSubToken))
                     except:
-                        raise Exception('Malformed line in Credentials file')
+                        pass
+                        raise CredentialsException('Malformed line in Credentials file', credentialsfile)
     else:
-        raise Exception('Credentials file {0} does not exist'.format(credentialsfile))
+        pass
+        raise CredentialsException('Credentials file does not exist', credentialsfile)
     return credentials
 # END: def getCredentials
 
@@ -264,7 +266,6 @@ if __name__ == "__main__":
     """
     logging.basicConfig(filename=logFile, filemode='w', level=logLevel, format=logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("requesocks").setLevel(logging.WARNING)
 
     lines = ''
     if len(sys.argv[1:]) == 1:
