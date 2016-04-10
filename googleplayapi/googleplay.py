@@ -68,6 +68,12 @@ class GooglePlayAPI(object):
         self.preFetch = {}
         self.androidId = androidId
         self.lang = lang
+        # Finsky is the nickname of the old Android Market app
+        # The number is a string of the Play Store app Version Name
+        # The api is the play store protocol api (probably)
+        # The versionCode is the vercode of the Play Store app
+        self.playUserAgent = "Android-Finsky/6.4.12.C (api=3,versionCode=80641200,sdk=22,device=angler,hardware=angler,product=angler"
+        self.downloadUserAgent = "AndroidDownloadManager/6.0.1 (Linux; U; Android 6.0.1; Nexus 6P Build/MHC19Q)"
         # self.proxy_dict = {
         #         "http"  : "http://81.137.100.158:8080",
         #         "https" : "http://81.137.100.158:8080",
@@ -172,14 +178,8 @@ class GooglePlayAPI(object):
                        "X-DFE-Unsupported-Experiments": "nocache:billing.use_charging_poller,market_emails,buyer_currency,prod_baseline,checkin.set_asset_paid_app_field,shekel_test,content_ratings,buyer_currency_in_app,nocache:encrypted_apk,recent_changes",
                        "X-DFE-Device-Id": self.androidId,
                        "X-DFE-Client-Id": "am-android-google",
-                       # "X-DFE-Logging-Id": self.loggingId2, # Deprecated?
-                       # "User-Agent": "Android-Finsky/4.4.3 (api=3,versionCode=8016014,sdk=22,device=GT-I9300,hardware=aries,product=GT-I9300)",
-                       # "User-Agent": "Android-Finsky/4.4.3 (api=3,versionCode=8016014,sdk=22,device=hammerhead,hardware=hammerhead,product=hammerhead)",
-                       # "User-Agent": "Android-Finsky/3.7.13 (api=3,versionCode=8013013,sdk=22,device=crespo,hardware=herring,product=soju)",
-                       # "User-Agent": "Android-Finsky/4.3.11 (api=3,versionCode=80230011,sdk=17,device=toro,hardware=tuna,product=mysid)",
-                       # "User-Agent": "Android-Finsky/4.6.17 (api=3,versionCode=80260017,sdk=19,device=hammerhead,hardware=hammerhead,product=hammerhead)",
-                       # "X-DFE-SmallestScreenWidthDp": "335",
-                       "User-Agent": "Android-Finsky/5.4.12 (api=3,versionCode=80341200,sdk=17,device=tf101,hardware=ventana,product=US_epad,platformVersionRelease=4.2.1,model=Transformer,isWideScreen=0)",
+                       # "X-DFE-Logging-Id": XXXXX, # Not necessary
+                       "User-Agent": self.playUserAgent,
                        "X-DFE-SmallestScreenWidthDp": "320",
                        "X-DFE-Filter-Level": "3",
                        "Accept-Encoding": "",
@@ -328,9 +328,7 @@ class GooglePlayAPI(object):
             }
 
             headers = {
-                # "User-Agent": "AndroidDownloadManager/4.2.2 (Linux; U; Android 4.2.2; Galaxy Nexus Build/JDQ39)",
-                # "User-Agent": "AndroidDownloadManager/4.4.2 (Linux; U; Android 4.4.2; Nexus 5 Build/KOT49H)",
-                "User-Agent": "AndroidDownloadManager/4.1.1 (Linux; U; Android 4.1.1; Nexus S Build/JRO03E)",
+                "User-Agent": self.downloadUserAgent,
                 "Accept-Encoding": "",
             }
 
