@@ -193,7 +193,7 @@ class PlayStoreCrawler(object):
             logging.exception('!!! Filename is not valid: "{0}"'.format(apkVersionInfo.apk_name))
     # END: def downloadApk
 
-    def crawl(self, threads=5):
+    def crawl(self, threads=8):
         """
         crawl(): check all PlayStores
         """
