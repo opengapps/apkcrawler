@@ -2,6 +2,40 @@ from functools import total_ordering
 import logging
 import re
 
+oneVariantPerRealver = {'com.google.android.apps.books',
+                        'com.google.android.apps.cloudprint',
+                        'com.google.android.apps.enterprise.dmagent',
+                        'com.google.android.apps.gcs',
+                        'com.google.android.apps.genie.geniewidget',
+                        'com.google.android.calculator',
+                        'com.google.android.calendar',
+                        'com.google.android.deskclock',
+                        'com.google.android.dialer',
+                        'com.google.android.ears',
+                        'com.google.android.gm',
+                        'com.google.android.gm.exchange',
+                        'com.google.android.marvin.talkback',
+                        'com.google.android.music',
+                        'com.google.android.tv.remote'}
+
+oneVercodePerRealver = {'com.google.android.apps.docs',
+                        'com.google.android.apps.docs.editors.docs',
+                        'com.google.android.apps.docs.editors.sheets',
+                        'com.google.android.apps.docs.editors.slides',
+                        'com.google.android.apps.fitness',
+                        'com.google.android.apps.inputmethod.hindi',
+                        'com.google.android.apps.inputmethod.zhuyin',
+                        'com.google.android.apps.messaging',
+                        'com.google.android.apps.tycho',
+                        'com.google.android.gms',
+                        'com.google.android.googlecamera',
+                        'com.google.android.googlequicksearchbox',
+                        'com.google.android.inputmethod.japanese',
+                        'com.google.android.inputmethod.korean',
+                        'com.google.android.inputmethod.latin',
+                        'com.google.android.inputmethod.pinyin',
+                        'com.google.android.play.games',
+                        'com.google.android.tv'}
 
 @total_ordering
 class ApkVersionInfo(object):
@@ -74,6 +108,9 @@ class ApkVersionInfo(object):
                                                         '' if not self.arch else '({0})'.format(self.arch),
                                                         '({0})'.format(self.dpi))
     # END: def get_apk_name
+
+    def isRealverAbsolute(self):
+        return (self.name in oneVariantPerRealver) or (self.name in oneVercodePerRealver)
 
     def __lt__(self, other):
         if self.ver == '':

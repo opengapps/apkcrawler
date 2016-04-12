@@ -137,6 +137,15 @@ class ReportHelper(object):
             if [apk for apk in self.dAllApks[avi.name] if apk.vercode == avi.vercode]:
                 logging.debug('    DON\'T NEED')
                 return False
+        else:  # We only need to run the realvername match if we could not compare the vercode itself
+            logging.debug('Can we use an absolute realvername match?')
+            if avi.isRealverAbsolute():
+                logging.debug('Do we have already a matching absolute realvername?')
+                # Do we have the requested realver already?
+                if avi.realver != '':
+                    if [apk for apk in self.dAllApks[avi.name] if apk.realver == avi.realver]:
+                        logging.debug('    DON\'T NEED')
+                        return False
 
         logging.debug('Is it less than maxVersion?')
         # Is it < maxVersion?
