@@ -112,8 +112,7 @@ class UptodownCrawler(object):
         """
         downloadApk(apkInfo): Download the specified URL to APK file name
         """
-        apkname = '{0}-{1}.apk'.format(avi.name.replace('.beta', ''),
-                                       avi.realver.replace(' ', '_'))
+        apkname = ('beta.' if isBeta else '') + avi.getFilename()
 
         logging.info('Downloading "{0}" from: {1}'.format(apkname, avi.download_src))
 
@@ -166,7 +165,9 @@ class UptodownCrawler(object):
                 if latestver:   # sometimes there is only 1 version and no old versions, and you get the latest-version page of the app instead of the overview of old versions
                     avis.append(ApkVersionInfo(name=apkid,
                                                ver=(latestver.contents[0].lstrip('v').strip().encode("ascii") if latestver.contents else ''),  # sometimes there is no versionnumber, or they set a v in front of the versionName; it presents unicode for some reason
-                                               scrape_src='http://' + upToDownName + '.en.uptodown.com/android/download'))
+                                               scrape_src='http://' + upToDownName + '.en.uptodown.com/android/download',
+                                               crawler_name=self.__class__.__name__
+                                               ))
                 else:
                     appversions = appdom.findAll('section', {'class': 'container'})
                     for apk in appversions[0:5]:    # limit ourself to only the first 5 results; the chance that there are updates beyond that point is smaller than the chance of having errors in the versionname
@@ -174,7 +175,9 @@ class UptodownCrawler(object):
                         apkver = apk.find('span', {'class': 'app_card_version'}).contents
                         avis.append(ApkVersionInfo(name=apkid,
                                                    ver=(apkver[0].lstrip('v').strip().encode("ascii").decode('utf-8') if apkver else ''),  # sometimes there is no versionnumber, or they set a v in front of the versionName; it presents unicode for some reason
-                                                   scrape_src='http:' + apkurl))
+                                                   scrape_src='http:' + apkurl,
+                                                   crawler_name=self.__class__.__name__
+                                                   ))
                     # END: for appversions
                 # END: if lastestver
 

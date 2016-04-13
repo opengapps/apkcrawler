@@ -73,10 +73,7 @@ class ApkdlCrawler(object):
         """
         downloadApk(apkInfo): Download the specified URL to APK file name
         """
-        apkname = '{0}_{1}-{2}_minAPI{3}.apk'.format(apkInfo.name,
-                                                     apkInfo.ver,
-                                                     apkInfo.vercode,
-                                                     apkInfo.sdk)
+        apkname = ('beta.' if isBeta else '') + avi.getFilename()
 
         url     = self.getUrlFromRedirect(apkname, apkInfo.download_src)
         if url == '':
@@ -157,7 +154,8 @@ class ApkdlCrawler(object):
                                              sdk=sdk,
                                              ver=ver,
                                              vercode=vercode,
-                                             download_src=dApk['url']
+                                             download_src=dApk['url'],
+                                             crawler_name=self.__class__.__name__
                                              )
 
                         if self.report.isThisApkNeeded(avi):

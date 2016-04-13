@@ -53,10 +53,7 @@ class MobogenieCrawler(object):
         """
         downloadApk(apkInfo): Download the specified URL to APK file name
         """
-        apkname = '{0}_{1}-{2}_minAPI{3}.apk'.format(avi.name.replace('.beta', ''),
-                                                     avi.realver.replace(' ', '_'),
-                                                     avi.vercode,
-                                                     avi.sdk)
+        apkname = ('beta.' if isBeta else '') + avi.getFilename()
 
         logging.info('Downloading "{0}" from: {1}'.format(apkname, avi.download_src))
 
@@ -112,7 +109,8 @@ class MobogenieCrawler(object):
                                  sdk=item['sdkVersion'],
                                  ver=item['version'].split(' ')[0],
                                  vercode=item['versionCode'],
-                                 download_src='http://download.mgccw.com/' + item['apkPath']
+                                 download_src='http://download.mgccw.com/' + item['apkPath'],
+                                 crawler_name=self.__class__.__name__
                                  )
 
             if self.report.isThisApkNeeded(avi):

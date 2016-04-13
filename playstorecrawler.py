@@ -93,7 +93,8 @@ class PlayStoreCrawler(object):
                     avi = ApkVersionInfo(name        =res.body.docV2.docid,
                                          ver         =res.body.docV2.details.appDetails.versionString.split(' ')[0],  # not sure if we need the split here
                                          vercode     =res.body.docV2.details.appDetails.versionCode,
-                                         download_src=playstore
+                                         download_src=playstore,
+                                         crawler_name=self.__class__.__name__
                                          )
                     logging.debug('Found Play Store entry {0} {1}-{2}'.format(avi.name, avi.ver, avi.vercode))
                     return avi
@@ -148,9 +149,7 @@ class PlayStoreCrawler(object):
         """
         downloadApk(avi, delay, isBeta): Download the specified ApkInfo from the Play Store to APK file name
         """
-        apkname = '{0}_{1}-{2}.apk'.format(avi.name.replace('.beta', ''),
-                                           avi.realver.replace(' ', '_'),
-                                           avi.vercode)
+        apkname = ('beta.' if isBeta else '') + avi.getFilename()
 
         logging.info('Downloading "{0}" using: {1}'.format(apkname, avi.download_src.androidId))
 
@@ -190,7 +189,7 @@ class PlayStoreCrawler(object):
             logging.debug(('beta:' if isBeta else 'reg :') + apkname)
             return       (('beta:' if isBeta else ''     ) + apkname)
         except OSError:
-            logging.exception('!!! Filename is not valid: "{0}"'.format(apkVersionInfo.apk_name))
+            logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
     # END: def downloadApk
 
     def crawl(self, threads=8):

@@ -125,7 +125,8 @@ class AptoideCrawler(object):
                                                  ver         =data['apk']['vername'].split(' ')[0],  # Look at only the true version number
                                                  vercode     =data['apk']['vercode'],
                                                  download_src=data['apk']['path'],
-                                                 malware=(data['malware'] if 'malware' in data else '')  # We only have this key if vercode is in options
+                                                 malware=(data['malware'] if 'malware' in data else ''),  # We only have this key if vercode is in options
+                                                 crawler_name=self.__class__.__name__
                                                  )
                             Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
                                               indent=4, separators=(',', ': ')), resp.encoding)
@@ -146,28 +147,14 @@ class AptoideCrawler(object):
         downloadApk(avi, isBeta): Download the specified ApkInfo from Aptoide to APK file name
         """
         url = avi.download_src
-
-        cpu = '({0})'.format(avi.arch)
-
-        dpi = avi.dpi if avi.dpi != 'nodpi' else 'no'
-        dpi = '({0}dpi)'.format(dpi)
+        apkname = ('beta.' if isBeta else '') + avi.getFilename()
 
         if (avi.malware['status'] == "scanned" and
             avi.malware['reason']['signature_validated']['status'] == "passed" and
                 (avi.malware['reason']['signature_validated']['signature_from'] == "market" or avi.malware['reason']['signature_validated']['signature_from'] == "tester")):
-            apkname = '{0}_{1}-{2}_minAPI{3}{4}{5}.apk'.format(avi.name.replace('.beta', ''),
-                                                               avi.realver.replace(' ', '_'),
-                                                               avi.vercode,
-                                                               avi.sdk,
-                                                               cpu, dpi)
             ret = True
         else:  # IMPLIES avi.malware['reason']['signature_validated']['signature_from'] == "user"
-            apkname = 'err.{0}_{1}-{2}_minAPI{3}{4}{5}.err'.format(avi.name.replace('.beta', ''),
-                                                                   avi.realver.replace(' ', '_'),
-                                                                   avi.vercode,
-                                                                   avi.sdk,
-                                                                   cpu,
-                                                                   dpi)
+            apkname = 'err.{0}err'.format(apkname[:-3])
             logging.error('{0} is a signed with a non-Playstore signature, be VERY careful about its authenticity.'.format(apkname))
             print('NOTICE: {0} is a signed with a non-Playstore signature, be VERY careful about its authenticity.'.format(apkname), file=sys.stderr)
             ret = False
@@ -266,6 +253,7 @@ class AptoideCrawler(object):
                     avi = ApkVersionInfo(name=apkid,
                                          ver=ver,  # Look at only the true version number
                                          vercode=item['vercode'],
+                                         crawler_name=self.__class__.__name__
                                          )
 
                     # Check for beta support

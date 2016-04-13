@@ -40,7 +40,7 @@ oneVercodePerRealver = {'com.google.android.apps.docs',
 @total_ordering
 class ApkVersionInfo(object):
     """ApkVersionInfo"""
-    def __init__(self, name='', arch='', sdk='', target='', dpi='', ver='', vercode='', scrape_src='', download_src='', malware=''):
+    def __init__(self, name='', arch='', sdk='', target='', dpi='', ver='', vercode='', scrape_src='', download_src='', crawler_name='unknown', malware=''):
         super(ApkVersionInfo, self).__init__()
 
         sName  = '^(?P<name>.*)(?P<extra>\.(leanback|beta))$'
@@ -68,8 +68,8 @@ class ApkVersionInfo(object):
         self.vercode      = 0 if vercode == '' else int(vercode)
 
         self.scrape_src   = scrape_src
-        self.apk_name     = ''
         self.download_src = download_src
+        self.crawler_name = crawler_name
         self.malware = malware
 
         m = reName.match(self.name)
@@ -102,12 +102,15 @@ class ApkVersionInfo(object):
                                                 self.vercode)
     # END: def fullString
 
-    def get_apk_name(self):
-        return '{0}_{1}-{2}_minAPI{3}{4}{5}.apk'.format(self.name, '_'.join(self.realver.split(' ')),
-                                                        self.vercode, self.sdk,
-                                                        '' if not self.arch else '({0})'.format(self.arch),
-                                                        '({0})'.format(self.dpi))
-    # END: def get_apk_name
+    def getFilename(self):
+        return '{0}{1}-{2}{3}{4}{5}.apk'.format(self.name,
+                                                '' if not self.realver else '_{0}'.format('_'.join(self.realver.split(' '))),
+                                                '[{0}]'.format(self.crawler_name) if self.vercode == 0 else '{0}'.format(self.vercode),
+                                                '' if not self.sdk else '(minAPI{0})'.format(self.sdk),
+                                                '' if not self.arch else '({0})'.format(self.arch),
+                                                '' if not self.dpi else '({0}{1})'.format(self.dpi, '' if self.dpi.endswith('dpi') else 'dpi')
+                                                )
+    # END: def getFilename
 
     def isRealverAbsolute(self):
         return (self.name in oneVariantPerRealver) or (self.name in oneVercodePerRealver)

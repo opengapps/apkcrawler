@@ -83,19 +83,17 @@ class ApkBeastCrawler(object):
         """
         downloadApk(avi, isBeta): Download the specified URL to APK file name
         """
-        apkname = '{0}-{1}.apk'.format(avi.name.replace('.beta', ''),
-                                       avi.realver.replace(' ', '_'))
-
         if avi.download_src:
             url = avi.download_src
         else:
             url = self.getUrlFromRedirect(avi.scrape_src)
         if not url or url == '':
-            logging.error('Unable to determine redirect url for ' + apkname)
+            logging.error('Unable to determine redirect url for ' + avi.getFilename())
             return
 
-        logging.info('Downloading "{0}" from: {1}'.format(apkname, url))
+        logging.info('Downloading "{0}" from: {1}'.format(avi.getFilename(), url))
 
+        apkname = ('beta.' if isBeta else '') + avi.getFilename()
         try:
             if os.path.exists(apkname):
                 logging.info('Downloaded APK already exists.')
@@ -145,6 +143,7 @@ class ApkBeastCrawler(object):
                     apkversion = apkversion.strip()
                     avi = ApkVersionInfo(name=apkid,
                                          ver=apkversion,
+                                         crawler_name=self.__class__.__name__
                                          )
                     if apkurl[0] == '/':  # a relative URL; takes us to an intermediate screen
                         avi.scrape_src = 'http://apkbeast.com' + apkurl

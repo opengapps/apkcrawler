@@ -127,17 +127,17 @@ class ApkMirrorCrawler(object):
         """
         downloadApk(avi): downloads the give APK
         """
-        apk_name = ('beta.' if isBeta else '') + avi.get_apk_name()
+        apkname = ('beta.' if isBeta else '') + avi.getFilename()
         try:
-            if os.path.exists(apk_name):
+            if os.path.exists(apkname):
                 logging.info('Downloaded APK already exists.')
                 return
 
-            if os.path.exists(os.path.join('.', 'apkcrawler', apk_name)):
+            if os.path.exists(os.path.join('.', 'apkcrawler', apkname)):
                 logging.info('Downloaded APK already exists (in ./apkcrawler/).')
                 return
 
-            if os.path.exists(os.path.join('..', 'apkcrawler', apk_name)):
+            if os.path.exists(os.path.join('..', 'apkcrawler', apkname)):
                 logging.info('Downloaded APK already exists (in ../apkcrawler/).')
                 return
 
@@ -145,13 +145,13 @@ class ApkMirrorCrawler(object):
             session = requests.Session()
             r = session.get(avi.download_src)
 
-            with open(apk_name, 'wb') as local_file:
+            with open(apkname, 'wb') as local_file:
                 local_file.write(r.content)
 
-            logging.debug(('beta:' if isBeta else 'reg :') + apk_name)
-            return (('beta:' if isBeta else '') + apk_name)
+            logging.debug(('beta:' if isBeta else 'reg :') + apkname)
+            return (('beta:' if isBeta else '') + apkname)
         except OSError:
-            logging.exception('!!! Filename is not valid: "{0}"'.format(apk_name))
+            logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
     # END: def downloadApk(avi):
 
     def getMultipleVersionInfo(self, avi):
@@ -246,7 +246,8 @@ class ApkMirrorCrawler(object):
                                   dpi=avidpi,
                                   arch=avi.arch,
                                   scrape_src=avi.scrape_src,
-                                  download_src='http://www.apkmirror.com' + dl_button['href'])
+                                  download_src='http://www.apkmirror.com' + dl_button['href'],
+                                  crawler_name=self.__class__.__name__)
 
         except:
             logging.exception('!!! Error parsing html from: "{0}"'.format(url))
@@ -314,7 +315,7 @@ class ApkMirrorCrawler(object):
                 # Determine which versions to download
                 for avi in avis:
                     if self.report.isThisApkNeeded(avi):
-                        logging.info('Downloading: "{0}"'.format(avi.get_apk_name()))
+                        logging.info('Downloading: "{0}"'.format(avi.getFilename()))
                         filenames.append(self.downloadApk(avi, avi.name.endswith('.beta')))
                     else:
                         logging.debug('Skipping: "{0}" ({1})'.format(avi.name, avi.scrape_src))

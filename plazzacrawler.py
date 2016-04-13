@@ -53,8 +53,7 @@ class PlazzaCrawler(object):
         """
         downloadApk(apkInfo): Download the specified URL to APK file name
         """
-        apkname = '{0}-{1}.apk'.format(avi.name.replace('.beta', ''),
-                                       avi.realver.replace(' ', '_'))
+        apkname = ('beta.' if isBeta else '') + avi.getFilename()
 
         logging.info('Downloading "{0}" from: {1}'.format(apkname, avi.download_src))
 
@@ -110,7 +109,8 @@ class PlazzaCrawler(object):
                     avi = ApkVersionInfo(name=apkid,
                                          ver=latestver,
                                          # vercode=latestvercode,
-                                         download_src=latesturl
+                                         download_src=latesturl,
+                                         crawler_name=self.__class__.__name__
                                          )
                     if self.report.isThisApkNeeded(avi):
                         return self.downloadApk(avi)
