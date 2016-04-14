@@ -149,7 +149,7 @@ class AptoideCrawler(object):
         url = avi.download_src
         apkname = ('beta.' if isBeta else '') + avi.getFilename()
 
-        if (avi.malware['status'] == "scanned" and
+        if (avi.malware['status'] == "trusted" and
             avi.malware['reason']['signature_validated']['status'] == "passed" and
                 (avi.malware['reason']['signature_validated']['signature_from'] == "market" or avi.malware['reason']['signature_validated']['signature_from'] == "tester")):
             ret = True
