@@ -9,6 +9,7 @@ from reporthelper import ReportHelper
 from apkbeastcrawler import ApkBeastCrawler
 from apkdlcrawler import ApkdlCrawler
 from apkmirrorcrawler import ApkMirrorCrawler
+from apkpurecrawler import ApkPureCrawler
 from aptoidecrawler import AptoideCrawler
 from mobogeniecrawler import MobogenieCrawler
 from playstorecrawler import PlayStoreCrawler
@@ -54,6 +55,7 @@ if __name__ == "__main__":
     crawlers = [ApkBeastCrawler(report),
                 ApkdlCrawler(report),
                 ApkMirrorCrawler(report),
+                ApkPureCrawler(report),
                 AptoideCrawler(report),
                 MobogenieCrawler(report),
                 PlayStoreCrawler(report),

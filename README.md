@@ -11,6 +11,7 @@ or
 ./report_sources.sh nosig | ./apkbeastcrawler.py
 ./report_sources.sh nosig | ./apkdlcrawler.py
 ./report_sources.sh nosig | ./apkmirrorcrawler.py
+./report_sources.sh nosig | ./apkpurecrawler.py
 ./report_sources.sh nosig | ./aptoidecrawler.py
 ./report_sources.sh nosig | ./mobogeniecrawler.py
 ./report_sources.sh nosig | ./playstorecrawler.py
@@ -28,6 +29,7 @@ or
 ./add_sourceapp.sh $(./apkbeastcrawler.py   report.txt)
 ./add_sourceapp.sh $(./apkdlcrawler.py      report.txt)
 ./add_sourceapp.sh $(./apkmirrorcrawler.py  report.txt)
+./add_sourceapp.sh $(./apkpurecrawler.py    report.txt)
 ./add_sourceapp.sh $(./aptoidecrawler.py    report.txt)
 ./add_sourceapp.sh $(./mobogeniecrawler.py  report.txt)
 ./add_sourceapp.sh $(./playstorecrawler.py  report.txt)
@@ -38,6 +40,7 @@ or
 ## Supported Sites
 - [APK Beast](http://apkbeast.com)
 - [APK Mirror](http://apkmirror.com)
+- [APK Pure](http://apkpure.com)
 - [Aptoide](http://aptoide.com)
 - [APK Downloader](http://apk-dl.com)
 - [Google Play Store](https://play.google.com/store/)
