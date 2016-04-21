@@ -13,8 +13,9 @@
 #Python bytecode
 *.pyc
 
-#AptoideStores
+#AptoideIDs and Stores
 aptoidecrawler.config
+aptoidecrawler.config.stores
 
 #PlayStoreCredentials (those are super secret)
 playstorecrawler.config
