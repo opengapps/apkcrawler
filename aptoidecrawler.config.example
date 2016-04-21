@@ -1,2 +1,5 @@
-#AptoideStoreName
-XXXXXXXXXXXXXXXX
+# Aptoide ID Ranges
+# xxxxxxxx          (single ID)
+# xxxxxxxx-yyyyyyyy (range of IDs)
+#-------------------------------------------------------------------------------
+18668900-18694000

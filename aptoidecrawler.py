@@ -5,13 +5,11 @@
 # - requests
 #
 
-import datetime
 import http.client
 import json
 import logging
 import multiprocessing
 import os
-import random
 import requests
 import socket
 import sys
@@ -38,7 +36,7 @@ from socket import error as socket_error
 ###################
 # Globals         #
 ###################
-GlobalDelay = 30
+GlobalDelay = 1
 
 # logging
 logFile   = '{0}.log'.format(os.path.basename(__file__))
@@ -47,77 +45,47 @@ logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
 
 class AptoideCrawler(object):
-    def __init__(self, report, dlFiles=[], dlFilesBeta=[]):
+    def __init__(self, report, dlFiles=[], dlFilesBeta=[], aptoideIds=[0]):
         self.report      = report
         self.dlFiles     = dlFiles
         self.dlFilesBeta = dlFilesBeta
+        self.aptoideIds  = aptoideIds
 
-    def listRepo(self, repo, orderby=None):
+    def logIdAndDate(self, itemApk):
+        logging.debug('{0}|{1}|{2}'.format(itemApk['id'], itemApk['added'], itemApk['package']))
+    # END: def logIdAndDate(self, itemApk)
+
+    def checkOneId(self, aptoideId):
         """
-        listRepo(repo): Get list of all APKs in a specific store from the Aptoide API
-                        and return it in JSON form
+        checkOneId(aptoideId): Get APK specific information from the Aptoide API
+                               and return it as an ApkVersionInfo object if it is
+                               tracked by OpenGApps
         """
-        file_name = '{0}{1}.json'.format(repo, '' if not orderby else '-' + '-'.join(orderby))
-        orderby   = '' if not orderby else '/orderby/' + '/'.join(orderby)
-        url       = 'http://' + repo + '.aptoide.com/webservices/listRepository/{0}{1}/json'.format(repo, orderby)
+        file_name = '{0}.json'.format(aptoideId)
+        url       = 'http://webservices.aptoide.com/webservices/2/getApkInfo/id:{0}/json'.format(aptoideId)
         data      = Debug.readFromFile(file_name)
 
-    # TODO use http://www.aptoide.com/webservices/docs/2/listRepositoryChange to find if there are any updates for a repo
-
+        filenames = []
         if data == '':
             session = requests.Session()
 
             for x in range(1, 4):  # up to three tries
                 wait = GlobalDelay * x
-                logging.info('Waiting {0} seconds before fetching {1}'.format(wait, file_name))
+                # logging.info('Waiting {0} seconds before fetching {1}'.format(wait, file_name))
                 time.sleep(wait)
                 try:
-                    logging.debug('Requesting1 ({0}): {1}'.format(x, url))
+                    logging.debug('Checking ({0}): {1}'.format(x, url))
                     resp = session.get(url)
 
                     if resp.status_code == http.client.OK:
+                        # Append ID on good http response
+                        filenames.append('id:' + str(aptoideId))
+
                         data = resp.json()
                         if 'status' in data and data['status'] == 'OK':
-                            Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
-                                              indent=4, separators=(',', ': ')), resp.encoding)
-                            return data
-                        else:
-                            logging.error('data1[\'status\']: {0}, when fetching {1}, try {2}'.format(data.get('status', 'null'), file_name, x))
-                    else:
-                        logging.error('HTTPStatus1: {0}, when fetching {1}, try {2}'.format(resp.status_code, file_name, x))
-                except:
-                    logging.exception('!!! Invalid JSON from: "{0}", retry in: {1}s'.format(url, wait))
-            # END: for x
-        # END: if data
-        return None
-    # END: def listRepo
+                            # Found an APK update the Max. ID
+                            filenames[-1] = filenames[-1].replace('id:', 'max:')
 
-    def getApkInfo(self, repo, apkid, apkversion, options=None, doVersion1=False):
-        """
-        getApkInfo(repo, apkid, apkversion): Get APK specific information from the Aptoide API
-                                             and return it as an ApkVersionInfo object
-        """
-        version   = '1' if doVersion1 else '2'
-        file_name = '{0}-{1}-{2}_{3}.json'.format(repo, apkid, apkversion, version)
-        options   = '' if not options else '/options=({0})'.format(options)
-        url       = 'http://' + repo + '.aptoide.com/webservices/{0}/getApkInfo/{1}/{2}/{3}{4}/json'.format(  # using an arbitrary subdomain prevents rate-limiting
-                    version, repo, apkid, apkversion, options)
-        data      = Debug.readFromFile(file_name)
-
-        if data == '':
-            session = requests.Session()
-
-            for x in range(1, 4):  # up to three tries
-                wait = GlobalDelay * x
-                logging.info('Waiting {0} seconds before fetching {1}'.format(wait, file_name))
-                time.sleep(wait)
-                try:
-                    logging.debug('Requesting2 ({0}): {1}'.format(x, url))
-                    resp = session.get(url)
-
-                    if resp.status_code == http.client.OK:
-                        data = resp.json()
-                        if 'status' in data and data['status'] == 'OK':
                             avi = ApkVersionInfo(name        =data['apk']['package'],
                                                  arch        =data['apk'].get('cpu', 'all'),
                                                  sdk         =data['apk']['minSdk'],
@@ -128,19 +96,44 @@ class AptoideCrawler(object):
                                                  malware=(data['malware'] if 'malware' in data else ''),  # We only have this key if vercode is in options
                                                  crawler_name=self.__class__.__name__
                                                  )
+
                             Debug.writeToFile(file_name, json.dumps(data, sort_keys=True,
                                               indent=4, separators=(',', ': ')), resp.encoding)
-                            return avi
+
+                            # Log AptoideID, Date, ApkID
+                            self.logIdAndDate(data['apk'])
+
+                            # Check for beta support
+                            bCheckMore = False
+                            if self.report.needsBetaSupport(avi):
+                                import copy
+                                avibeta = copy.deepcopy(avi)
+                                avibeta.name += '.beta'
+                                needBeta = self.report.isThisApkNeeded(avibeta)
+
+                            # Do we already have it
+                            if self.report.isThisApkNeeded(avi):
+                                if (avi.malware['status'] == "warn" and
+                                    avi.malware['reason']['signature_validated']['status'] == "failed" and
+                                    avi.malware['reason']['signature_validated']['signature_from'] == "market"):  # signature matches market, but it does not pass verification
+                                    logging.error('{0} is a corrupt or incomplete APK, ignored.'.format(avi.download_src))
+                                else:
+                                    # Are we sure we still need it after the additional info?
+                                    if self.report.isThisApkNeeded(avi):
+                                        filenames.append(self.downloadApk(avi))
+                                # END: if avi.malware
                         else:
-                            logging.error('data2[\'status\']: {0}, when fetching {1}, try {2}'.format(data.get('status', 'null'), file_name, x))
+                            pass  # logging.error('data2[\'status\']: {0}, when fetching {1}, try {2}'.format(data.get('status', 'null'), file_name, x))
+
+                        return filenames
                     else:
                         logging.error('HTTPStatus2: {0}, when fetching {1}, try {2}'.format(resp.status_code, file_name, x))
                 except:
                     logging.exception('!!! Invalid JSON from: "{0}", retry in: {1}s'.format(url, wait))
             # END: for x
         # END: if data
-        return None
-    # END: def getApkInfo
+        return filenames
+    # END: def checkOneId
 
     def downloadApk(self, avi, isBeta=False):
         """
@@ -149,14 +142,14 @@ class AptoideCrawler(object):
         url = avi.download_src
         apkname = ('beta.' if isBeta else '') + avi.getFilename()
 
-        if (avi.malware['status'] == "trusted" and
+        if (avi.malware['status'] in ["trusted"] and
             avi.malware['reason']['signature_validated']['status'] == "passed" and
-                (avi.malware['reason']['signature_validated']['signature_from'] == "market" or avi.malware['reason']['signature_validated']['signature_from'] == "tester")):
+            avi.malware['reason']['signature_validated']['signature_from'] in ["market", "tester"]):
             ret = True
         else:  # IMPLIES avi.malware['reason']['signature_validated']['signature_from'] == "user"
             apkname = 'err.{0}err'.format(apkname[:-3])
             logging.error('{0} is a signed with a non-Playstore signature, be VERY careful about its authenticity.'.format(apkname))
-            print('NOTICE: {0} is a signed with a non-Playstore signature, be VERY careful about its authenticity.'.format(apkname), file=sys.stderr)
+            #print('NOTICE: {0} is a signed with a non-Playstore signature, be VERY careful about its authenticity.'.format(apkname), file=sys.stderr)
             ret = False
 
         logging.info('Downloading "{0}" from: {1}'.format(apkname, url))
@@ -210,83 +203,6 @@ class AptoideCrawler(object):
         return delim.join(sorted(dpis.keys()))
     # END: def doDpiStuff
 
-    def checkOneStore(self, repo):
-        """
-        checkOneStore(repo):
-        """
-        logging.info('Checking store: {0}'.format(repo))
-
-        # Date to look back until
-        today       = datetime.date.today()
-        search_stop = today - datetime.timedelta(days=3)
-
-        search_date = today
-        offset = 0
-        filenames = []
-        while search_date > search_stop:
-            data = self.listRepo(repo, ('recent', '100', str(offset)))
-            if data:
-                if len(data['listing']) == 0:
-                    logging.error('{0} has no recent applications listed'.format(repo))
-                    print('NOTICE: {0} has no recent applications listed'.format(repo), file=sys.stderr)
-                    break  # empty repository
-
-                if offset == 0:  # check the most recent apk entry to find out if a repository is outdated
-                    latestuploadtime = datetime.datetime.strptime(data['listing'][0]['date'], '%Y-%m-%d').date()
-                    if today - datetime.timedelta(days=30) > latestuploadtime:
-                        logging.error('{0} has not been updated for a month, last update: {1}'.format(repo, latestuploadtime))
-                        print('NOTICE: {0} has not been updated for a month, last update: {1}'.format(repo, latestuploadtime), file=sys.stderr)
-
-                # Check each apk ...
-                for item in data['listing']:
-                    search_date = datetime.datetime.strptime(item['date'], '%Y-%m-%d').date()
-
-                    # If the version name contains 'beta' append '.beta' to the apkid
-                    extra  = ''
-                    if 'beta' in item['ver']:
-                        extra = '.beta'
-
-                    apkid    = item['apkid']
-                    apkextra = apkid + extra
-                    ver      = item['ver'].split(' ')[0]
-
-                    avi = ApkVersionInfo(name=apkid,
-                                         ver=ver,  # Look at only the true version number
-                                         vercode=item['vercode'],
-                                         crawler_name=self.__class__.__name__
-                                         )
-
-                    # Check for beta support
-                    bCheckMore = False
-                    if self.report.needsBetaSupport(avi):
-                        import copy
-                        avibeta = copy.deepcopy(avi)
-                        avibeta.name += '.beta'
-                        needBeta = self.report.isThisApkNeeded(avibeta)
-
-                    # Do we already have it
-                    if self.report.isThisApkNeeded(avi):
-                        # Get additional info
-                        avi = self.getApkInfo(repo, apkid, ver, options='vercode=' + str(item['vercode']))
-                        if avi:
-                            if avi.malware['status'] == "warn" and avi.malware['reason']['signature_validated']['status'] == "failed" and avi.malware['reason']['signature_validated']['signature_from'] == "market":  # signature matches market, but it does not pass verification
-                                logging.error('{0} is a corrupt or incomplete APK, ignored.'.format(avi.download_src))
-                            else:
-                                # Are we sure we still need it after the additional info?
-                                if self.report.isThisApkNeeded(avi):
-                                    filenames.append(self.downloadApk(avi))
-                            # END: if avi.malware
-                        # END: if avi
-                    # END: if isThisApkNeeded
-                # END: for item
-                offset += 100
-            else:
-                break  # retrieving the list of recents apps failed, skip repository
-            # END: if data
-        # END: while
-        return filenames
-    # END: def checkOneStore:
-
     def crawl(self, threads=5):
         """
         crawl(): check all aptoide stores
@@ -295,14 +211,42 @@ class AptoideCrawler(object):
         if path:
             path += '/'
         storesfile = path + os.path.splitext(os.path.basename(__file__))[0] + '.config'
-        repos = getStores(storesfile)
-        random.shuffle(repos)  # randomize the order of the repositories to improve the chance to quickly hit new apks (before aptoide starts complaining with 503s)
 
-        # Start checking all stores ...
+        self.aptoideIds = sorted(getStoredIds(storesfile))
+        minId           = int(self.aptoideIds[0])
+        maxId           = int(self.aptoideIds[-1])
+
+        # Generate IDs missing from range
+        storeIds = sorted(set(range(minId, maxId + 1)).difference(self.aptoideIds))
+        logging.debug('Missing IDs: {0}'.format(storeIds))
+
+        # Extend missing to look for new ones
+
+        # This could be tuned, but for now a seem reasonable
+        # If we are current, it will search 3000 AptoideIDs (they will all
+        # be empty), then no new Max. ID will be logged
+        storeIds.extend([x for x in range(maxId, maxId + 3000)])
+
+        logging.debug('Looking for {0} IDs from {1} to {2}'.format(len(storeIds), minId, maxId))
+
+        # Start checking AptoideIDs ...
         p = multiprocessing.Pool(processes=threads, maxtasksperchild=5)  # Run only 5 tasks before re-placing the process; a lot of sequential requests from one IP still trigger 503, but the delay mechanism then kicks and in general fixes a retry
-        r = p.map_async(unwrap_self_checkOneStore, list(zip([self] * len(repos), repos)), callback=unwrap_callback)
+        r = p.map_async(unwrap_self_checkOneId, list(zip([self] * len(storeIds), storeIds)), callback=unwrap_callback)
         r.wait()
-        (self.dlFiles, self.dlFilesBeta) = unwrap_getresults()
+
+        localNewIds    = []
+        localNewMaxIds = []
+        (self.dlFiles, self.dlFilesBeta, localNewIds, localNewMaxIds) = unwrap_getresults()
+
+        localNewMaxId = max(max(localNewMaxIds), maxId)
+
+        # Merge original and new
+        temp = [x for x in localNewIds if x <= localNewMaxId]  # Don't keep > max found
+        temp.extend(self.aptoideIds)                           # Extend existing from file
+
+        logging.debug('Found for {0} IDs from {1} to {2}'.format(len(set(temp)), minId, localNewMaxId))
+
+        setStoreIds(storesfile, sorted(set(temp)))             # Store the New Unique sorted list!
     # END: crawl():
 # END: class AptoideCrawler
 
@@ -312,49 +256,87 @@ class StoresException(Exception):
         Exception.__init__(self, *args, **kwargs)
 
 
-def getStores(storesfile):
+def getStoredIds(storesfile):
     '''
-    getStores(): Retrieve Aptoide stores from the file
+    getStoredIds(): Retrieve Highest Aptoide ID crawled from the file
     '''
-    stores = []
+    aptoideIds = []  # Default start
     if os.path.isfile(storesfile):
         with open(storesfile, 'r') as f:
             for line in f:
-                line = line.partition('#')[0]
-                if line:
+                line = line.strip()
+                if line and not line.startswith('#'):
                     try:
-                        (store) = line.strip()
-                        logging.info('Found store: ' + store)
-                        stores.append(store)
+                        idRange = line.split('-')
+                        if len(idRange) == 1:
+                            aptoideIds.append(int(idRange[0]))
+                        elif len(idRange) == 2:
+                            aptoideIds.extend(list(range(int(idRange[0]), int(idRange[1])+1)))
+                        else:
+                            raise StoresException('Malformed line in Stores file', storesfile)
                     except:
-                        pass
                         raise StoresException('Malformed line in Stores file', storesfile)
     else:
-        pass
         raise StoresException('Stores file does not exist', storesfile)
-    return stores
-# END: def getStores
 
-nonbeta = []
-beta    = []
+    return aptoideIds
+# END: def getStoredIds
 
+
+def setStoreIds(storesfile, aptoideIds):
+    '''
+    setStoreIds(): Append Highest Aptoide ID crawled to the file
+    '''
+    from itertools import groupby
+    from operator import itemgetter
+
+    idRanges = []
+    for k, g in groupby(enumerate(aptoideIds), lambda x: x[0]-x[1]):
+        idRanges.append(list(map(itemgetter(1), g)))
+
+    if os.path.isfile(storesfile):
+        try:
+            with open(storesfile, "a") as f:
+                f.write('#-------------------------------------------------------------------------------\n')
+                for idRange in idRanges:
+                    if len(idRange) == 1:
+                        f.write(str(idRange[0]) + '\n')
+                    else:
+                        f.write(str(idRange[0]) + '-' + str(idRange[-1]) + '\n')
+        except:
+            raise StoresException('Error appending line to Stores file', storesfile)
+    else:
+        raise StoresException('Stores file does not exist', storesfile)
+# END: def setStoreIds
+
+nonbeta   = []
+beta      = []
+newIds    = []
+newMaxIds = []
 
 def unwrap_callback(results):
     for resultlist in results:
-        for result in resultlist:
-            if result:
-                if result.startswith('beta:'):
-                    beta.append(result[5:])
-                else:
-                    nonbeta.append(result)
+        if resultlist:
+            for result in resultlist:
+                if result:
+                    if result.startswith('id:'):
+                        newIds.append(int(result[3:]))
+                    elif result.startswith('max:'):
+                        tmpMax = int(result[4:])
+                        newIds.append(tmpMax)
+                        newMaxIds.append(tmpMax)
+                    elif result.startswith('beta:'):
+                        beta.append(result[5:])
+                    else:
+                        nonbeta.append(result)
 
 
 def unwrap_getresults():
-    return (nonbeta, beta)
+    return (nonbeta, beta, newIds, newMaxIds)
 
 
-def unwrap_self_checkOneStore(arg, **kwarg):
-    return AptoideCrawler.checkOneStore(*arg, **kwarg)
+def unwrap_self_checkOneId(arg, **kwarg):
+    return AptoideCrawler.checkOneId(*arg, **kwarg)
 
 if __name__ == "__main__":
     """
