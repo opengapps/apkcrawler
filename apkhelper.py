@@ -13,7 +13,6 @@ oneVariantPerRealver = {'com.google.android.apps.books',
                         'com.google.android.dialer',
                         'com.google.android.ears',
                         'com.google.android.gm',
-                        'com.google.android.gm.exchange',
                         'com.google.android.marvin.talkback',
                         'com.google.android.music',
                         'com.google.android.tv.remote'}

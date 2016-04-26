@@ -75,7 +75,6 @@ allUpToDownNames = {
     #'com.google.android.dialer'                  : 'n/a',
     'com.google.android.ears'                     : 'sound-search-for-google-play',
     'com.google.android.gm'                       : 'gmail',
-    #'com.google.android.gm.exchange'             : 'n/a',
     'com.google.android.gms'                      : 'google-play-services',
     'com.google.android.googlecamera'             : 'google-camera',
     'com.google.android.googlequicksearchbox'     : 'google-quick-search-box',
