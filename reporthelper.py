@@ -26,7 +26,7 @@ class ReportHelper(object):
         self.dAllApks = {}
 
         sColumns = ['(?P<name>com\.[^|]*)', '(?P<arch>[^|]*)', '(?P<sdk>[^|]*)', '(?P<dpi>[^|]*)',
-                    '(?P<ver>[^|]*)',       '(?P<code>[^|]*)', '(?P<sig>[^|]*)']
+                    '(?P<ver>[^|]*)',       '(?P<code>[^|]*)', '(?P<mib>[^|]*)', '(?P<sig>[^|]*)']
         pattern  = '^\s+' + '\|'.join(sColumns) + '$'
         reLine   = re.compile(pattern)
 
