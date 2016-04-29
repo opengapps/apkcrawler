@@ -77,6 +77,7 @@ allApkMirrorNames = {
     'com.google.android.dialer'                   : 'google-phone',
     'com.google.android.ears'                     : 'sound-search-for-google-play',
     'com.google.android.gm'                       : 'gmail',
+    'com.google.android.gm.exchange'              : 'exchange-services',
     'com.google.android.gms'                      : 'google-play-services',
     'com.google.android.googlecamera'             : 'camera',
     'com.google.android.googlequicksearchbox'     : 'google-search',
