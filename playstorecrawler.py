@@ -124,7 +124,7 @@ class PlayStoreCrawler(object):
         logging.debug('Logging in to Play Store with: ' + credentials.androidId)
         playstore = GooglePlayAPI(credentials.androidId, lang)
         if playstore.login(credentials.email, credentials.password, credentials.authSubToken):
-            for apkid in random.sample(list(self.report.dAllApks.keys()), len(list(self.report.dAllApks.keys()))):  # Shuffle the list, we want each crawler to search in a randomized order
+            for apkid in random.sample(list(self.report.getAllApkIds()), len(list(self.report.getAllApkIds()))):  # Shuffle the list, we want each crawler to search in a randomized order
                 wait = credentials.delay + random.randint(0, credentials.delay)
                 logging.info('Pausing {0} before searching for: {1}, waiting {2} seconds'.format(playstore.androidId, apkid, wait))
                 time.sleep(wait)
@@ -138,7 +138,7 @@ class PlayStoreCrawler(object):
                 # else:
                     # logging.debug('No Play Store result for {0}'.format(apkid))
                 # END: if avi
-            # END: for apkid in report.dAllApks.keys()
+            # END: for apkid in report.getAllApkIds()
         else:
             logging.error('Play Store login failed for {0}'.format(credentials.androidId))
         # END: if playstore.login()
@@ -275,7 +275,7 @@ if __name__ == "__main__":
 
     report = ReportHelper(lines)
 
-    if len(list(report.dAllApks.keys())) == 0:
+    if len(list(report.getAllApkIds())) == 0:
         print('ERROR: expecting:')
         print(' - 1 parameter (report file from output of report_sources.sh)')
         print(' or ')

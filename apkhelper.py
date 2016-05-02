@@ -43,7 +43,7 @@ class ApkVersionInfo(object):
     def __init__(self, name='', arch='', sdk='', target='', dpi='', ver='', vercode='', scrape_src='', download_src='', crawler_name='unknown', malware=''):
         super(ApkVersionInfo, self).__init__()
 
-        sName  = '^(?P<name>.*)(?P<extra>\.(leanback|beta))$'
+        sName  = '^(?P<name>.*)(?P<extra>\.(leanback|beta|default|tablet))$'
         reName = re.compile(sName)
 
         sVer   = '^(?P<ver>[^\s-]*)(?P<extra>([\s-].*|(\.(arm|arm\.arm_neon|arm64|x86|large|small))))$'  # .release?

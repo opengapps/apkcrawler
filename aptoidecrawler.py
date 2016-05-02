@@ -354,7 +354,7 @@ if __name__ == "__main__":
 
     report = ReportHelper(lines)
 
-    if len(list(report.dAllApks.keys())) == 0:
+    if len(list(report.getAllApkIds())) == 0:
         print('ERROR: expecting:')
         print(' - 1 parameter (report file from output of report_sources.sh)')
         print(' or ')

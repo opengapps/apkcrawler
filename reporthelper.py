@@ -58,6 +58,14 @@ class ReportHelper(object):
         # END: for line
     # END: def processReportSourcesOutput
 
+    def getAllApkIds(self, beta=False):
+        if beta:
+            return self.dAllApks.keys()
+        else:
+            reBeta = re.compile('^.*\.beta$')
+            return list(filter(lambda x: not reBeta.match(x), self.dAllApks.keys()))
+    # END: def getAllApkIds
+
     def getMaxVersionDict(self):
         """
         getMaxVersionDict(): Populate a dictionary of the max version of each APK

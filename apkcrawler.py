@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     report = ReportHelper(lines)
 
-    keys = list(report.dAllApks.keys())
+    keys = list(report.getAllApkIds())
 
     if len(keys) == 0:
         print('ERROR: expecting:')
