@@ -117,7 +117,7 @@ class ApkMirrorCrawler(object):
         self.sReVerInfo = 'Version:\s(?P<VERNAME>.*)\s\((?P<VERCODE>\d*)\)'
         self.reVersion  = re.compile(self.sReVerInfo)
 
-        self.sReSdkInfo = 'Min:\s.*API\s(?P<SDK>\w*)\)'
+        self.sReSdkInfo = 'Min:\s[^)]*API\s(?P<SDK>\w*)\)'
         self.reSdk      = re.compile(self.sReSdkInfo)
 
         self.sReTargetInfo = 'Target:\s.*API\s(?P<Target>\w*)\)'
