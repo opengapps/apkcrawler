@@ -52,7 +52,11 @@ class AptoideCrawler(object):
         self.aptoideIds  = aptoideIds
 
     def logIdAndDate(self, itemApk):
-        logging.debug('{0}|{1}|{2}'.format(itemApk['id'], itemApk['added'], itemApk['package']))
+        if itemApk['package'] not in list(self.report.dAllApks.keys()):
+            logging.debug('{0}|{1}|{2}'.format(itemApk['id'], itemApk['added'], itemApk['package']))
+        else:
+            logging.info('{0}|{1}|{2}'.format(itemApk['id'], itemApk['added'], itemApk['package']))
+
     # END: def logIdAndDate(self, itemApk)
 
     def checkOneId(self, aptoideId):
@@ -227,7 +231,7 @@ class AptoideCrawler(object):
         # be empty), then no new Max. ID will be logged
         storeIds.extend([x for x in range(maxId, maxId + 3000)])
 
-        logging.debug('Looking for {0} IDs from {1} to {2}'.format(len(storeIds), minId, maxId))
+        logging.info('Looking for {0} IDs from {1} to {2}'.format(len(storeIds), minId, maxId))
 
         # Start checking AptoideIDs ...
         p = multiprocessing.Pool(processes=threads, maxtasksperchild=5)  # Run only 5 tasks before re-placing the process; a lot of sequential requests from one IP still trigger 503, but the delay mechanism then kicks and in general fixes a retry
@@ -244,7 +248,7 @@ class AptoideCrawler(object):
         temp = [x for x in localNewIds if x <= localNewMaxId]  # Don't keep > max found
         temp.extend(self.aptoideIds)                           # Extend existing from file
 
-        logging.debug('Found for {0} IDs from {1} to {2}'.format(len(set(temp)), minId, localNewMaxId))
+        logging.info('Found for {0} IDs from {1} to {2}'.format(len(set(temp)), minId, localNewMaxId))
 
         setStoreIds(storesfile, sorted(set(temp)))             # Store the New Unique sorted list!
     # END: crawl():
