@@ -156,21 +156,23 @@ class PlayStoreCrawler(object):
         try:
             if os.path.exists(apkname):
                 logging.info('Downloaded APK already exists.')
-                return
+                return None
 
             if os.path.exists(os.path.join('.', 'apkcrawler', apkname)):
                 logging.info('Downloaded APK already exists (in ./apkcrawler/).')
-                return
+                return None
 
             if os.path.exists(os.path.join('..', 'apkcrawler', apkname)):
                 logging.info('Downloaded APK already exists (in ../apkcrawler/).')
-                return
+                return None
 
             for x in range(1, 4):  # up to three tries
                 res = avi.download_src.download(avi.name, avi.vercode, Global.offerType)
                 if res.body:
                     with open(apkname, 'wb') as local_file:
                         local_file.write(res.body)
+                    logging.debug(('beta:' if isBeta else 'reg :') + apkname)
+                    return       (('beta:' if isBeta else ''     ) + apkname)
                 elif res.status_code == http.client.SERVICE_UNAVAILABLE:
                     wait = delay * x
                     logging.info('Too many sequential requests on the Play Store (503) using {0} for: {1}, waiting {2} seconds'.format(avi.download_src.androidId, avi.name, wait))
@@ -180,16 +182,14 @@ class PlayStoreCrawler(object):
                     logging.error('Play Store download of {0} using {1} is forbidden (403)'.format(apkname, avi.download_src.androidId))
                 else:
                     logging.error('Play Store download of {0} using {1} returned unknown HTTP status {2}'.format(apkname, avi.download_src.androidId, res.status_code))
-                return None  # Not downloadable, return empty
             else:
                 logging.error('Play Store download of {0} using {1} failed with repetitive 503 errors'.format(apkname, avi.download_src.androidId))
                 return None  # Kept receiving 503, return empty
             # END: for x
 
-            logging.debug(('beta:' if isBeta else 'reg :') + apkname)
-            return       (('beta:' if isBeta else ''     ) + apkname)
         except OSError:
             logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
+            return None  # Nonthing for exception
     # END: def downloadApk
 
     def crawl(self, threads=8):
@@ -229,10 +229,8 @@ def getCredentials(credentialsfile):
                         logging.info('Found credentials for: ' + androidId)
                         credentials.append(PlayStoreCredentials(androidId, delay, email, password, authSubToken))
                     except:
-                        pass
                         raise CredentialsException('Malformed line in Credentials file', credentialsfile)
     else:
-        pass
         raise CredentialsException('Credentials file does not exist', credentialsfile)
     return credentials
 # END: def getCredentials
