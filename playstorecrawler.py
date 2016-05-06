@@ -180,6 +180,7 @@ class PlayStoreCrawler(object):
                     continue
                 elif res.status_code == http.client.FORBIDDEN:
                     logging.error('Play Store download of {0} using {1} is forbidden (403)'.format(apkname, avi.download_src.androidId))
+                    return None
                 else:
                     logging.error('Play Store download of {0} using {1} returned unknown HTTP status {2}'.format(apkname, avi.download_src.androidId, res.status_code))
             else:
