@@ -5,6 +5,7 @@
 # - requests
 #
 
+import datetime
 import http.client
 import json
 import logging
@@ -301,7 +302,9 @@ def setStoreIds(storesfile, aptoideIds):
     if os.path.isfile(storesfile):
         try:
             with open(storesfile, "a") as f:
-                f.write('#-------------------------------------------------------------------------------\n')
+                sep  = '#- {0} ({1}) '.format(datetime.datetime.utcnow(), os.environ['LOGNAME'])
+                sep += '-' * (80-len(sep))
+                f.write(sep + '\n')
                 for idRange in idRanges:
                     if len(idRange) == 1:
                         f.write(str(idRange[0]) + '\n')
