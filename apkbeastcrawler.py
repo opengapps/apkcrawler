@@ -70,7 +70,7 @@ class ApkBeastCrawler(object):
 
             try:
                 dom  = BeautifulSoup(html, 'html5lib')
-                link = dom.find('a', attrs={'download': True})['href']
+                link = dom.find('a', {'target': '_blank'})['href']
             except:
                 logging.exception('!!! Error parsing html from: "{0}"'.format(url))
 
@@ -136,8 +136,8 @@ class ApkBeastCrawler(object):
 
             try:
                 dom        = BeautifulSoup(html, 'html5lib')
-                apkversion = dom.find('div', {'class': 'details-section-contents'}).findAll('div', {'class': 'meta-info'})[2].find('div', {'class': 'content'}).contents[0]
-                apkurl     = dom.find('img', {'class': 'gdrive'}).parent['href']
+                apkversion = dom.find('p', {'itemprop': 'softwareVersion'}).get_text()
+                apkurl     = dom.find('a', {'class': 'da'})['href']
 
                 if apkurl:
                     apkversion = apkversion.strip()
