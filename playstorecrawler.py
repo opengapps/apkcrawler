@@ -99,19 +99,19 @@ class PlayStoreCrawler(object):
                     logging.debug('Found Play Store entry {0} {1}-{2}'.format(avi.name, avi.ver, avi.vercode))
                     return avi
                 else:
-                    logging.info('Play Store entry {0} using {1} is incompatible with the AndroidId\'s device'.format(apkid, playstore.androidId))
+                    logging.info('{0} is incompatible for {1}'.format(playstore.androidId, apkid))
             elif res.status_code == http.client.NOT_FOUND:
-                logging.debug('No Play Store entry {0} using {1}'.format(apkid, playstore.androidId))
+                logging.debug('{0} cannot find {1}'.format(playstore.androidId, apkid))
             elif res.status_code == http.client.SERVICE_UNAVAILABLE:
                 wait = delay * x
-                logging.info('Too many sequential requests on the Play Store (503) using {0} for: {1}, waiting {2} seconds'.format(playstore.androidId, apkid, wait))
+                logging.info('{0} too many sequential requests for {1}, paused for {2} seconds'.format(playstore.androidId, apkid, wait))
                 time.sleep(wait)  # wait longer with each failed try
                 continue
             else:
-                logging.error('Play Store entry {0} using {1} returned unknown HTTP status {2}'.format(apkid, playstore.androidId, res.status_code))
+                logging.error('{0} unknown HTTP status for {1}: {2}'.format(playstore.androidId, apkid, res.status_code))
             return None  # Not found, return empty
         else:
-            logging.error('Play Store entry {0} using {1} failed with repetitive 503 errors'.format(apkid, playstore.androidId))
+            logging.error('{0} repetitive error 503 for {1}'.format(playstore.androidId, apkid))
             return None  # Kept receiving 503, return empty
         # END: for x
     # END: def getApkInfo
@@ -123,10 +123,13 @@ class PlayStoreCrawler(object):
         filenames = []
         logging.debug('Logging in to Play Store with: ' + credentials.androidId)
         playstore = GooglePlayAPI(credentials.androidId, lang)
+        wait = random.randint(0, credentials.delay / 3) * 5  # try to make the difference between the timing stronger
+        logging.info('{0} login, paused for {1} seconds'.format(playstore.androidId, wait))
+        time.sleep(wait)  # wait before logging, to prevent logging in all accounts at the very same time
         if playstore.login(credentials.email, credentials.password, credentials.authSubToken):
             for apkid in random.sample(list(self.report.getAllApkIds()), len(list(self.report.getAllApkIds()))):  # Shuffle the list, we want each crawler to search in a randomized order
                 wait = credentials.delay + random.randint(0, credentials.delay)
-                logging.info('Pausing {0} before searching for: {1}, waiting {2} seconds'.format(playstore.androidId, apkid, wait))
+                logging.info('{0} searches for {1}, paused for {2} seconds'.format(playstore.androidId, apkid, wait))
                 time.sleep(wait)
                 avi = self.getApkInfo(playstore, apkid, credentials.delay)
                 if avi:
@@ -151,7 +154,7 @@ class PlayStoreCrawler(object):
         """
         apkname = ('beta.' if isBeta else '') + avi.getFilename()
 
-        logging.info('Downloading "{0}" using: {1}'.format(apkname, avi.download_src.androidId))
+        logging.info('{0} downloads "{1}"'.format(avi.download_src.androidId, apkname))
 
         try:
             if os.path.exists(apkname):
@@ -193,7 +196,7 @@ class PlayStoreCrawler(object):
             return
     # END: def downloadApk
 
-    def crawl(self, threads=8):
+    def crawl(self, threads=6):
         """
         crawl(): check all PlayStores
         """
