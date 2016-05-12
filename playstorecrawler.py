@@ -156,15 +156,15 @@ class PlayStoreCrawler(object):
         try:
             if os.path.exists(apkname):
                 logging.info('Downloaded APK already exists.')
-                return None
+                return
 
             if os.path.exists(os.path.join('.', 'apkcrawler', apkname)):
                 logging.info('Downloaded APK already exists (in ./apkcrawler/).')
-                return None
+                return
 
             if os.path.exists(os.path.join('..', 'apkcrawler', apkname)):
                 logging.info('Downloaded APK already exists (in ../apkcrawler/).')
-                return None
+                return
 
             for x in range(1, 4):  # up to three tries
                 res = avi.download_src.download(avi.name, avi.vercode, Global.offerType)
@@ -180,17 +180,17 @@ class PlayStoreCrawler(object):
                     continue
                 elif res.status_code == http.client.FORBIDDEN:
                     logging.error('Play Store download of {0} using {1} is forbidden (403)'.format(apkname, avi.download_src.androidId))
-                    return None
+                    return  # Nope, won't happen
                 else:
                     logging.error('Play Store download of {0} using {1} returned unknown HTTP status {2}'.format(apkname, avi.download_src.androidId, res.status_code))
             else:
                 logging.error('Play Store download of {0} using {1} failed with repetitive 503 errors'.format(apkname, avi.download_src.androidId))
-                return None  # Kept receiving 503, return empty
+                return  # Kept receiving 503, return empty
             # END: for x
 
         except OSError:
             logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
-            return None  # Nonthing for exception
+            return
     # END: def downloadApk
 
     def crawl(self, threads=8):
@@ -242,12 +242,13 @@ beta    = []
 
 def unwrap_callback(results):
     for resultlist in results:
-        for result in resultlist:
-            if result:
-                if result.startswith('beta:'):
-                    beta.append(result[5:])
-                else:
-                    nonbeta.append(result)
+        if resultlist:
+            for result in resultlist:
+                if result:
+                    if result.startswith('beta:'):
+                        beta.append(result[5:])
+                    else:
+                        nonbeta.append(result)
 
 
 def unwrap_getresults():
