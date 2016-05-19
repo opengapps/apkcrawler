@@ -21,7 +21,7 @@ from reporthelper import ReportHelper
 ###########################
 import requests.packages.urllib3.exceptions
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning) #suppress certificate matching warnings
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)  # suppress certificate matching warnings
 
 ###################
 # DEBUG VARS      #

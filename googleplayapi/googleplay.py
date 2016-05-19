@@ -72,8 +72,8 @@ class GooglePlayAPI(object):
         # The number is a string of the Play Store app Version Name
         # The api is the play store protocol api (probably)
         # The versionCode is the vercode of the Play Store app
-        self.playUserAgent = "Android-Finsky/6.4.12.C (api=3,versionCode=80641200,sdk=22,device=angler,hardware=angler,product=angler"
-        self.downloadUserAgent = "AndroidDownloadManager/6.0.1 (Linux; U; Android 6.0.1; Nexus 6P Build/MHC19Q)"
+        self.playUserAgent = "Android-Finsky/6.7.07.E (api=3,versionCode=80670700,sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user"
+        self.downloadUserAgent = "AndroidDownloadManager/6.0.1 (Linux; U; Android 6.0.1; Nexus 6P Build/MTC19T)"
         # self.proxy_dict = {
         #         "http"  : "http://81.137.100.158:8080",
         #         "https" : "http://81.137.100.158:8080",
@@ -143,7 +143,7 @@ class GooglePlayAPI(object):
                           "device_country": "us",
                           "operatorCountry": "us",
                           "lang": "us",
-                          "sdk_version": "22"}  # TODO make sdk_version flexible
+                          "sdk_version": "23"}  # TODO make sdk_version flexible
                 headers = {
                     "Accept-Encoding": "",
                 }
