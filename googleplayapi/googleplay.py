@@ -133,7 +133,7 @@ class GooglePlayAPI(object):
             else:
                 params = {"Email": email,
                           "Passwd": password,
-                          "service": self.SERVICE,
+                          "service": "androidmarket",
                           "accountType": self.ACCOUNT_TYPE_HOSTED_OR_GOOGLE,
                           "has_permission": "1",
                           "source": "android",
