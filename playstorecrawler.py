@@ -226,7 +226,7 @@ def getCredentials(credentialsfile):
     if os.path.isfile(credentialsfile):
         with open(credentialsfile, 'r') as f:
             for line in f:
-                line = line.partition('#')[0]
+                line = line.partition('#')[0].strip()
                 if line:
                     try:
                         (androidId, delay, email, password, authSubToken) = line.strip().split(',')

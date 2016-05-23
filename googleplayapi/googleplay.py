@@ -178,7 +178,8 @@ class GooglePlayAPI(object):
                        "X-DFE-Unsupported-Experiments": "nocache:billing.use_charging_poller,market_emails,buyer_currency,prod_baseline,checkin.set_asset_paid_app_field,shekel_test,content_ratings,buyer_currency_in_app,nocache:encrypted_apk,recent_changes",
                        "X-DFE-Device-Id": self.androidId,
                        "X-DFE-Client-Id": "am-android-google",
-                       # "X-DFE-Logging-Id": XXXXX, # Not necessary
+                       # "X-DFE-Logging-Id": XXXXX,  # Not necessary
+                       "X-DFE-Cookie": "CKkPEAEYACICVVM",  # for region US
                        "User-Agent": self.playUserAgent,
                        "X-DFE-SmallestScreenWidthDp": "320",
                        "X-DFE-Filter-Level": "3",
