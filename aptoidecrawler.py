@@ -228,9 +228,10 @@ class AptoideCrawler(object):
         # Extend missing to look for new ones
 
         # This could be tuned, but for now a seem reasonable
-        # If we are current, it will search 3000 AptoideIDs (they will all
-        # be empty), then no new Max. ID will be logged
-        storeIds.extend([x for x in range(maxId, maxId + 3000)])
+        # If we are current, it will search 3000 AptoideIDs (they are  all
+        # be empty, then no new Max. ID will be logged)
+        # Additionally, search back 500 for slow adding  entries???
+        storeIds.extend([x for x in range(maxId - 500, maxId + 2500)])
 
         logging.info('Looking for {0} IDs from {1} to {2}'.format(len(storeIds), minId, maxId))
 
