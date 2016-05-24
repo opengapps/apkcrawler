@@ -123,7 +123,7 @@ class PlayStoreCrawler(object):
         filenames = []
         logging.debug('Logging in to Play Store with: ' + credentials.androidId)
         playstore = GooglePlayAPI(credentials.androidId, lang)
-        wait = random.randint(0, credentials.delay / 3) * 5  # try to make the difference between the timing stronger
+        wait = random.randint(0, (credentials.delay * 2) // 3) # try to make the difference between the offset timings stronger and discrete
         logging.info('{0} login, paused for {1} seconds'.format(playstore.androidId, wait))
         time.sleep(wait)  # wait before logging, to prevent logging in all accounts at the very same time
         if playstore.login(credentials.email, credentials.password, credentials.authSubToken):

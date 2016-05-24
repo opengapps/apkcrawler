@@ -72,7 +72,7 @@ class GooglePlayAPI(object):
         # The number is a string of the Play Store app Version Name
         # The api is the play store protocol api (probably)
         # The versionCode is the vercode of the Play Store app
-        self.playUserAgent = "Android-Finsky/6.7.07.E (api=3,versionCode=80670700,sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user"
+        self.playUserAgent = "Android-Finsky/6.7.07.E (api=3,versionCode=80670700,sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user)"
         self.downloadUserAgent = "AndroidDownloadManager/6.0.1 (Linux; U; Android 6.0.1; Nexus 6P Build/MTC19T)"
         # self.proxy_dict = {
         #         "http"  : "http://81.137.100.158:8080",
