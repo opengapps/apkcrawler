@@ -74,6 +74,7 @@ class GooglePlayAPI(object):
         # The versionCode is the vercode of the Play Store app
         self.playUserAgent = "Android-Finsky/6.7.07.E (api=3,versionCode=80670700,sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user)"
         self.downloadUserAgent = "AndroidDownloadManager/6.0.1 (Linux; U; Android 6.0.1; Nexus 6P Build/MTC19T)"
+        self.regionCookie = "US"
         # self.proxy_dict = {
         #         "http"  : "http://81.137.100.158:8080",
         #         "https" : "http://81.137.100.158:8080",
@@ -179,7 +180,7 @@ class GooglePlayAPI(object):
                        "X-DFE-Device-Id": self.androidId,
                        "X-DFE-Client-Id": "am-android-google",
                        # "X-DFE-Logging-Id": XXXXX,  # Not necessary
-                       "X-DFE-Cookie": "CKkPEAEYACICVVM",  # for region US
+                       "X-DFE-Cookie": base64.encodebytes(b'\x08\xa9\x0f\x10\x01\x18\x00"\x02' + self.regionCookie.encode('utf-8')).decode('utf-8').replace('=', ''),
                        "User-Agent": self.playUserAgent,
                        "X-DFE-SmallestScreenWidthDp": "320",
                        "X-DFE-Filter-Level": "3",
