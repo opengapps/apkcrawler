@@ -87,6 +87,24 @@ class ApkPureCrawler(object):
             logging.exception('!!! Filename is not valid: "{0}"'.format(apkname))
     # END: def downloadApk
 
+    def parseRedirectPage(self, apkid):
+        url = apkid.scrape_src
+
+        session = requests.Session()
+        logging.debug('Requesting2: ' + url)
+        resp    = session.get(url)
+        html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
+
+        if resp.status_code == http.client.OK:
+            try:
+                dom                = BeautifulSoup(html, 'html5lib')
+                apkid.download_src = dom.find('a', {'id': 'download_link', 'class': 'ga'})['href']
+            except:
+                logging.exception('!!! Error parsing html from: "{0}"'.format(url))
+
+            return apkid 
+    # END: def parseRedirectPage
+
     def checkOneApp(self, apkid):
         """
         checkOneApp(apkid):
@@ -98,7 +116,7 @@ class ApkPureCrawler(object):
         url       = 'https://apkpure.com/apkpure/' + apkid  # the /apkpure/ part just needs to be an arbitrary string
 
         session = requests.Session()
-        logging.debug('Requesting: ' + url)
+        logging.debug('Requesting1: ' + url)
         resp    = session.get(url)
         html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
 
@@ -114,18 +132,19 @@ class ApkPureCrawler(object):
                         vername = m.group('VERNAME')
                         vercode = m.group('VERCODE')
                         sdk     = m.group('SDK')
-                        scrape    = 'https://apkpure.com' + apk.find('a', {'class': 'down'})['href']
+                    href = 'https://apkpure.com' + apk.find('a', {'class': 'down'})['href']
 
                     if href:
                         avi = ApkVersionInfo(name=apkid,
                                              sdk=(sdk if sdk else 0),
                                              ver=vername,
                                              vercode=vercode,
-                                             scrape_src=scrape,
+                                             scrape_src=href,
                                              crawler_name=self.__class__.__name__
                                              )
 
                         if self.report.isThisApkNeeded(avi):
+                            avi = self.parseRedirectPage(avi)
                             filenames.append(self.downloadApk(avi))
 
             except IndexError:
