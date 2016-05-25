@@ -114,14 +114,14 @@ class ApkPureCrawler(object):
                         vername = m.group('VERNAME')
                         vercode = m.group('VERCODE')
                         sdk     = m.group('SDK')
-                    href = apk.find('a', {'class': 'ga down'})['href']
+                        scrape    = 'https://apkpure.com' + apk.find('a', {'class': 'down'})['href']
 
                     if href:
                         avi = ApkVersionInfo(name=apkid,
                                              sdk=(sdk if sdk else 0),
                                              ver=vername,
                                              vercode=vercode,
-                                             download_src=href,
+                                             scrape_src=scrape,
                                              crawler_name=self.__class__.__name__
                                              )
 
