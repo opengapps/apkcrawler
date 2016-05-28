@@ -102,7 +102,7 @@ class ApkPureCrawler(object):
             except:
                 logging.exception('!!! Error parsing html from: "{0}"'.format(url))
 
-            return apkid 
+            return apkid
     # END: def parseRedirectPage
 
     def checkOneApp(self, apkid):

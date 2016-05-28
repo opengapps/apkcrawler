@@ -50,6 +50,9 @@ class ApkBeastCrawler(object):
         self.dlFiles     = dlFiles
         self.dlFilesBeta = dlFilesBeta
 
+        self.sReDownloadUrl = "var url = '(?P<URL>.*)';"
+        self.reDownloadUrl  = re.compile(self.sReDownloadUrl)
+
     def getUrlFromRedirect(self, url):
         """
         getUrlFromRedirect(url):
@@ -60,17 +63,12 @@ class ApkBeastCrawler(object):
         logging.debug('Requesting2: ' + url)
         resp    = session.get(url)
         if resp.status_code == http.client.OK:
-            html    = unicodedata.normalize('NFKD', resp.text).encode('ascii', 'ignore')
-
-            # sLink = '.*window\.location = "(?P<Link>[^"]+)".*'
-            # reLink = re.compile(sLink)
-            # m = reLink.search(html)
-            # if m:
-            #     return m.group('Link')
+            html    = unicodedata.normalize('NFKD', resp.text)
 
             try:
-                dom  = BeautifulSoup(html, 'html5lib')
-                link = dom.find('a', {'target': '_blank'})['href']
+                m = self.reDownloadUrl.search(html)
+                if m:
+                    link = m.group('URL')
             except:
                 logging.exception('!!! Error parsing html from: "{0}"'.format(url))
 
