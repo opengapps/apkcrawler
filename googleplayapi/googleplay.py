@@ -124,6 +124,7 @@ class GooglePlayAPI(object):
         - an email and password
         - a valid Google authSubToken"""
         ret = None
+        self.proxy_dict = proxy
         if (authSubToken is not None):
             self.setAuthSubToken(authSubToken)
             logging.debug('Logged in with {0} using authSubToken: {1}'.format(self.androidId, self.authSubToken))
@@ -148,7 +149,6 @@ class GooglePlayAPI(object):
                 headers = {
                     "Accept-Encoding": "gzip, deflate",
                 }
-                self.proxy_dict = proxy
                 response = requests.post(self.URL_LOGIN, data=params, headers=headers, proxies=proxy, verify=False)
                 if response.status_code != http.client.OK:
                     logging.error('Play Store login failed for {0}, statuscode {1}: {2}'.format(self.androidId, response.status_code, response.content))

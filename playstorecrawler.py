@@ -4,6 +4,7 @@ import logging
 import multiprocessing
 import os
 import random
+import re
 import requests
 import sys
 import time
@@ -123,10 +124,7 @@ class PlayStoreCrawler(object):
         filenames = []
         logging.debug('Logging in to Play Store with: ' + credentials.androidId)
         playstore = GooglePlayAPI(credentials.androidId, lang)
-        wait = random.randint(0, (credentials.delay * 2) // 3) # try to make the difference between the offset timings stronger and discrete
-        logging.info('{0} login, paused for {1} seconds'.format(playstore.androidId, wait))
-        time.sleep(wait)  # wait before logging, to prevent logging in all accounts at the very same time
-        if playstore.login(credentials.email, credentials.password, credentials.authSubToken):
+        if playstore.login(authSubToken=credentials.authSubToken):
             for apkid in random.sample(list(self.report.getAllApkIds()), len(list(self.report.getAllApkIds()))):  # Shuffle the list, we want each crawler to search in a randomized order
                 wait = credentials.delay + random.randint(0, credentials.delay)
                 logging.info('{0} searches for {1}, paused for {2} seconds'.format(playstore.androidId, apkid, wait))
@@ -205,7 +203,7 @@ class PlayStoreCrawler(object):
             path += '/'
         credentialsfile = path + os.path.splitext(os.path.basename(__file__))[0] + '.config'
         stores = getCredentials(credentialsfile)
-        p = multiprocessing.Pool(processes=threads, maxtasksperchild=5)  # Run only 5 tasks before re-placing the process
+        p = multiprocessing.Pool(processes=threads, maxtasksperchild=5)  # Run only 5 tasks before re-creating the process
         r = p.map_async(unwrap_self_checkPlayStore, list(zip([self] * len(stores), stores)), callback=unwrap_callback)
         r.wait()
         (self.dlFiles, self.dlFilesBeta) = unwrap_getresults()
@@ -222,22 +220,73 @@ def getCredentials(credentialsfile):
     '''
     getCredentials(): Retrieve Play Store credentials from the file
     '''
+    sReCredentials = '^\s*(?P<ANDROIDID>[^#,]*),\s*(?P<DELAY>[^#,]*),\s*(?P<EMAIL>[^#,]*),\s*(?P<PASSWORD>[^#,]*),\s*(?P<TOKEN>[^#,]*)(#.*)?$'
+    reCredentials  = re.compile(sReCredentials)
+    tokendelay = 0
     credentials = []
     if os.path.isfile(credentialsfile):
         with open(credentialsfile, 'r') as f:
             for line in f:
-                line = line.partition('#')[0].strip()
                 if line:
                     try:
-                        (androidId, delay, email, password, authSubToken) = line.strip().split(',')
-                        logging.info('Found credentials for: ' + androidId)
-                        credentials.append(PlayStoreCredentials(androidId, delay, email, password, authSubToken))
+                        m = reCredentials.match(line)
+                        if m:
+                            androidId = m.group('ANDROIDID')
+                            delay     = m.group('DELAY')
+                            email     = m.group('EMAIL')
+                            password  = m.group('PASSWORD')
+                            token     = m.group('TOKEN')
+                            logging.info('Found credentials for: {0}'.format(androidId))
+                            if not token:
+                                logging.info('{0} lacks authToken'.format(androidId))
+                                if tokendelay:
+                                    logging.info('Wait {0} seconds before processing anymore tokens'.format(delay))
+                                    time.sleep(tokendelay)
+                                token = getToken(androidId, email, password)
+                                if token:
+                                    logging.info('{0} writing authToken to config to {1}'.format(androidId, credentialsfile))
+                                    updateTokenCredentials(credentialsfile, androidId, delay, email, password, token)
+                                else:
+                                    logging.error('{0} authToken retrieval failed'.format(androidId))
+                                tokendelay = int(delay)  # we don't want to fetch tokens too quickly after one another
+                            if token:
+                                credentials.append(PlayStoreCredentials(androidId, delay, email, password, token))
+                            else:
+                                logging.error('{0} has no valid token and will not be crawled'.format(androidId))
                     except:
                         raise CredentialsException('Malformed line in Credentials file', credentialsfile)
     else:
         raise CredentialsException('Credentials file does not exist', credentialsfile)
     return credentials
 # END: def getCredentials
+
+def getToken(androidId, email, password, lang="en_US"):
+    '''
+    getToken(): Retrieve a Play Store authToken
+    '''
+    logging.info('{0} requests authToken'.format(androidId))
+    return GooglePlayAPI(androidId, lang).login(email, password)
+# END: def getToken
+
+def updateTokenCredentials(credentialsfile, androidId, delay, email, password, token=''):
+    '''
+    updateTokenCredentials(): update the authToken stored in the Credentialsfile for the original line
+     Quickly opens the file, changes the line and writes it. Locking is short and should be safe for intermediary changes.
+    '''
+    sReCredentials = '(?P<ID>\s*' + androidId + ',\s*' + delay + ',\s*' + email + ',\s*' + password + ',\s*)(?P<TOKEN>[^#,]*)(?P<COMMENT>#.*)?'
+    reCredentials  = re.compile(sReCredentials)
+
+    if os.path.isfile(credentialsfile):
+        file_handle = open(credentialsfile, 'r')
+        file_string = file_handle.read()
+        file_handle.close()
+
+        file_string = (reCredentials.sub('\g<ID>' + token + '\g<COMMENT>', file_string))
+
+        file_handle = open(credentialsfile, 'w')
+        file_handle.write(file_string)
+        file_handle.close()
+# END: def updateTokenCredentials
 
 nonbeta = []
 beta    = []
