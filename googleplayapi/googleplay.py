@@ -123,11 +123,11 @@ class GooglePlayAPI(object):
         """Login to your Google Account. You must provide either:
         - an email and password
         - a valid Google authSubToken"""
-        ret = False
+        ret = None
         if (authSubToken is not None):
             self.setAuthSubToken(authSubToken)
-            logging.debug('Logged in with {0} using authSubToken: {1}'.format(self.androidId, authSubToken))
-            ret = True  # TODO is not tested if it really works, silent assumption at the moment. Needs to e.g. try to fetch the auth-page too to verify and return a valid value
+            logging.debug('Logged in with {0} using authSubToken: {1}'.format(self.androidId, self.authSubToken))
+            ret = self.authSubToken  # TODO is not tested if it really works, silent assumption at the moment. Needs to e.g. try to fetch the auth-page too to verify and return a valid value
         else:
             if (email is None or password is None):
                 logging.error('Need a authSubToken or (email and password) for {0}'.format(self.androidId))
@@ -146,12 +146,12 @@ class GooglePlayAPI(object):
                           "lang": "us",
                           "sdk_version": "23"}  # TODO make sdk_version flexible
                 headers = {
-                    "Accept-Encoding": "",
+                    "Accept-Encoding": "gzip, deflate",
                 }
                 self.proxy_dict = proxy
                 response = requests.post(self.URL_LOGIN, data=params, headers=headers, proxies=proxy, verify=False)
                 if response.status_code != http.client.OK:
-                    logging.error('Play Store login failed for {0}: {1}'.format(self.androidId, response.content))
+                    logging.error('Play Store login failed for {0}, statuscode {1}: {2}'.format(self.androidId, response.status_code, response.content))
                 else:
                     data = response.text.split()
                     params = {}
@@ -162,7 +162,7 @@ class GooglePlayAPI(object):
                         params[k.strip().lower()] = v.strip()
                     if "auth" in params:
                         self.setAuthSubToken(params["auth"])
-                        ret = True
+                        ret = self.authSubToken
                     elif "error" in params:
                         logging.error('Play Store login error for {0}: {1}'.format(self.androidId, params["error"]))
                     else:
@@ -184,7 +184,7 @@ class GooglePlayAPI(object):
                        "User-Agent": self.playUserAgent,
                        "X-DFE-SmallestScreenWidthDp": "320",
                        "X-DFE-Filter-Level": "3",
-                       "Accept-Encoding": "",
+                       "Accept-Encoding": "gzip, deflate",
                        "Host": "android.clients.google.com"}  # TODO make the values for versioncode, sdk, device, hardware, platformVersionRelease, model, isWidescreen, X-DFE-SmallestScreenWidthDp flexible?
 
             if datapost is not None:
