@@ -187,7 +187,7 @@ def getCredentials(credentialsfile):
     '''
     getCredentials(): Retrieve Play Store credentials from the file
     '''
-    sReCredentials = '^\s*(?P<ANDROIDID>[^#,]*),\s*(?P<DELAY>[^#,]*),\s*(?P<EMAIL>[^#,]*),\s*(?P<PASSWORD>[^#,]*),\s*(?P<TOKEN>[^#,]*)(#.*)?$'
+    sReCredentials = '^\s*(?P<ANDROIDID>[^#,]*),\s*(?P<DELAY>[^#,]*),\s*(?P<EMAIL>[^#,]*),\s*(?P<PASSWORD>[^#,]*),\s*(?P<TOKEN>[^\s]*)(\s*#.*)?$'
     reCredentials  = re.compile(sReCredentials)
     tokendelay = 0
     credentials = []
@@ -240,7 +240,7 @@ def updateTokenCredentials(credentialsfile, androidId, delay, email, password, t
     updateTokenCredentials(): update the authToken stored in the Credentialsfile for the original line
      Quickly opens the file, changes the line and writes it. Locking is short and should be safe for intermediary changes.
     '''
-    sReCredentials = '(?P<ID>\s*' + androidId + ',\s*' + delay + ',\s*' + email + ',\s*' + password + ',\s*)(?P<TOKEN>[^#,]*)(?P<COMMENT>#.*)?'
+    sReCredentials = '(?P<ID>\s*' + androidId + ',\s*' + delay + ',\s*' + email + ',\s*' + password + ',\s*)(?P<TOKEN>[^\s]*)(?P<COMMENT>\s*#.*)?'
     reCredentials  = re.compile(sReCredentials)
 
     if os.path.isfile(credentialsfile):
