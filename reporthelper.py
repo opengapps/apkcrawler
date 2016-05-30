@@ -140,9 +140,9 @@ class ReportHelper(object):
 
         logging.debug(avi.fullString(avi.ver))
         logging.debug('Do we have already vercode?')
-        # Do we have the requested vercode already?
+        # Do we have the requested vercode already? Or do we have a higher vercode while there is only one variant of these apps?
         if avi.vercode != 0:
-            if [apk for apk in self.dAllApks[avi.name] if apk.vercode == avi.vercode]:
+            if [apk for apk in self.dAllApks[avi.name] if apk.vercode == avi.vercode] or (avi.isVercodeAbsolute and [apk for apk in self.dAllApks[avi.name] if apk.vercode >= avi.vercode]):
                 logging.debug('    DON\'T NEED')
                 return False
         else:  # We only need to run the realvername match if we could not compare the vercode itself

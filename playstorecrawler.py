@@ -90,19 +90,24 @@ class PlayStoreCrawler(object):
         logging.debug('Logging in to Play Store with: ' + credentials.androidId)
         playstore = GooglePlayAPI(credentials.androidId, lang)
         if playstore.login(authSubToken=credentials.authSubToken):
+            logging.info('{0} searches for {1}'.format(credentials.androidId, self.report.getAllApkIds()))
             res = playstore.bulkDetails(self.report.getAllApkIds())
             if res and res.status_code == http.client.OK and res.body:
                 for app in res.body.entry:
-                    avi = ApkVersionInfo(name        =app.doc.docid,
-                                         vercode     =app.doc.details.appDetails.versionCode,
-                                         download_src=playstore,
-                                         crawler_name=self.__class__.__name__
-                                         )
-                    if self.report.isThisApkNeeded(avi):
-                        logging.debug('Update {0}-{1} (Uploaddate {2})'.format(avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
-                        filenames.append(self.downloadApk(avi, credentials.delay))
+                    if app.doc and app.doc.docid:
+                        avi = ApkVersionInfo(name        =app.doc.docid,
+                                             vercode     =app.doc.details.appDetails.versionCode,
+                                             download_src=playstore,
+                                             crawler_name=self.__class__.__name__
+                                             )
+                        if self.report.isThisApkNeeded(avi):
+                            logging.debug('Update {0}-{1} (Uploaddate {2})'.format(avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
+                            filenames.append(self.downloadApk(avi, credentials.delay))
+                        else:
+                            logging.debug('Skip {0}-{1} (Uploaddate {2})'.format(avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
                     else:
-                        logging.debug('Skip {0}-{1} (Uploaddate {2})'.format(avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
+                        logging.debug('Empty search entry')
+                        continue
             else:
                 logging.error('{0} Error querying Play Store, status {1}: {2}'.format(playstore.androidId, apkid, res.status_code))
             return None  # Not found, return empty
@@ -143,16 +148,17 @@ class PlayStoreCrawler(object):
                     return       (('beta:' if isBeta else ''     ) + apkname)
                 elif res.status_code == http.client.SERVICE_UNAVAILABLE:
                     wait = delay * x
-                    logging.info('Too many sequential requests on the Play Store (503) using {0} for: {1}, waiting {2} seconds'.format(avi.download_src.androidId, avi.name, wait))
+                    logging.info('{0} too many sequential requests on the Play Store (503) downloading {1}: waiting {2} seconds'.format(avi.download_src.androidId, apkname, wait))
                     time.sleep(wait)  # wait longer with each failed try
                     continue
                 elif res.status_code == http.client.FORBIDDEN:
-                    logging.error('Play Store download of {0} using {1} is forbidden (403)'.format(apkname, avi.download_src.androidId))
+                    logging.error('{0} dowloading {1} is forbidden (403)'.format(avi.download_src.androidId, apkname))
                     return  # Nope, won't happen
                 else:
-                    logging.error('Play Store download of {0} using {1} returned unknown HTTP status {2}'.format(apkname, avi.download_src.androidId, res.status_code))
+                    logging.error('{0} downloading {1} returned unknown HTTP status {2}'.format(avi.download_src.androidId, apkname, res.status_code))
+                    return  # Nope, won't happen
             else:
-                logging.error('Play Store download of {0} using {1} failed with repetitive 503 errors'.format(apkname, avi.download_src.androidId))
+                logging.error('{0} downloading {1} failed with repetitive 503 errors'.format(avi.download_src.androidId, apkname))
                 return  # Kept receiving 503, return empty
             # END: for x
 

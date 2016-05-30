@@ -115,6 +115,9 @@ class ApkVersionInfo(object):
     def isRealverAbsolute(self):
         return (self.name in oneVariantPerRealver) or (self.name in oneVercodePerRealver)
 
+    def isVercodeAbsolute(self):
+        return (self.name in oneVercodePerRealver)
+
     def __lt__(self, other):
         if self.ver == '':
             logging.error('AVI.cmp(): self.ver is empty [{0}]'.format(self.ver))
