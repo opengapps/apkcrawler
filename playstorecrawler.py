@@ -240,7 +240,7 @@ def updateTokenCredentials(credentialsfile, androidId, delay, email, password, t
     updateTokenCredentials(): update the authToken stored in the Credentialsfile for the original line
      Quickly opens the file, changes the line and writes it. Locking is short and should be safe for intermediary changes.
     '''
-    sReCredentials = '(?P<ID>\s*' + androidId + ',\s*' + delay + ',\s*' + email + ',\s*' + password + ',\s*)(?P<TOKEN>[^\s]*)(?P<COMMENT>\s*#.*)?'
+    sReCredentials = '(?P<ID>\s*' + androidId + ',\s*' + delay + ',\s*' + email + ',\s*' + password + ',\s*)(?P<TOKEN>[^\s#]*)(?P<COMMENT>\s*#.*)?'
     reCredentials  = re.compile(sReCredentials)
 
     if os.path.isfile(credentialsfile):
