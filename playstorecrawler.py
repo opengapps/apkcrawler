@@ -102,7 +102,7 @@ class PlayStoreCrawler(object):
                                              )
                         if self.report.isThisApkNeeded(avi):
                             logging.debug('Update {0}-{1} (Uploaddate {2})'.format(avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
-                            filenames.append(self.downloadApk(avi, credentials.delay))
+                            filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay)))
                         else:
                             logging.debug('Skip {0}-{1} (Uploaddate {2})'.format(avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
                     else:
@@ -110,7 +110,7 @@ class PlayStoreCrawler(object):
                         continue
             else:
                 logging.error('{0} Error querying Play Store, status {1}: {2}'.format(playstore.androidId, apkid, res.status_code))
-            return None  # Not found, return empty
+                return None  # Not found, return empty
         else:
             logging.error('Play Store login failed for {0}'.format(credentials.androidId))
         # END: if playstore.login()
@@ -167,7 +167,7 @@ class PlayStoreCrawler(object):
             return
     # END: def downloadApk
 
-    def crawl(self, threads=8):
+    def crawl(self, threads=4):
         """
         crawl(): check all PlayStores
         """
