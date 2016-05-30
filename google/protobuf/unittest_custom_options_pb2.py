@@ -230,7 +230,7 @@ FLOAT_OPT_FIELD_NUMBER = 7675390
 float_opt = _descriptor.FieldDescriptor(
   name='float_opt', full_name='protobuf_unittest.float_opt', index=19,
   number=7675390, type=2, cpp_type=6, label=1,
-  has_default_value=False, default_value=0,
+  has_default_value=False, default_value=float(0),
   message_type=None, enum_type=None, containing_type=None,
   is_extension=True, extension_scope=None,
   options=None)
@@ -238,7 +238,7 @@ DOUBLE_OPT_FIELD_NUMBER = 7673293
 double_opt = _descriptor.FieldDescriptor(
   name='double_opt', full_name='protobuf_unittest.double_opt', index=20,
   number=7673293, type=1, cpp_type=5, label=1,
-  has_default_value=False, default_value=0,
+  has_default_value=False, default_value=float(0),
   message_type=None, enum_type=None, containing_type=None,
   is_extension=True, extension_scope=None,
   options=None)

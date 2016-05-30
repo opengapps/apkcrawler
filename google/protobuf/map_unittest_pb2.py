@@ -465,7 +465,7 @@ _TESTMAP_MAPINT32FLOATENTRY = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='value', full_name='protobuf_unittest.TestMap.MapInt32FloatEntry.value', index=1,
       number=2, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -502,7 +502,7 @@ _TESTMAP_MAPINT32DOUBLEENTRY = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='value', full_name='protobuf_unittest.TestMap.MapInt32DoubleEntry.value', index=1,
       number=2, type=1, cpp_type=5, label=1,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -1560,7 +1560,7 @@ _TESTARENAMAP_MAPINT32FLOATENTRY = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='value', full_name='protobuf_unittest.TestArenaMap.MapInt32FloatEntry.value', index=1,
       number=2, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -1597,7 +1597,7 @@ _TESTARENAMAP_MAPINT32DOUBLEENTRY = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='value', full_name='protobuf_unittest.TestArenaMap.MapInt32DoubleEntry.value', index=1,
       number=2, type=1, cpp_type=5, label=1,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),

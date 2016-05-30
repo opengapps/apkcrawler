@@ -277,7 +277,7 @@ _FACTORY2MESSAGE = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='double_with_default', full_name='google.protobuf.python.internal.Factory2Message.double_with_default', index=14,
       number=17, type=1, cpp_type=5, label=1,
-      has_default_value=True, default_value=9.99,
+      has_default_value=True, default_value=float(9.99),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),

@@ -261,14 +261,14 @@ _TESTALLTYPES = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='optional_float', full_name='protobuf_unittest_no_arena.TestAllTypes.optional_float', index=10,
       number=11, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='optional_double', full_name='protobuf_unittest_no_arena.TestAllTypes.optional_double', index=11,
       number=12, type=1, cpp_type=5, label=1,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -618,14 +618,14 @@ _TESTALLTYPES = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='default_float', full_name='protobuf_unittest_no_arena.TestAllTypes.default_float', index=61,
       number=71, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=51.5,
+      has_default_value=True, default_value=float(51.5),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='default_double', full_name='protobuf_unittest_no_arena.TestAllTypes.default_double', index=62,
       number=72, type=1, cpp_type=5, label=1,
-      has_default_value=True, default_value=52000,
+      has_default_value=True, default_value=float(52000),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),

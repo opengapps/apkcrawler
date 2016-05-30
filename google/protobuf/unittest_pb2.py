@@ -234,7 +234,7 @@ OPTIONAL_FLOAT_EXTENSION_FIELD_NUMBER = 11
 optional_float_extension = _descriptor.FieldDescriptor(
   name='optional_float_extension', full_name='protobuf_unittest.optional_float_extension', index=10,
   number=11, type=2, cpp_type=6, label=1,
-  has_default_value=False, default_value=0,
+  has_default_value=False, default_value=float(0),
   message_type=None, enum_type=None, containing_type=None,
   is_extension=True, extension_scope=None,
   options=None)
@@ -242,7 +242,7 @@ OPTIONAL_DOUBLE_EXTENSION_FIELD_NUMBER = 12
 optional_double_extension = _descriptor.FieldDescriptor(
   name='optional_double_extension', full_name='protobuf_unittest.optional_double_extension', index=11,
   number=12, type=1, cpp_type=5, label=1,
-  has_default_value=False, default_value=0,
+  has_default_value=False, default_value=float(0),
   message_type=None, enum_type=None, containing_type=None,
   is_extension=True, extension_scope=None,
   options=None)
@@ -642,7 +642,7 @@ DEFAULT_FLOAT_EXTENSION_FIELD_NUMBER = 71
 default_float_extension = _descriptor.FieldDescriptor(
   name='default_float_extension', full_name='protobuf_unittest.default_float_extension', index=61,
   number=71, type=2, cpp_type=6, label=1,
-  has_default_value=True, default_value=51.5,
+  has_default_value=True, default_value=float(51.5),
   message_type=None, enum_type=None, containing_type=None,
   is_extension=True, extension_scope=None,
   options=None)
@@ -650,7 +650,7 @@ DEFAULT_DOUBLE_EXTENSION_FIELD_NUMBER = 72
 default_double_extension = _descriptor.FieldDescriptor(
   name='default_double_extension', full_name='protobuf_unittest.default_double_extension', index=62,
   number=72, type=1, cpp_type=5, label=1,
-  has_default_value=True, default_value=52000,
+  has_default_value=True, default_value=float(52000),
   message_type=None, enum_type=None, containing_type=None,
   is_extension=True, extension_scope=None,
   options=None)
@@ -1244,14 +1244,14 @@ _TESTALLTYPES = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='optional_float', full_name='protobuf_unittest.TestAllTypes.optional_float', index=10,
       number=11, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='optional_double', full_name='protobuf_unittest.TestAllTypes.optional_double', index=11,
       number=12, type=1, cpp_type=5, label=1,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -1601,14 +1601,14 @@ _TESTALLTYPES = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='default_float', full_name='protobuf_unittest.TestAllTypes.default_float', index=61,
       number=71, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=51.5,
+      has_default_value=True, default_value=float(51.5),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='default_double', full_name='protobuf_unittest.TestAllTypes.default_double', index=62,
       number=72, type=1, cpp_type=5, label=1,
-      has_default_value=True, default_value=52000,
+      has_default_value=True, default_value=float(52000),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -2938,7 +2938,7 @@ _TESTFIELDORDERINGS = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='my_float', full_name='protobuf_unittest.TestFieldOrderings.my_float', index=2,
       number=101, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -3032,49 +3032,49 @@ _TESTEXTREMEDEFAULTVALUES = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='zero_float', full_name='protobuf_unittest.TestExtremeDefaultValues.zero_float', index=8,
       number=7, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=0,
+      has_default_value=True, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='one_float', full_name='protobuf_unittest.TestExtremeDefaultValues.one_float', index=9,
       number=8, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=1,
+      has_default_value=True, default_value=float(1),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='small_float', full_name='protobuf_unittest.TestExtremeDefaultValues.small_float', index=10,
       number=9, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=1.5,
+      has_default_value=True, default_value=float(1.5),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='negative_one_float', full_name='protobuf_unittest.TestExtremeDefaultValues.negative_one_float', index=11,
       number=10, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=-1,
+      has_default_value=True, default_value=float(-1),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='negative_float', full_name='protobuf_unittest.TestExtremeDefaultValues.negative_float', index=12,
       number=11, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=-1.5,
+      has_default_value=True, default_value=float(-1.5),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='large_float', full_name='protobuf_unittest.TestExtremeDefaultValues.large_float', index=13,
       number=12, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=2e+08,
+      has_default_value=True, default_value=float(2e+08),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='small_negative_float', full_name='protobuf_unittest.TestExtremeDefaultValues.small_negative_float', index=14,
       number=13, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=-8e-28,
+      has_default_value=True, default_value=float(-8e-28),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -3904,7 +3904,7 @@ _TESTREQUIREDONEOF_NESTEDMESSAGE = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='required_double', full_name='protobuf_unittest.TestRequiredOneof.NestedMessage.required_double', index=0,
       number=1, type=1, cpp_type=5, label=2,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
