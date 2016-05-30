@@ -127,11 +127,11 @@ class GooglePlayAPI(object):
         self.proxy_dict = proxy
         if (authSubToken is not None):
             self.setAuthSubToken(authSubToken)
-            logging.debug('Logged in with {0} using authSubToken: {1}'.format(self.androidId, self.authSubToken))
+            logging.debug('{0} uses authSubToken: {1}'.format(self.androidId, self.authSubToken))
             ret = self.authSubToken  # TODO is not tested if it really works, silent assumption at the moment. Needs to e.g. try to fetch the auth-page too to verify and return a valid value
         else:
             if (email is None or password is None):
-                logging.error('Need a authSubToken or (email and password) for {0}'.format(self.androidId))
+                logging.error('{0} Needs a authSubToken or (email and password)'.format(self.androidId))
             else:
                 params = {"Email": email,
                           "Passwd": password,
@@ -151,7 +151,7 @@ class GooglePlayAPI(object):
                 }
                 response = requests.post(self.URL_LOGIN, data=params, headers=headers, proxies=proxy, verify=False)
                 if response.status_code != http.client.OK:
-                    logging.error('Play Store login failed for {0}, statuscode {1}: {2}'.format(self.androidId, response.status_code, response.content))
+                    logging.error('{0} Play Store login failed, statuscode {1}: {2}'.format(self.androidId, response.status_code, response.content))
                 else:
                     data = response.text.split()
                     params = {}
@@ -164,9 +164,9 @@ class GooglePlayAPI(object):
                         self.setAuthSubToken(params["auth"])
                         ret = self.authSubToken
                     elif "error" in params:
-                        logging.error('Play Store login error for {0}: {1}'.format(self.androidId, params["error"]))
+                        logging.error('{0} Play Store login error: {1}'.format(self.androidId, params["error"]))
                     else:
-                        logging.error('Play Store returned no auth token for {0}'.format(self.androidId))
+                        logging.error('{0} Play Store returned no auth token'.format(self.androidId))
         return ret
 
     def executeRequestApi2(self, path, datapost=None, post_content_type="application/x-www-form-urlencoded; charset=UTF-8"):

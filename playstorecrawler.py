@@ -82,41 +82,6 @@ class PlayStoreCrawler(object):
         self.dlFiles     = dlFiles
         self.dlFilesBeta = dlFilesBeta
 
-    def getApkInfo(self, playstore, apkid, delay):
-        """
-        getApkInfo(playstore, apkid): Get APK specific information from the Play Store
-                                             and return it as an ApkVersionInfo object
-        """
-        for x in range(1, 4):  # up to three tries
-            res = playstore.details(apkid)
-            if res.body:
-                if res.body.docV2.details.appDetails.versionCode:  # if the versioncode does not exist; it is not offered as a valid download for this device by the Play Store
-                    avi = ApkVersionInfo(name        =res.body.docV2.docid,
-                                         ver         =res.body.docV2.details.appDetails.versionString.split(' ')[0],  # not sure if we need the split here
-                                         vercode     =res.body.docV2.details.appDetails.versionCode,
-                                         download_src=playstore,
-                                         crawler_name=self.__class__.__name__
-                                         )
-                    logging.debug('Found Play Store entry {0} {1}-{2}'.format(avi.name, avi.ver, avi.vercode))
-                    return avi
-                else:
-                    logging.info('{0} is incompatible for {1}'.format(playstore.androidId, apkid))
-            elif res.status_code == http.client.NOT_FOUND:
-                logging.debug('{0} cannot find {1}'.format(playstore.androidId, apkid))
-            elif res.status_code == http.client.SERVICE_UNAVAILABLE:
-                wait = delay * x
-                logging.info('{0} too many sequential requests for {1}, paused for {2} seconds'.format(playstore.androidId, apkid, wait))
-                time.sleep(wait)  # wait longer with each failed try
-                continue
-            else:
-                logging.error('{0} unknown HTTP status for {1}: {2}'.format(playstore.androidId, apkid, res.status_code))
-            return None  # Not found, return empty
-        else:
-            logging.error('{0} repetitive error 503 for {1}'.format(playstore.androidId, apkid))
-            return None  # Kept receiving 503, return empty
-        # END: for x
-    # END: def getApkInfo
-
     def checkPlayStore(self, credentials, lang="en_US"):
         """
         checkPlayStore(androidId):
@@ -125,21 +90,22 @@ class PlayStoreCrawler(object):
         logging.debug('Logging in to Play Store with: ' + credentials.androidId)
         playstore = GooglePlayAPI(credentials.androidId, lang)
         if playstore.login(authSubToken=credentials.authSubToken):
-            for apkid in random.sample(list(self.report.getAllApkIds()), len(list(self.report.getAllApkIds()))):  # Shuffle the list, we want each crawler to search in a randomized order
-                wait = credentials.delay + random.randint(0, credentials.delay)
-                logging.info('{0} searches for {1}, paused for {2} seconds'.format(playstore.androidId, apkid, wait))
-                time.sleep(wait)
-                avi = self.getApkInfo(playstore, apkid, credentials.delay)
-                if avi:
+            res = playstore.bulkDetails(self.report.getAllApkIds())
+            if res and res.status_code == http.client.OK and res.body:
+                for app in res.body.entry:
+                    avi = ApkVersionInfo(name        =app.doc.docid,
+                                         vercode     =app.doc.details.appDetails.versionCode,
+                                         download_src=playstore,
+                                         crawler_name=self.__class__.__name__
+                                         )
                     if self.report.isThisApkNeeded(avi):
-                        logging.debug('Update {0} {1}-{2}'.format(avi.name, avi.ver, avi.vercode))
+                        logging.debug('Update {0}-{1} (Uploaddate {2})'.format(avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
                         filenames.append(self.downloadApk(avi, credentials.delay))
                     else:
-                        logging.debug('Skip {0} {1}-{2}'.format(avi.name, avi.ver, avi.vercode))
-                # else:
-                    # logging.debug('No Play Store result for {0}'.format(apkid))
-                # END: if avi
-            # END: for apkid in report.getAllApkIds()
+                        logging.debug('Skip {0}-{1} (Uploaddate {2})'.format(avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
+            else:
+                logging.error('{0} Error querying Play Store, status {1}: {2}'.format(playstore.androidId, apkid, res.status_code))
+            return None  # Not found, return empty
         else:
             logging.error('Play Store login failed for {0}'.format(credentials.androidId))
         # END: if playstore.login()
@@ -152,7 +118,8 @@ class PlayStoreCrawler(object):
         """
         apkname = ('beta.' if isBeta else '') + avi.getFilename()
 
-        logging.info('{0} downloads "{1}"'.format(avi.download_src.androidId, apkname))
+        logging.info('{0} downloads "{1}" in {2} seconds'.format(avi.download_src.androidId, apkname, delay))
+        time.sleep(delay)
 
         try:
             if os.path.exists(apkname):
@@ -194,7 +161,7 @@ class PlayStoreCrawler(object):
             return
     # END: def downloadApk
 
-    def crawl(self, threads=6):
+    def crawl(self, threads=8):
         """
         crawl(): check all PlayStores
         """
