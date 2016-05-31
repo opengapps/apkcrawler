@@ -116,7 +116,7 @@ class ApkVersionInfo(object):
         return (self.name in oneVariantPerRealver) or (self.name in oneVercodePerRealver)
 
     def isVercodeAbsolute(self):
-        return (self.name in oneVercodePerRealver)
+        return (self.name in oneVariantPerRealver)
 
     def __lt__(self, other):
         if self.ver == '':
