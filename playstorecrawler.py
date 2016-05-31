@@ -199,35 +199,36 @@ def getCredentials(credentialsfile):
     credentials = []
     if os.path.isfile(credentialsfile):
         with open(credentialsfile, 'r') as f:
-            for line in f:
-                if line:
-                    try:
-                        m = reCredentials.match(line)
-                        if m:
-                            androidId = m.group('ANDROIDID')
-                            delay     = m.group('DELAY')
-                            email     = m.group('EMAIL')
-                            password  = m.group('PASSWORD')
-                            token     = m.group('TOKEN')
-                            logging.info('Found credentials for: {0}'.format(androidId))
-                            if not token:
-                                logging.info('{0} lacks authToken'.format(androidId))
-                                if tokendelay:
-                                    logging.info('Wait {0} seconds before processing anymore tokens'.format(delay))
-                                    time.sleep(tokendelay)
-                                token = getToken(androidId, email, password)
-                                if token:
-                                    logging.info('{0} writing authToken to config to {1}'.format(androidId, credentialsfile))
-                                    updateTokenCredentials(credentialsfile, androidId, delay, email, password, token)
-                                else:
-                                    logging.error('{0} authToken retrieval failed'.format(androidId))
-                                tokendelay = int(delay)  # we don't want to fetch tokens too quickly after one another
+            lines = f.readlines()
+        for line in lines:
+            if line:
+                try:
+                    m = reCredentials.match(line)
+                    if m:
+                        androidId = m.group('ANDROIDID')
+                        delay     = m.group('DELAY')
+                        email     = m.group('EMAIL')
+                        password  = m.group('PASSWORD')
+                        token     = m.group('TOKEN')
+                        logging.info('Found credentials for: {0}'.format(androidId))
+                        if not token:
+                            logging.info('{0} lacks authToken'.format(androidId))
+                            if tokendelay:
+                                logging.info('Wait {0} seconds before processing anymore tokens'.format(delay))
+                                time.sleep(tokendelay)
+                            token = getToken(androidId, email, password)
                             if token:
-                                credentials.append(PlayStoreCredentials(androidId, delay, email, password, token))
+                                logging.info('{0} writing authToken to config to {1}'.format(androidId, credentialsfile))
+                                updateTokenCredentials(credentialsfile, androidId, delay, email, password, token)
                             else:
-                                logging.error('{0} has no valid token and will not be crawled'.format(androidId))
-                    except:
-                        raise CredentialsException('Malformed line in Credentials file', credentialsfile)
+                                logging.error('{0} authToken retrieval failed'.format(androidId))
+                            tokendelay = int(delay)  # we don't want to fetch tokens too quickly after one another
+                        if token:
+                            credentials.append(PlayStoreCredentials(androidId, delay, email, password, token))
+                        else:
+                            logging.error('{0} has no valid token and will not be crawled'.format(androidId))
+                except:
+                    raise CredentialsException('Malformed line in Credentials file', credentialsfile)
     else:
         raise CredentialsException('Credentials file does not exist', credentialsfile)
     return credentials
