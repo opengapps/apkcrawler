@@ -130,15 +130,15 @@ class ApkMirrorCrawler(object):
         apkname = ('beta.' if isBeta else '') + avi.getFilename()
         try:
             if os.path.exists(apkname):
-                logging.info('Downloaded APK already exists.')
+                logging.info('{0} already exists'.format(apkname))
                 return
 
             if os.path.exists(os.path.join('.', 'apkcrawler', apkname)):
-                logging.info('Downloaded APK already exists (in ./apkcrawler/).')
+                logging.info('{0} already exists (in ./apkcrawler/)'.format(apkname))
                 return
 
             if os.path.exists(os.path.join('..', 'apkcrawler', apkname)):
-                logging.info('Downloaded APK already exists (in ../apkcrawler/).')
+                logging.info('{0} already exists (in ../apkcrawler/)'.format(apkname))
                 return
 
             # Open the url
