@@ -50,6 +50,7 @@ class ApkVersionInfo(object):
         reVer  = re.compile(sVer)
 
         self.name         = name
+        self.lowername    = name.lower()
         self.extraname    = None  # used for beta/leanback versions
         self.arch         = arch
         self.sdk          = 0 if sdk == '' else sdk
@@ -103,7 +104,7 @@ class ApkVersionInfo(object):
     # END: def fullString
 
     def getFilename(self):
-        return '{0}{1}-{2}{3}{4}{5}.apk'.format(self.name,
+        return '{0}{1}-{2}{3}{4}{5}.apk'.format(self.lowername,
                                                 '' if not self.realver else '_{0}'.format('_'.join(self.realver.split(' '))),
                                                 '[{0}]'.format(self.crawler_name) if self.vercode == 0 else '{0}'.format(self.vercode),
                                                 '' if not self.sdk else '(minAPI{0})'.format(self.sdk),

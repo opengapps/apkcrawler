@@ -58,12 +58,15 @@ class ReportHelper(object):
         # END: for line
     # END: def processReportSourcesOutput
 
-    def getAllApkIds(self, beta=False):
-        if beta:
-            return self.dAllApks.keys()
-        else:
-            reBeta = re.compile('^.*\.beta$')
-            return list(filter(lambda x: not reBeta.match(x), self.dAllApks.keys()))
+    def getAllApkIds(self, beta=False, playstoreCaps=False):
+        apkIds = self.dAllApks.keys()
+        regexStr = '^.*$'
+        if not beta:
+            regexStr = '^.*\.beta$'
+        reBeta = re.compile(regexStr)
+        if playstoreCaps:
+            apkIds = [apkid.replace('googlecamera', 'GoogleCamera') for apkid in apkIds]
+        return list(filter(lambda x: not reBeta.match(x), apkIds))
     # END: def getAllApkIds
 
     def getMaxVersionDict(self):
@@ -135,14 +138,14 @@ class ReportHelper(object):
                                that this class was initialized with
         """
         # Against the list we are looking for
-        if avi.name not in list(self.dAllApks.keys()):
+        if avi.lowername not in list(self.dAllApks.keys()):
             return False
 
         logging.debug(avi.fullString(avi.ver))
         logging.debug('Do we have already vercode?')
         # Do we have the requested vercode already? Or do we have a higher vercode while there is only one variant of these apps?
         if avi.vercode != 0:
-            if ([apk for apk in self.dAllApks[avi.name] if apk.vercode == avi.vercode]) or (avi.isVercodeAbsolute() and ([apk for apk in self.dAllApks[avi.name] if apk.vercode >= avi.vercode])):
+            if ([apk for apk in self.dAllApks[avi.lowername] if apk.vercode == avi.vercode]) or (avi.isVercodeAbsolute() and ([apk for apk in self.dAllApks[avi.lowername] if apk.vercode >= avi.vercode])):
                 logging.debug('    DON\'T NEED')
                 return False
         else:  # We only need to run the realvername match if we could not compare the vercode itself
@@ -151,14 +154,14 @@ class ReportHelper(object):
                 logging.debug('Do we have already a matching absolute realvername?')
                 # Do we have the requested realver already?
                 if avi.realver != '':
-                    if [apk for apk in self.dAllApks[avi.name] if apk.realver == avi.realver]:
+                    if [apk for apk in self.dAllApks[avi.lowername] if apk.realver == avi.realver]:
                         logging.debug('    DON\'T NEED')
                         return False
 
         logging.debug('Is it less than maxVersion?')
         # Is it < maxVersion?
         if avi.ver != '':
-            maxApkInfo = ApkVersionInfo(name=avi.name, ver=self.maxVerEachApk[avi.name])
+            maxApkInfo = ApkVersionInfo(name=avi.lowername, ver=self.maxVerEachApk[avi.lowername])
             if avi < maxApkInfo:
                 logging.debug('    DON\'T NEED')
                 return False
@@ -176,7 +179,7 @@ class ReportHelper(object):
         logging.debug('Is it less than minSdk?')
         # Is it < minSdk?
         if avi.sdk != 0:
-            if avi.sdk < self.minSdkEachApk[avi.name]:
+            if avi.sdk < self.minSdkEachApk[avi.lowername]:
                 logging.debug('SdkTooLow: {0}({1})'.format(avi.name, avi.sdk))
                 return False
 
@@ -185,18 +188,18 @@ class ReportHelper(object):
         if self.needsBetaSupport(avi):
             logging.debug('beta support ...')
             # TODO: Needs more thought (?)
-            if not avi.name.endswith('.beta'):  # Make sure we don't promote a beta app to non-beta
+            if not avi.lowername.endswith('.beta'):  # Make sure we don't promote a beta app to non-beta
                 logging.debug('Do we have already vercode? (beta)')
                 # Do we have the requested vercode (in beta) already?
                 if avi.vercode != 0:
-                    if [apk for apk in self.dAllApks[avi.name + '.beta'] if apk.vercode == avi.vercode]:
+                    if [apk for apk in self.dAllApks[avi.lowername + '.beta'] if apk.vercode == avi.vercode]:
                         logging.debug('    DON\'T NEED')
                         return False
 
                 logging.debug('Is it greater than or equal to maxVersion?')
                 # Is it >= maxVersion (for beta)?
                 if avi.ver != '':
-                    maxApkInfo = ApkVersionInfo(name=avi.name, ver=self.maxVerEachApk[avi.name + '.beta'])
+                    maxApkInfo = ApkVersionInfo(name=avi.lowername, ver=self.maxVerEachApk[avi.lowername + '.beta'])
                     if avi >= maxApkInfo:
                         logging.debug('    DON\'T NEED')
                         return False
@@ -211,6 +214,6 @@ class ReportHelper(object):
         """
         def needsBetaSupport(): Returns True if beta support is needed, else False
         """
-        return (avi.name.endswith('.beta') or avi.name + '.beta' in self.dAllApks)
+        return (avi.lowername.endswith('.beta') or avi.lowername + '.beta' in self.dAllApks)
     # END: def needsBetaSupport(self, avi):
 # END: class ReportHelper

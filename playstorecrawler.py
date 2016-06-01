@@ -92,8 +92,8 @@ class PlayStoreCrawler(object):
         if playstore.login(authSubToken=credentials.authSubToken):
             logging.info('{0} searches Play in {1} seconds'.format(credentials.androidId, credentials.delay))
             time.sleep(credentials.delay)
-            logging.debug('{0}'.format(self.report.getAllApkIds()))
-            res = playstore.bulkDetails(self.report.getAllApkIds())
+            logging.debug('{0}'.format(self.report.getAllApkIds(playstoreCaps=True)))
+            res = playstore.bulkDetails(self.report.getAllApkIds(playstoreCaps=True))
             if res and res.status_code == http.client.OK and res.body:
                 for app in res.body.entry:
                     if app.doc and app.doc.docid:
