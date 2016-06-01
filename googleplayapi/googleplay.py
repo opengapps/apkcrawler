@@ -72,7 +72,6 @@ class GooglePlayAPI(object):
         # The number is a string of the Play Store app Version Name
         # The api is the play store protocol api (probably)
         # The versionCode is the vercode of the Play Store app
-        self.playUserAgent = "Android-Finsky/6.7.07.E (versionCode=80670700,sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user)"
         self.downloadUserAgent = "AndroidDownloadManager/6.0.1 (Linux; U; Android 6.0.1; Nexus 6P Build/MTC19T)"
         self.regionCookie = "US"
         # self.proxy_dict = {
@@ -128,7 +127,7 @@ class GooglePlayAPI(object):
         if (authSubToken is not None):
             self.setAuthSubToken(authSubToken)
             logging.debug('{0} uses authSubToken: {1}'.format(self.androidId, self.authSubToken))
-            ret = self.authSubToken  # TODO is not tested if it really works, silent assumption at the moment. Needs to e.g. try to fetch the auth-page too to verify and return a valid value
+            ret = self.authSubToken  # silent assumption
         else:
             if (email is None or password is None):
                 logging.error('{0} Needs a authSubToken or (email and password)'.format(self.androidId))
@@ -145,7 +144,7 @@ class GooglePlayAPI(object):
                           "device_country": "us",
                           "operatorCountry": "us",
                           "lang": "us",
-                          "sdk_version": "23"}
+                          "sdk_version": "17"}  # to work around oauth issues
                 headers = {
                     "Accept-Encoding": "gzip, deflate",
                 }
@@ -169,7 +168,7 @@ class GooglePlayAPI(object):
                         logging.error('{0} Play Store returned no auth token'.format(self.androidId))
         return ret
 
-    def executeRequestApi2(self, path, datapost=None, post_content_type="application/x-www-form-urlencoded; charset=UTF-8"):
+    def executeRequestApi2(self, path, datapost=None, post_content_type="application/x-www-form-urlencoded; charset=UTF-8", user_agent="6.7.12.E-all [0] 2884155 (api=3,versionCode=80671200,sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user)"):
         if (datapost is None and path in self.preFetch):
             data = self.preFetch[path]
         else:
@@ -179,9 +178,9 @@ class GooglePlayAPI(object):
                        "X-DFE-Unsupported-Experiments": "nocache:billing.use_charging_poller,market_emails,buyer_currency,prod_baseline,checkin.set_asset_paid_app_field,shekel_test,content_ratings,buyer_currency_in_app,nocache:encrypted_apk,recent_changes",
                        "X-DFE-Device-Id": self.androidId,
                        "X-DFE-Client-Id": "am-android-google",
-                       # "X-DFE-Logging-Id": XXXXX,  # Not necessary
+                       "X-DFE-Device-Config-Token": "1",
                        "X-DFE-Cookie": base64.standard_b64encode(b'\x08\xa9\x0f\x10\x01\x18\x00"\x02' + self.regionCookie.encode('utf-8')).decode('utf-8').replace('=', ''),
-                       "User-Agent": self.playUserAgent,
+                       "User-Agent": user_agent,
                        "X-DFE-SmallestScreenWidthDp": "320",
                        "X-DFE-Filter-Level": "3",
                        "Accept-Encoding": "gzip, deflate",
@@ -202,7 +201,6 @@ class GooglePlayAPI(object):
         message = googleplayapi.googleplay_pb2.ResponseWrapper.FromString(data)
         self._try_register_preFetch(message)
 
-        # print text_format.MessageToString(message)
         return (response.status_code, message)
 
     #####################################
@@ -326,7 +324,7 @@ class GooglePlayAPI(object):
 
             headers = {
                 "User-Agent": self.downloadUserAgent,
-                "Accept-Encoding": "",
+                "Accept-Encoding": "",  # TODO try adding gzip and deflate here too
             }
 
             response = requests.get(url, headers=headers, cookies=cookies, proxies=self.proxy_dict, verify=False)
@@ -335,3 +333,17 @@ class GooglePlayAPI(object):
             else:
                 return RequestResult(response.status_code, response.content)  # take care that this response is different from the other return functions, it concerns the APK content itself (of the 2nd request)
         return RequestResult(status_code, None)  # returns the reponse-status_code of the initial request
+
+    def playUpdate(self, vername, vercode):
+        """Check for Play Store update
+        You need to provide the current vername and vercode which are evaluated from the user agent
+        to check if there is an eligable upgrade
+        A versioncode will be returned if an update is available, otherwise None"""
+        path = "selfUpdate"
+        (status_code, message) = self.executeRequestApi2(path, user_agent="Android-Finsky/" + vername + " (api=3,versionCode=" + vercode + ",sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user)")
+        try:
+            if status_code == http.client.OK and message.payload.selfUpdate and message.payload.selfUpdate.versionCode != 0:
+                return message.payload.selfUpdate.versionCode
+        except:
+            pass
+        return None

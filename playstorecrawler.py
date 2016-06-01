@@ -92,6 +92,17 @@ class PlayStoreCrawler(object):
         if playstore.login(authSubToken=credentials.authSubToken):
             logging.info('{0} searches Play in {1} seconds'.format(credentials.androidId, credentials.delay))
             time.sleep(credentials.delay)
+            # playvercode = playstore.playUpdate("3.5.15", "8011015")
+            # if playvercode:
+            # logging.debug('{0} Play Store update {1}'.format(credentials.androidId, playvercode))
+            #     avi = ApkVersionInfo(name        ="com.android.vending",
+            #                          vercode     =playvercode,
+            #                          download_src=playstore,
+            #                          crawler_name=self.__class__.__name__
+            #                          )
+            #     filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay)))
+            #     logging.info('{0} pauses {1} seconds before continuing'.format(credentials.androidId, credentials.delay))
+            #     time.sleep(credentials.delay)
             logging.debug('{0}'.format(self.report.getAllApkIds(playstoreCaps=True)))
             res = playstore.bulkDetails(self.report.getAllApkIds(playstoreCaps=True))
             if res and res.status_code == http.client.OK and res.body:
@@ -175,6 +186,19 @@ class PlayStoreCrawler(object):
 
             logging.info('{0} downloads "{1}" in {2} seconds'.format(avi.download_src.androidId, apkname, delay))
             time.sleep(delay)
+
+            # File might have been dowloaded during our wait, check again
+            if os.path.exists(apkname):
+                logging.info('{0} File {1} already exists'.format(avi.download_src.androidId, apkname))
+                return
+
+            if os.path.exists(os.path.join('.', 'apkcrawler', apkname)):
+                logging.info('{0} File {1} already exists (in ./apkcrawler/)'.format(avi.download_src.androidId, apkname))
+                return
+
+            if os.path.exists(os.path.join('..', 'apkcrawler', apkname)):
+                logging.info('{0} File {1} already exists (in ../apkcrawler/)'.format(avi.download_src.androidId, apkname))
+                return
 
             for x in range(1, 4):  # up to three tries
                 res = avi.download_src.download(avi.name, avi.vercode, Global.offerType)

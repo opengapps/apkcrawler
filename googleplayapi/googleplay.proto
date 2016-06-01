@@ -366,7 +366,7 @@ message ArtistExternalLinks {
 }
 message AssetIdentifierProto {
   optional string packageName = 1;
-  optional int32 versionCode = 2;
+  optional int32 versionCode = 2;  // Used for selfUpdate
   optional string assetId = 3;
 }
 message AssetsRequestProto {
@@ -1380,6 +1380,7 @@ message Payload {
   optional CheckPromoOfferResponse checkPromoOfferResponse = 24;
   optional UploadDeviceConfigResponse uploadDeviceConfigResponse = 25;
   optional AndroidCheckinResponse androidCheckinResponse = 26;
+  optional AssetIdentifierProto selfUpdate = 39;
 }
 message PayloadLevelAppStat {
     optional int32 packageKey = 1;
