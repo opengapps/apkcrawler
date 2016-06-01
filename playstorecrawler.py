@@ -103,12 +103,12 @@ class PlayStoreCrawler(object):
                                              crawler_name=self.__class__.__name__
                                              )
                         if self.report.isThisApkNeeded(avi):
-                            logging.debug('Update {0}-{1} (Uploaddate {2})'.format(avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
+                            logging.debug('{0} Update {1}-{2} (Uploaddate {3})'.format(playstore.androidId, avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
                             filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay)))
                         else:
-                            logging.debug('Skip {0}-{1} (Uploaddate {2})'.format(avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
+                            logging.debug('{0} Skip {1}-{2} (Uploaddate {3})'.format(playstore.androidId, avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
                     else:
-                        logging.debug('Empty search entry')
+                        logging.debug('{0} Empty search entry'.format(playstore.androidId))
                         continue
             else:
                 logging.error('{0} Error querying Play Store, status {1}: {2}'.format(playstore.androidId, apkid, res.status_code))
@@ -118,6 +118,41 @@ class PlayStoreCrawler(object):
         # END: if playstore.login()
         return filenames
     # END: def checkPlayStore
+
+    def getApkInfo(self, playstore, apkid, delay):
+        """
+        getApkInfo(playstore, apkid): Get APK specific information from the Play Store
+                                             and return it as an ApkVersionInfo object
+        """
+        for x in range(1, 4):  # up to three tries
+            res = playstore.details(apkid)
+            if res.body:
+                if res.body.docV2.details.appDetails.versionCode:  # if the versioncode does not exist; it is not offered as a valid download for this device by the Play Store
+                    avi = ApkVersionInfo(name        =res.body.docV2.docid,
+                                         ver         =res.body.docV2.details.appDetails.versionString.split(' ')[0],  # not sure if we need the split here
+                                         vercode     =res.body.docV2.details.appDetails.versionCode,
+                                         download_src=playstore,
+                                         crawler_name=self.__class__.__name__
+                                         )
+                    logging.info('{0} found details {0} {1}-{2}'.format(playstore.androidId, avi.name, avi.ver, avi.vercode))
+                    return avi
+                else:
+                    logging.info('{0} incompatible with {1}'.format(playstore.androidId, apkid))
+            elif res.status_code == http.client.NOT_FOUND:
+                logging.debug('{0} cannot find {1}'.format(playstore.androidId, apkid))
+            elif res.status_code == http.client.SERVICE_UNAVAILABLE:
+                wait = delay * x
+                logging.info('{0} too many sequential requests for {1}, wait {2} seconds'.format(playstore.androidId, apkid, wait))
+                time.sleep(wait)  # wait longer with each failed try
+                continue
+            else:
+                logging.error('{0} unknown HTTP status for {1}: {2}'.format(playstore.androidId, apkid, res.status_code))
+            return None  # Not found, return empty
+        else:
+            logging.error('{0} repetitive error 503 for {1}'.format(playstore.androidId, apkid))
+            return None  # Kept receiving 503, return empty
+        # END: for x
+    # END: def getApkInfo
 
     def downloadApk(self, avi, delay, isBeta=False):
         """

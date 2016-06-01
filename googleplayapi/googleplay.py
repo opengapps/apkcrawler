@@ -72,7 +72,7 @@ class GooglePlayAPI(object):
         # The number is a string of the Play Store app Version Name
         # The api is the play store protocol api (probably)
         # The versionCode is the vercode of the Play Store app
-        self.playUserAgent = "Android-Finsky/6.7.07.E (versionCode=80670700,sdk=19,device=angler,hardware=angler,product=angler,build=MTC19T:user)"
+        self.playUserAgent = "Android-Finsky/6.7.07.E (versionCode=80670700,sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user)"
         self.downloadUserAgent = "AndroidDownloadManager/6.0.1 (Linux; U; Android 6.0.1; Nexus 6P Build/MTC19T)"
         self.regionCookie = "US"
         # self.proxy_dict = {
@@ -145,7 +145,7 @@ class GooglePlayAPI(object):
                           "device_country": "us",
                           "operatorCountry": "us",
                           "lang": "us",
-                          "sdk_version": "19"}  # TODO make sdk_version flexible
+                          "sdk_version": "23"}
                 headers = {
                     "Accept-Encoding": "gzip, deflate",
                 }
@@ -198,12 +198,7 @@ class GooglePlayAPI(object):
             if response.status_code != http.client.OK:
                 return (response.status_code, None)
             data = response.content
-            # print data
-        '''
-        data = StringIO.StringIO(data)
-        gzipper = gzip.GzipFile(fileobj=data)
-        data = gzipper.read()
-        '''
+
         message = googleplayapi.googleplay_pb2.ResponseWrapper.FromString(data)
         self._try_register_preFetch(message)
 
