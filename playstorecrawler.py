@@ -124,7 +124,6 @@ class PlayStoreCrawler(object):
         apkname = ('beta.' if isBeta else '') + avi.getFilename()
 
         logging.info('{0} downloads "{1}" in {2} seconds'.format(avi.download_src.androidId, apkname, delay))
-        time.sleep(delay)
 
         try:
             if os.path.exists(apkname):
@@ -138,6 +137,8 @@ class PlayStoreCrawler(object):
             if os.path.exists(os.path.join('..', 'apkcrawler', apkname)):
                 logging.info('{0} already exists (in ../apkcrawler/)'.format(apkname))
                 return
+
+            time.sleep(delay)
 
             for x in range(1, 4):  # up to three tries
                 res = avi.download_src.download(avi.name, avi.vercode, Global.offerType)
