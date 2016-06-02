@@ -74,6 +74,8 @@ class GooglePlayAPI(object):
         # The versionCode is the vercode of the Play Store app
         self.downloadUserAgent = "AndroidDownloadManager/6.0.1 (Linux; U; Android 6.0.1; Nexus 6P Build/MTC19T)"
         self.regionCookie = "US"
+        self.defaultAgentvername="6.7.13.E-all [0] 2920566"
+        self.defaultAgentvercode="80671300"
         # self.proxy_dict = {
         #         "http"  : "http://81.137.100.158:8080",
         #         "https" : "http://81.137.100.158:8080",
@@ -168,7 +170,13 @@ class GooglePlayAPI(object):
                         logging.error('{0} Play Store returned no auth token'.format(self.androidId))
         return ret
 
-    def executeRequestApi2(self, path, datapost=None, post_content_type="application/x-www-form-urlencoded; charset=UTF-8", user_agent="Android-Finsky/6.7.13.E-all [0] 2920566 (api=3,versionCode=80671300,sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user)"):
+    def executeRequestApi2(self, path, agentvername=None, agentvercode=None, datapost=None, post_content_type="application/x-www-form-urlencoded; charset=UTF-8"):
+        if not agentvername:
+            agentvername = self.defaultAgentvername
+        if not agentvercode:
+            agentvercode = self.defaultAgentvercode
+        user_agent = "Android-Finsky/" + agentvername + " (api=3,versionCode=" + agentvercode + ",sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user)"
+
         if (datapost is None and path in self.preFetch):
             data = self.preFetch[path]
         else:
@@ -238,7 +246,7 @@ class GooglePlayAPI(object):
         req = googleplayapi.googleplay_pb2.BulkDetailsRequest()
         req.docid.extend(packageNames)
         data = req.SerializeToString()
-        (status_code, message) = self.executeRequestApi2(path, data, "application/x-protobuf")
+        (status_code, message) = self.executeRequestApi2(path, datapost=data, post_content_type="application/x-protobuf")
         if status_code == http.client.OK:
             return RequestResult(status_code, message.payload.bulkDetailsResponse)
         return RequestResult(status_code, None)
@@ -301,7 +309,7 @@ class GooglePlayAPI(object):
             return RequestResult(status_code, message.payload.listResponse)
         return RequestResult(status_code, None)
 
-    def download(self, packageName, versionCode, offerType=1):
+    def download(self, packageName, versionCode, offerType=1, agentvername=None, agentvercode=None):
         """Download an app and return its raw data (APK file).
 
         packageName is the app unique ID (usually starting with 'com.').
@@ -309,9 +317,9 @@ class GooglePlayAPI(object):
         versionCode can be grabbed by using the details() method on the given
         app."""
         if packageName == "com.android.vending":
-            (status_code, message) = self.executeRequestApi2("delivery?ot=%d&doc=%s&vc=%d&shh=%s" % (offerType, packageName, versionCode, "1"))
+            (status_code, message) = self.executeRequestApi2(path="delivery?ot=%d&doc=%s&vc=%d&shh=%s" % (offerType, packageName, versionCode, "1"), agentvername=agentvername, agentvercode=agentvercode)
         else:
-            (status_code, message) = self.executeRequestApi2("purchase", datapost="ot=%d&doc=%s&vc=%d")
+            (status_code, message) = self.executeRequestApi2(path="purchase", datapost="ot=%d&doc=%s&vc=%d" % (offerType, packageName, versionCode))
 
         if status_code == http.client.OK:
             if packageName == "com.android.vending":
@@ -336,13 +344,13 @@ class GooglePlayAPI(object):
                 return RequestResult(response.status_code, response.content)  # take care that this response is different from the other return functions, it concerns the APK content itself (of the 2nd request)
         return RequestResult(status_code, None)  # returns the reponse-status_code of the initial request
 
-    def playUpdate(self, vername, vercode):
+    def playUpdate(self, agentvername, agentvercode):
         """Check for Play Store update
         You need to provide the current vername and vercode which are evaluated from the user agent
         to check if there is an eligable upgrade
         A versioncode will be returned if an update is available, otherwise None"""
         path = "selfUpdate"
-        (status_code, message) = self.executeRequestApi2(path, user_agent="Android-Finsky/" + vername + " (api=3,versionCode=" + vercode + ",sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user)")
+        (status_code, message) = self.executeRequestApi2(path, agentvername=agentvername, agentvercode=agentvercode)
         try:
             if status_code == http.client.OK and message.payload.selfUpdate and message.payload.selfUpdate.versionCode != 0:
                 return message.payload.selfUpdate.versionCode

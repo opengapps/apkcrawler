@@ -92,7 +92,7 @@ class PlayStoreCrawler(object):
         if playstore.login(authSubToken=credentials.authSubToken):
             logging.info('{0} searches Play in {1} seconds'.format(credentials.androidId, credentials.delay))
             time.sleep(credentials.delay)
-            # playvercode = playstore.playUpdate("3.5.15", "8011015")
+            # playvercode = playstore.playUpdate('3.5.15', '8011015')
             # if playvercode:
             #     logging.debug('{0} Play Store update {1}'.format(credentials.androidId, playvercode))
             #     avi = ApkVersionInfo(name        ="com.android.vending",
@@ -100,7 +100,7 @@ class PlayStoreCrawler(object):
             #                          download_src=playstore,
             #                          crawler_name=self.__class__.__name__
             #                          )
-            #     filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay)))
+            #     filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay), agentvername='3.5.15', agentvercode='8011015'))
             #     logging.info('{0} pauses {1} seconds before continuing'.format(credentials.androidId, credentials.delay))
             #     time.sleep(credentials.delay)
             logging.debug('{0}'.format(self.report.getAllApkIds(playstoreCaps=True)))
@@ -165,7 +165,7 @@ class PlayStoreCrawler(object):
         # END: for x
     # END: def getApkInfo
 
-    def downloadApk(self, avi, delay, isBeta=False):
+    def downloadApk(self, avi, delay, isBeta=False, agentvername=None, agentvercode=None):
         """
         downloadApk(avi, delay, isBeta): Download the specified ApkInfo from the Play Store to APK file name
         """
@@ -201,7 +201,7 @@ class PlayStoreCrawler(object):
                 return
 
             for x in range(1, 4):  # up to three tries
-                res = avi.download_src.download(avi.name, avi.vercode, Global.offerType)
+                res = avi.download_src.download(avi.name, avi.vercode, Global.offerType, agentvername, agentvercode)
                 if res.body:
                     with open(apkname, 'wb') as local_file:
                         local_file.write(res.body)
