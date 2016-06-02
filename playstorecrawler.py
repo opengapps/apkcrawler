@@ -92,17 +92,24 @@ class PlayStoreCrawler(object):
         if playstore.login(authSubToken=credentials.authSubToken):
             logging.info('{0} searches Play in {1} seconds'.format(credentials.androidId, credentials.delay))
             time.sleep(credentials.delay)
-            # playvercode = playstore.playUpdate('3.5.15', '8011015')
-            # if playvercode:
-            #     logging.debug('{0} Play Store update {1}'.format(credentials.androidId, playvercode))
-            #     avi = ApkVersionInfo(name        ="com.android.vending",
-            #                          vercode     =playvercode,
-            #                          download_src=playstore,
-            #                          crawler_name=self.__class__.__name__
-            #                          )
-            #     filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay), agentvername='3.5.15', agentvercode='8011015'))
-            #     logging.info('{0} pauses {1} seconds before continuing'.format(credentials.androidId, credentials.delay))
-            #     time.sleep(credentials.delay)
+
+            if 'com.android.vending' in self.report.getAllApkIds():
+                for storeApk in self.report.dAllApks['com.android.vending']:
+                    logging.debug('{0} VendingAPK: vername={1}, vercode={2}'.format(credentials.androidId, storeApk.ver, storeApk.vercode))
+                    playvercode = playstore.playUpdate(storeApk.ver, str(storeApk.vercode))
+                    if playvercode:
+                        logging.debug('{0} Play Store update {1}'.format(credentials.androidId, playvercode))
+                        avi = ApkVersionInfo(name        ='com.android.vending',
+                                             vercode     =playvercode,
+                                             download_src=playstore,
+                                             crawler_name=self.__class__.__name__
+                                             )
+                        filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay), agentvername=storeApk.ver, agentvercode=str(storeApk.vercode)))
+                        logging.info('{0} pauses {1} seconds before continuing'.format(credentials.androidId, credentials.delay))
+                        time.sleep(credentials.delay)
+            else:
+                logging.debug('{0} vending apk not in report'.format(credentials.androidId))
+ 
             logging.debug('{0}'.format(self.report.getAllApkIds(playstoreCaps=True)))
             res = playstore.bulkDetails(self.report.getAllApkIds(playstoreCaps=True))
             if res and res.status_code == http.client.OK and res.body:
