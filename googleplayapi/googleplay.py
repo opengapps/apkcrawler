@@ -168,7 +168,7 @@ class GooglePlayAPI(object):
                         logging.error('{0} Play Store returned no auth token'.format(self.androidId))
         return ret
 
-    def executeRequestApi2(self, path, datapost=None, post_content_type="application/x-www-form-urlencoded; charset=UTF-8", user_agent="6.7.12.E-all [0] 2884155 (api=3,versionCode=80671200,sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user)"):
+    def executeRequestApi2(self, path, datapost=None, post_content_type="application/x-www-form-urlencoded; charset=UTF-8", user_agent="Android-Finsky/6.7.12.E-all [0] 2884155 (api=3,versionCode=80642000,sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user)"):
         if (datapost is None and path in self.preFetch):
             data = self.preFetch[path]
         else:
