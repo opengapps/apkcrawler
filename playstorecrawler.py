@@ -94,7 +94,7 @@ class PlayStoreCrawler(object):
             time.sleep(credentials.delay)
             # playvercode = playstore.playUpdate("3.5.15", "8011015")
             # if playvercode:
-            # logging.debug('{0} Play Store update {1}'.format(credentials.androidId, playvercode))
+            #     logging.debug('{0} Play Store update {1}'.format(credentials.androidId, playvercode))
             #     avi = ApkVersionInfo(name        ="com.android.vending",
             #                          vercode     =playvercode,
             #                          download_src=playstore,

@@ -186,11 +186,9 @@ class GooglePlayAPI(object):
                        "Accept-Encoding": "gzip, deflate",
                        "Host": "android.clients.google.com"}  # TODO make the values for versioncode, sdk, device, hardware, platformVersionRelease, model, isWidescreen, X-DFE-SmallestScreenWidthDp flexible?
 
-            if datapost is not None:
-                headers["Content-Type"] = post_content_type
-
             url = "https://android.clients.google.com/fdfe/%s" % path
             if datapost is not None:
+                headers["Content-Type"] = post_content_type
                 response = requests.post(url, data=datapost, headers=headers, proxies=self.proxy_dict, verify=False)
             else:
                 response = requests.get(url, headers=headers, proxies=self.proxy_dict, verify=False)
@@ -310,14 +308,18 @@ class GooglePlayAPI(object):
 
         versionCode can be grabbed by using the details() method on the given
         app."""
-        path = "purchase"
-        data = "ot=%d&doc=%s&vc=%d" % (offerType, packageName, versionCode)
-        (status_code, message) = self.executeRequestApi2(path, data)
+        if packageName == "com.android.vending":
+            (status_code, message) = self.executeRequestApi2("delivery?ot=%d&doc=%s&vc=%d&shh=%s" % (offerType, packageName, versionCode, "1"))
+        else:
+            (status_code, message) = self.executeRequestApi2("purchase", datapost="ot=%d&doc=%s&vc=%d")
 
         if status_code == http.client.OK:
-            url = message.payload.buyResponse.purchaseStatusResponse.appDeliveryData.downloadUrl
-            cookie = message.payload.buyResponse.purchaseStatusResponse.appDeliveryData.downloadAuthCookie[0]
-
+            if packageName == "com.android.vending":
+                url = message.payload.deliveryResponse.appDeliveryData.downloadUrl
+                cookie = message.payload.deliveryResponse.appDeliveryData.downloadAuthCookie[0]
+            else:
+                url = message.payload.buyResponse.purchaseStatusResponse.appDeliveryData.downloadUrl
+                cookie = message.payload.buyResponse.purchaseStatusResponse.appDeliveryData.downloadAuthCookie[0]
             cookies = {
                 str(cookie.name): str(cookie.value)  # python-requests #459 fixes this
             }
