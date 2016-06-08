@@ -8,6 +8,7 @@ import logging
 import pprint
 import http.client
 import requests
+import time
 
 from google.protobuf import descriptor
 from google.protobuf.internal.containers import RepeatedCompositeFieldContainer
@@ -357,3 +358,141 @@ class GooglePlayAPI(object):
         except:
             pass
         return None
+
+    def checkinRequest(self):
+        """Checkin to the playstore
+        The response contains url to the voice files """
+
+        # android build proto
+        build_proto = googleplayapi.googleplay_pb2.AndroidBuildProto()
+        build_proto.id = "samsung/m0xx/m0:4.0.4/IMM76D/I9300XXALF2:user/release-keys"
+        build_proto.product = "smdk4x12"
+        build_proto.carrier = "Google"
+        build_proto.radio = "I9300XXALF2"
+        build_proto.bootloader = "PRIMELA03"
+        build_proto.client = "android-google"
+        build_proto.timestamp =  time.time().__round__()
+        build_proto.googleServices = 16
+        build_proto.device = "m0"
+        build_proto.sdkVersion = 21
+        build_proto.model = "GT-I9300"
+        build_proto.manufacturer = "Samsung"
+        build_proto.buildProduct = "m0xx"
+        build_proto.otaInstalled = False
+
+        # checkin proto
+        checkin_proto = googleplayapi.googleplay_pb2.AndroidCheckinProto()
+        checkin_proto.build.MergeFrom(build_proto)
+        checkin_proto.lastCheckinMsec = 0
+        checkin_proto.cellOperator = "310260"
+        checkin_proto.simOperator = "310260"
+        checkin_proto.roaming = "WIFI::"
+        checkin_proto.userNumber = 0
+
+
+        # device configuration proto
+        device_proto = googleplayapi.googleplay_pb2.DeviceConfigurationProto()
+        device_proto.touchScreen = 3
+        device_proto.keyboard = 1
+        device_proto.navigation = 1
+        device_proto.screenLayout = 2
+        device_proto.hasHardKeyboard = False
+        device_proto.hasFiveWayNavigation = False
+        device_proto.screenDensity = 320
+        device_proto.glEsVersion = 131072
+        device_proto.systemSharedLibrary.extend([
+            "android.test.runner", "com.android.future.usb.accessory", "com.android.location.provider",
+            "com.android.media.remotedisplay", "com.android.mediadrm.signer", "com.android.nfc_extras",
+            "com.google.android.camera.experimental2015", "com.google.android.dialer.support", "com.google.android.maps",
+            "com.google.android.media.effects",	"com.google.widevine.software.drm", "javax.obex"
+        ])
+        device_proto.systemAvailableFeature.extend([
+            "android.hardware.audio.low_latency", "android.hardware.audio.output", "android.hardware.audio.pro",
+            "android.hardware.microphone", "android.hardware.output", "android.hardware.bluetooth", "android.hardware.bluetooth_le", "android.hardware.camera",
+            "android.hardware.camera.any", "android.hardware.camera.autofocus", "android.hardware.camera.flash", "android.hardware.camera.front",
+            "android.hardware.camera.level.full", "android.hardware.camera.capability.manual_sensor", "android.hardware.camera.capability.manual_post_processing", "android.hardware.camera.capability.raw",
+            "android.hardware.consumerir", "android.hardware.ethernet", "android.hardware.fingerprint", "android.hardware.location",
+            "android.hardware.location.network", "android.hardware.location.gps", "android.hardware.microphone", "android.hardware.nfc",
+            "android.hardware.nfc.hce", "android.hardware.sensor.accelerometer", "android.hardware.sensor.barometer", "android.hardware.sensor.compass",
+            "android.hardware.sensor.gyroscope", "android.hardware.sensor.hifi_sensors", "android.hardware.sensor.light", "android.hardware.sensor.proximity",
+            "android.hardware.sensor.stepcounter", "android.hardware.sensor.stepdetector", "android.hardware.screen.landscape", "android.hardware.screen.portrait",
+            "android.hardware.telephony", "android.hardware.telephony.cdma", "android.hardware.telephony.gsm", "android.hardware.faketouch",
+            "android.hardware.touchscreen", "android.hardware.touchscreen.multitouch", "android.hardware.touchscreen.multitouch.distinct", "android.hardware.touchscreen.multitouch.jazzhand",
+            "android.hardware.usb.host", "android.hardware.usb.accessory", "android.hardware.wifi", "android.hardware.wifi.direct",
+            "android.software.app_widgets", "android.software.backup", "android.software.connectionservice", "android.software.device_admin",
+            "android.software.home_screen", "android.software.input_methods", "android.software.live_wallpaper", "android.software.managed_users",
+            "android.software.midi", "android.software.print", "android.software.sip", "android.software.sip.voip",
+            "android.software.verified_boot", "android.software.voice_recognizers", "android.software.webview", "com.google.android.feature.GOOGLE_BUILD",
+            "com.google.android.feature.GOOGLE_EXPERIENCE", "com.google.android.feature.EXCHANGE_6_2", "com.nxp.mifare"
+        ])
+        device_proto.nativePlatform.extend(["x86_64", "x86", "arm64-v8a", "armeabi-v7a", "armeabi"])
+        device_proto.screenWidth = 720
+        device_proto.screenHeight = 1184
+        device_proto.systemSupportedLocale.extend([
+            "af", "af_ZA", "am", "am_ET", "ar", "ar_EG", "bg", "bg_BG", "ca", "ca_ES", "cs", "cs_CZ",
+            "da", "da_DK", "de", "de_AT", "de_CH", "de_DE", "de_LI", "el", "el_GR", "en", "en_AU", "en_CA",
+            "en_GB", "en_NZ", "en_SG", "en_US", "es", "es_ES", "es_US", "fa", "fa_IR", "fi", "fi_FI", "fr",
+            "fr_BE", "fr_CA", "fr_CH", "fr_FR", "hi", "hi_IN", "hr", "hr_HR", "hu", "hu_HU", "in", "in_ID",
+            "it", "it_CH", "it_IT", "iw", "iw_IL", "ja", "ja_JP", "ko", "ko_KR", "lt", "lt_LT", "lv",
+            "lv_LV", "ms", "ms_MY", "nb", "nb_NO", "nl", "nl_BE", "nl_NL", "pl", "pl_PL", "pt", "pt_BR",
+            "pt_PT", "rm", "rm_CH", "ro", "ro_RO", "ru", "ru_RU", "sk", "sk_SK", "sl", "sl_SI", "sr",
+            "sr_RS", "sv", "sv_SE", "sw", "sw_TZ", "th", "th_TH", "tl", "tl_PH", "tr", "tr_TR", "ug",
+            "ug_CN", "uk", "uk_UA", "vi", "vi_VN", "zh_CN", "zh_TW", "zu", "zu_ZA"
+        ])
+        device_proto.glExtension.extend([
+            "GL_EXT_debug_marker", "GL_EXT_discard_framebuffer", "GL_EXT_multi_draw_arrays",
+            "GL_EXT_shader_texture_lod", "GL_EXT_texture_format_BGRA8888",
+            "GL_IMG_multisampled_render_to_texture", "GL_IMG_program_binary", "GL_IMG_read_format",
+            "GL_IMG_shader_binary", "GL_IMG_texture_compression_pvrtc", "GL_IMG_texture_format_BGRA8888",
+            "GL_IMG_texture_npot", "GL_IMG_vertex_array_object", "GL_OES_EGL_image",
+            "GL_OES_EGL_image_external", "GL_OES_blend_equation_separate", "GL_OES_blend_func_separate",
+            "GL_OES_blend_subtract", "GL_OES_byte_coordinates", "GL_OES_compressed_ETC1_RGB8_texture",
+            "GL_OES_compressed_paletted_texture", "GL_OES_depth24", "GL_OES_depth_texture",
+            "GL_OES_draw_texture", "GL_OES_egl_sync", "GL_OES_element_index_uint",
+            "GL_OES_extended_matrix_palette", "GL_OES_fixed_point", "GL_OES_fragment_precision_high",
+            "GL_OES_framebuffer_object", "GL_OES_get_program_binary", "GL_OES_mapbuffer",
+            "GL_OES_matrix_get", "GL_OES_matrix_palette", "GL_OES_packed_depth_stencil",
+            "GL_OES_point_size_array", "GL_OES_point_sprite", "GL_OES_query_matrix", "GL_OES_read_format",
+            "GL_OES_required_internalformat", "GL_OES_rgb8_rgba8", "GL_OES_single_precision",
+            "GL_OES_standard_derivatives", "GL_OES_stencil8", "GL_OES_stencil_wrap",
+            "GL_OES_texture_cube_map", "GL_OES_texture_env_crossbar", "GL_OES_texture_float",
+            "GL_OES_texture_half_float", "GL_OES_texture_mirrored_repeat", "GL_OES_vertex_array_object",
+            "GL_OES_vertex_half_float"
+        ])
+
+
+        # checkin request
+        req = googleplayapi.googleplay_pb2.AndroidCheckinRequest()
+        req.id = 0
+        req.digest = "1-da39a3ee5e6b4b0d3255bfef95601890afd80709"
+        req.checkin.MergeFrom(checkin_proto)
+        req.locale = "en_US"
+        req.timeZone = "America/Los_Angeles" # random
+        req.macAddr.extend(["0800272984cd"])
+        req.macAddrType.extend(["wifi"])
+        req.version = 3
+        req.deviceConfiguration.MergeFrom(device_proto)
+        req.fragment = 0
+
+        data = req.SerializeToString()
+        return data
+
+    def checkinResponse(self):
+        checkinRequest = self.checkinRequest()
+        headers = {
+            "User-Agent": "Android-Checkin/2.0 (generic JRO03E); gzip",
+            "Host": "android.clients.google.com",
+            "Content-Type": "application/x-protobuffer"
+        }
+        response = requests.post('https://android.clients.google.com/checkin', data=checkinRequest, headers=headers, proxies=self.proxy_dict, verify=False)
+        if response.status_code != http.client.OK:
+            return (response.status_code, None)
+        data = response.content
+        message = googleplayapi.googleplay_pb2.AndroidCheckinResponse.FromString(data)
+
+        return (response.status_code, message)
+
+    def getVoiceUrl(self):
+        (status_code, message) = self.checkinResponse()
+        voice_url = [x for x in message.setting if x.name == b'voice_search:gstatic_url']
+        return voice_url[0].value.decode('utf-8')
