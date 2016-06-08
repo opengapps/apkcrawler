@@ -468,7 +468,7 @@ class GooglePlayAPI(object):
         req.checkin.MergeFrom(checkin_proto)
         req.locale = "en_US"
         req.timeZone = "America/Los_Angeles" # random
-        req.macAddr.extend(["0800272984cd"])
+        req.macAddr.extend(["000000000001"])
         req.macAddrType.extend(["wifi"])
         req.version = 3
         req.deviceConfiguration.MergeFrom(device_proto)
@@ -477,7 +477,8 @@ class GooglePlayAPI(object):
         data = req.SerializeToString()
         return data
 
-    def checkinResponse(self):
+    def checkinResponse(self, proxy=None):
+        self.proxy_dict = proxy
         checkinRequest = self.checkinRequest()
         headers = {
             "User-Agent": "Android-Checkin/2.0 (generic JRO03E); gzip",
