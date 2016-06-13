@@ -359,25 +359,25 @@ class GooglePlayAPI(object):
             pass
         return None
 
-    def checkinRequest(self):
+    def checkinRequest(self, gsf=False):
         """Checkin to the playstore
         The response contains url to the voice files """
 
         # android build proto
         build_proto = googleplayapi.googleplay_pb2.AndroidBuildProto()
-        build_proto.id = "samsung/m0xx/m0:4.0.4/IMM76D/I9300XXALF2:user/release-keys"
-        build_proto.product = "smdk4x12"
+        build_proto.id = "google/angler/angler:6.0.1/MTC19T/2741993:user/release-keys"
+        build_proto.product = "angler"
         build_proto.carrier = "Google"
-        build_proto.radio = "I9300XXALF2"
-        build_proto.bootloader = "PRIMELA03"
+        build_proto.radio = "angler-03.61"
+        build_proto.bootloader = "angler-03.51"
         build_proto.client = "android-google"
-        build_proto.timestamp =  time.time().__round__()
+        build_proto.timestamp = time.time().__round__()
         build_proto.googleServices = 16
-        build_proto.device = "m0"
-        build_proto.sdkVersion = 21
-        build_proto.model = "GT-I9300"
-        build_proto.manufacturer = "Samsung"
-        build_proto.buildProduct = "m0xx"
+        build_proto.device = "angler"
+        build_proto.sdkVersion = 23
+        build_proto.model = "angler"
+        build_proto.manufacturer = "Huawei"
+        build_proto.buildProduct = "angler"
         build_proto.otaInstalled = False
 
         # checkin proto
@@ -386,7 +386,7 @@ class GooglePlayAPI(object):
         checkin_proto.lastCheckinMsec = 0
         checkin_proto.cellOperator = "310260"
         checkin_proto.simOperator = "310260"
-        checkin_proto.roaming = "WIFI::"
+        checkin_proto.roaming = "mobile-notroaming"
         checkin_proto.userNumber = 0
 
 
@@ -398,8 +398,8 @@ class GooglePlayAPI(object):
         device_proto.screenLayout = 2
         device_proto.hasHardKeyboard = False
         device_proto.hasFiveWayNavigation = False
-        device_proto.screenDensity = 320
-        device_proto.glEsVersion = 131072
+        device_proto.screenDensity = 560
+        device_proto.glEsVersion = 196609
         device_proto.systemSharedLibrary.extend([
             "android.test.runner", "com.android.future.usb.accessory", "com.android.location.provider",
             "com.android.media.remotedisplay", "com.android.mediadrm.signer", "com.android.nfc_extras",
@@ -426,8 +426,8 @@ class GooglePlayAPI(object):
             "com.google.android.feature.GOOGLE_EXPERIENCE", "com.google.android.feature.EXCHANGE_6_2", "com.nxp.mifare"
         ])
         device_proto.nativePlatform.extend(["x86_64", "x86", "arm64-v8a", "armeabi-v7a", "armeabi"])
-        device_proto.screenWidth = 720
-        device_proto.screenHeight = 1184
+        device_proto.screenWidth = 1440
+        device_proto.screenHeight = 2560
         device_proto.systemSupportedLocale.extend([
             "af", "af_ZA", "am", "am_ET", "ar", "ar_EG", "bg", "bg_BG", "ca", "ca_ES", "cs", "cs_CZ",
             "da", "da_DK", "de", "de_AT", "de_CH", "de_DE", "de_LI", "el", "el_GR", "en", "en_AU", "en_CA",
@@ -464,12 +464,13 @@ class GooglePlayAPI(object):
         # checkin request
         req = googleplayapi.googleplay_pb2.AndroidCheckinRequest()
         req.id = 0
-        req.digest = "1-da39a3ee5e6b4b0d3255bfef95601890afd80709"
+        if not gsf:
+            req.digest = "1-da39a3ee5e6b4b0d3255bfef95601890afd80709"
+            req.macAddr.extend(["000000000001"])
+            req.macAddrType.extend(["wifi"])
         req.checkin.MergeFrom(checkin_proto)
         req.locale = "en_US"
-        req.timeZone = "America/Los_Angeles" # random
-        req.macAddr.extend(["000000000001"])
-        req.macAddrType.extend(["wifi"])
+        req.timeZone = "Europe/Amsterdam" # random
         req.version = 3
         req.deviceConfiguration.MergeFrom(device_proto)
         req.fragment = 0
@@ -477,9 +478,9 @@ class GooglePlayAPI(object):
         data = req.SerializeToString()
         return data
 
-    def checkinResponse(self, proxy=None):
+    def checkinResponse(self, gsf=False, proxy=None):
         self.proxy_dict = proxy
-        checkinRequest = self.checkinRequest()
+        checkinRequest = self.checkinRequest(gsf)
         headers = {
             "User-Agent": "Android-Checkin/2.0 (generic JRO03E); gzip",
             "Host": "android.clients.google.com",
@@ -489,11 +490,18 @@ class GooglePlayAPI(object):
         if response.status_code != http.client.OK:
             return (response.status_code, None)
         data = response.content
+        print(data)
         message = googleplayapi.googleplay_pb2.AndroidCheckinResponse.FromString(data)
 
         return (response.status_code, message)
 
+    def getGSFId(self):
+        (status_code, message) = self.checkinResponse(gsf=True)
+        return message.androidId
+
     def getVoiceUrl(self):
         (status_code, message) = self.checkinResponse()
         voice_url = [x for x in message.setting if x.name == b'voice_search:gstatic_url']
-        return voice_url[0].value.decode('utf-8')
+
+        return voice_url[0].value.decode('utf-8') if voice_url else ''
+
