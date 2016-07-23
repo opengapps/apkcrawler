@@ -23,7 +23,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='google/protobuf/unittest_custom_options.proto',
   package='protobuf_unittest',
   syntax='proto2',
-  serialized_pb=_b('\n-google/protobuf/unittest_custom_options.proto\x12\x11protobuf_unittest\x1a google/protobuf/descriptor.proto\"\x8d\x01\n\x1cTestMessageWithCustomOptions\x12\x1e\n\x06\x66ield1\x18\x01 \x01(\tB\x0e\x08\x01\xc1\xe0\xc3\x1d-\xe1u\n\x02\x00\x00\x00\";\n\x06\x41nEnum\x12\x0f\n\x0b\x41NENUM_VAL1\x10\x01\x12\x16\n\x0b\x41NENUM_VAL2\x10\x02\x1a\x05\xb0\x86\xfa\x05{\x1a\x08\xc5\xf6\xc9\x1d\xeb\xfc\xff\xff:\x10\x08\x00\xe0\xe9\xc2\x1d\xc8\xff\xff\xff\xff\xff\xff\xff\xff\x01\"\x18\n\x16\x43ustomOptionFooRequest\"\x19\n\x17\x43ustomOptionFooResponse\"\x1e\n\x1c\x43ustomOptionFooClientMessage\"\x1e\n\x1c\x43ustomOptionFooServerMessage\"m\n\x1a\x44ummyMessageContainingEnum\"O\n\x0cTestEnumType\x12\x1a\n\x16TEST_OPTION_ENUM_TYPE1\x10\x16\x12#\n\x16TEST_OPTION_ENUM_TYPE2\x10\xe9\xff\xff\xff\xff\xff\xff\xff\xff\x01\"!\n\x1f\x44ummyMessageInvalidAsOptionType\"\x8a\x01\n\x1c\x43ustomOptionMinIntegerValues:j\xd0\xde\xb2\x1d\x00\xe8\xc6\xb2\x1d\x80\x80\x80\x80\xf8\xff\xff\xff\xff\x01\xb0\xbc\xb2\x1d\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01\x80\x93\xb2\x1d\x00\xf8\xf5\xb0\x1d\x00\x80\xc4\xb0\x1d\xff\xff\xff\xff\x0f\xf8\x97\xb0\x1d\xff\xff\xff\xff\xff\xff\xff\xff\xff\x01\x9d\xf5\xaf\x1d\x00\x00\x00\x00\x91\xee\xaf\x1d\x00\x00\x00\x00\x00\x00\x00\x00\xad\x8d\xaf\x1d\x00\x00\x00\x80\x99\xd6\xa8\x1d\x00\x00\x00\x00\x00\x00\x00\x80\"\x91\x01\n\x1c\x43ustomOptionMaxIntegerValues:q\xd0\xde\xb2\x1d\x01\xe8\xc6\xb2\x1d\xff\xff\xff\xff\x07\xb0\xbc\xb2\x1d\xff\xff\xff\xff\xff\xff\xff\xff\x7f\x80\x93\xb2\x1d\xff\xff\xff\xff\x0f\xf8\xf5\xb0\x1d\xff\xff\xff\xff\xff\xff\xff\xff\xff\x01\x80\xc4\xb0\x1d\xfe\xff\xff\xff\x0f\xf8\x97\xb0\x1d\xfe\xff\xff\xff\xff\xff\xff\xff\xff\x01\x9d\xf5\xaf\x1d\xff\xff\xff\xff\x91\xee\xaf\x1d\xff\xff\xff\xff\xff\xff\xff\xff\xad\x8d\xaf\x1d\xff\xff\xff\x7f\x99\xd6\xa8\x1d\xff\xff\xff\xff\xff\xff\xff\x7f\"n\n\x17\x43ustomOptionOtherValues:S\xe8\xc6\xb2\x1d\x9c\xff\xff\xff\xff\xff\xff\xff\xff\x01\xf5\xdf\xa3\x1d\xe7\x87\x45\x41\xe9\xdc\xa2\x1d\xfbY\x8c\x42\xca\xc0\xf3?\xaa\xdc\xa2\x1d\x0eHello, \"World\"\xb2\xd9\xa2\x1d\x0bHello\x00World\x88\xd9\xa2\x1d\xe9\xff\xff\xff\xff\xff\xff\xff\xff\x01\"4\n\x1cSettingRealsFromPositiveInts:\x14\xf5\xdf\xa3\x1d\x00\x00@A\xe9\xdc\xa2\x1d\x00\x00\x00\x00\x00@c@\"4\n\x1cSettingRealsFromNegativeInts:\x14\xf5\xdf\xa3\x1d\x00\x00@\xc1\xe9\xdc\xa2\x1d\x00\x00\x00\x00\x00@c\xc0\"U\n\x12\x43omplexOptionType1\x12\x0b\n\x03\x66oo\x18\x01 \x01(\x05\x12\x0c\n\x04\x66oo2\x18\x02 \x01(\x05\x12\x0c\n\x04\x66oo3\x18\x03 \x01(\x05\x12\x0c\n\x04\x66oo4\x18\x04 \x03(\x05*\x08\x08\x64\x10\x80\x80\x80\x80\x02\"\x8b\x03\n\x12\x43omplexOptionType2\x12\x32\n\x03\x62\x61r\x18\x01 \x01(\x0b\x32%.protobuf_unittest.ComplexOptionType1\x12\x0b\n\x03\x62\x61z\x18\x02 \x01(\x05\x12\x46\n\x04\x66red\x18\x03 \x01(\x0b\x32\x38.protobuf_unittest.ComplexOptionType2.ComplexOptionType4\x12H\n\x06\x62\x61rney\x18\x04 \x03(\x0b\x32\x38.protobuf_unittest.ComplexOptionType2.ComplexOptionType4\x1a\x97\x01\n\x12\x43omplexOptionType4\x12\r\n\x05waldo\x18\x01 \x01(\x05\x32r\n\x0c\x63omplex_opt4\x12\x1f.google.protobuf.MessageOptions\x18\x8a\xf5\xd1\x03 \x01(\x0b\x32\x38.protobuf_unittest.ComplexOptionType2.ComplexOptionType4*\x08\x08\x64\x10\x80\x80\x80\x80\x02\"\x9c\x01\n\x12\x43omplexOptionType3\x12\x0b\n\x03qux\x18\x01 \x01(\x05\x12T\n\x12\x63omplexoptiontype5\x18\x02 \x01(\n28.protobuf_unittest.ComplexOptionType3.ComplexOptionType5\x1a#\n\x12\x43omplexOptionType5\x12\r\n\x05plugh\x18\x03 \x01(\x05\"\x1f\n\x0b\x43omplexOpt6\x12\x10\n\x05xyzzy\x18\xdf\xbf\xcf\x03 \x01(\x05\"\xf1\x01\n\x15VariousComplexOptions:\xd7\x01\xa2\xe2\x95\x1d\x02\x08*\xa2\xe2\x95\x1d\x06\xd8\x85\x9e\x1d\xc4\x02\xa2\xe2\x95\x1d\x08\x92\xf5\x9d\x1d\x03\x08\xec\x06\xa2\xe2\x95\x1d\x02 c\xa2\xe2\x95\x1d\x02 X\xaa\xfd\x90\x1d\x03\x10\xdb\x07\xaa\xfd\x90\x1d\x06\xf8\xe6\x97\x1d\x8e\x05\xaa\xfd\x90\x1d\x05\n\x03\x08\xe7\x05\xaa\xfd\x90\x1d\x08\n\x06\xd8\x85\x9e\x1d\xcf\x0f\xaa\xfd\x90\x1d\n\n\x08\x92\xf5\x9d\x1d\x03\x08\xd8\x0f\xaa\xfd\x90\x1d\x08\xc2\xac\x97\x1d\x03\x08\xe5\x05\xaa\xfd\x90\x1d\x0b\xc2\xac\x97\x1d\x06\xd8\x85\x9e\x1d\xce\x0f\xaa\xfd\x90\x1d\r\xc2\xac\x97\x1d\x08\x92\xf5\x9d\x1d\x03\x08\xc9\x10\xd2\xa8\x8f\x1d\x03\x08\xb3\x0f\xaa\xfd\x90\x1d\x05\x1a\x03\x08\xc1\x02\xaa\xfd\x90\x1d\x04\"\x02\x08\x65\xaa\xfd\x90\x1d\x05\"\x03\x08\xd4\x01\xfa\xde\x90\x1d\x02\x08\t\xfa\xde\x90\x1d\x04\x13\x18\x16\x14\xe3\xdc\xfc\x1c\xf8\xfd\xfb\x1c\x18\xe4\xdc\xfc\x1c\"#\n\x13\x41ggregateMessageSet*\x08\x08\x04\x10\xff\xff\xff\xff\x07:\x02\x08\x01\"\xa0\x01\n\x1a\x41ggregateMessageSetElement\x12\t\n\x01s\x18\x01 \x01(\t2w\n\x15message_set_extension\x12&.protobuf_unittest.AggregateMessageSet\x18\xf6\xeb\xae\x07 \x01(\x0b\x32-.protobuf_unittest.AggregateMessageSetElement\"\xfd\x01\n\tAggregate\x12\t\n\x01i\x18\x01 \x01(\x05\x12\t\n\x01s\x18\x02 \x01(\t\x12)\n\x03sub\x18\x03 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate\x12*\n\x04\x66ile\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.FileOptions\x12\x34\n\x04mset\x18\x05 \x01(\x0b\x32&.protobuf_unittest.AggregateMessageSet2M\n\x06nested\x12\x1c.google.protobuf.FileOptions\x18\xa7\xd1\xb0\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate\"Y\n\x10\x41ggregateMessage\x12)\n\tfieldname\x18\x01 \x01(\x05\x42\x16\xf2\xa1\x87;\x11\x12\x0f\x46ieldAnnotation:\x1a\xc2\xd1\x86;\x15\x08\x65\x12\x11MessageAnnotation\"\xc9\x01\n\x10NestedOptionType\x1a;\n\rNestedMessage\x12\"\n\x0cnested_field\x18\x01 \x01(\x05\x42\x0c\xc1\xe0\xc3\x1d\xea\x03\x00\x00\x00\x00\x00\x00:\x06\xe0\xe9\xc2\x1d\xe9\x07\"5\n\nNestedEnum\x12\x1d\n\x11NESTED_ENUM_VALUE\x10\x01\x1a\x06\xb0\x86\xfa\x05\xec\x07\x1a\x08\xc5\xf6\xc9\x1d\xeb\x03\x00\x00\x32\x41\n\x10nested_extension\x12\x1c.google.protobuf.FileOptions\x18\xfd\xf8\xe2\x03 \x01(\x05\x42\x06\xc8\x8b\xca\x1d\xed\x07\"d\n\rOldOptionType\x12\x38\n\x05value\x18\x01 \x02(\x0e\x32).protobuf_unittest.OldOptionType.TestEnum\"\x19\n\x08TestEnum\x12\r\n\tOLD_VALUE\x10\x00\"s\n\rNewOptionType\x12\x38\n\x05value\x18\x01 \x02(\x0e\x32).protobuf_unittest.NewOptionType.TestEnum\"(\n\x08TestEnum\x12\r\n\tOLD_VALUE\x10\x00\x12\r\n\tNEW_VALUE\x10\x01\"-\n!TestMessageWithRequiredEnumOption:\x08\xfa\xe8\xfc\x94\x03\x02\x08\x00*6\n\nMethodOpt1\x12\x13\n\x0fMETHODOPT1_VAL1\x10\x01\x12\x13\n\x0fMETHODOPT1_VAL2\x10\x02*M\n\rAggregateEnum\x12%\n\x05VALUE\x10\x01\x1a\x1a\xca\xfc\x89;\x15\x12\x13\x45numValueAnnotation\x1a\x15\x92\x95\x88;\x10\x12\x0e\x45numAnnotation2\x8e\x01\n\x1cTestServiceWithCustomOptions\x12\x63\n\x03\x46oo\x12).protobuf_unittest.CustomOptionFooRequest\x1a*.protobuf_unittest.CustomOptionFooResponse\"\x05\xe0\xfa\x8c\x1e\x02\x1a\t\x90\xb2\x8b\x1e\xd3\xdb\x80\xcbI2\x99\x01\n\x10\x41ggregateService\x12k\n\x06Method\x12#.protobuf_unittest.AggregateMessage\x1a#.protobuf_unittest.AggregateMessage\"\x17\xca\xc8\x96;\x12\x12\x10MethodAnnotation\x1a\x18\xca\xfb\x8e;\x13\x12\x11ServiceAnnotation:2\n\tfile_opt1\x12\x1c.google.protobuf.FileOptions\x18\x8e\x9d\xd8\x03 \x01(\x04:8\n\x0cmessage_opt1\x12\x1f.google.protobuf.MessageOptions\x18\x9c\xad\xd8\x03 \x01(\x05:4\n\nfield_opt1\x12\x1d.google.protobuf.FieldOptions\x18\x88\xbc\xd8\x03 \x01(\x06:8\n\nfield_opt2\x12\x1d.google.protobuf.FieldOptions\x18\xb9\xa1\xd9\x03 \x01(\x05:\x02\x34\x32:2\n\tenum_opt1\x12\x1c.google.protobuf.EnumOptions\x18\xe8\x9e\xd9\x03 \x01(\x0f:<\n\x0f\x65num_value_opt1\x12!.google.protobuf.EnumValueOptions\x18\xe6\xa0_ \x01(\x05:8\n\x0cservice_opt1\x12\x1f.google.protobuf.ServiceOptions\x18\xa2\xb6\xe1\x03 \x01(\x12:U\n\x0bmethod_opt1\x12\x1e.google.protobuf.MethodOptions\x18\xac\xcf\xe1\x03 \x01(\x0e\x32\x1d.protobuf_unittest.MethodOpt1:4\n\x08\x62ool_opt\x12\x1f.google.protobuf.MessageOptions\x18\xea\xab\xd6\x03 \x01(\x08:5\n\tint32_opt\x12\x1f.google.protobuf.MessageOptions\x18\xed\xa8\xd6\x03 \x01(\x05:5\n\tint64_opt\x12\x1f.google.protobuf.MessageOptions\x18\xc6\xa7\xd6\x03 \x01(\x03:6\n\nuint32_opt\x12\x1f.google.protobuf.MessageOptions\x18\xb0\xa2\xd6\x03 \x01(\r:6\n\nuint64_opt\x12\x1f.google.protobuf.MessageOptions\x18\xdf\x8e\xd6\x03 \x01(\x04:6\n\nsint32_opt\x12\x1f.google.protobuf.MessageOptions\x18\xc0\x88\xd6\x03 \x01(\x11:6\n\nsint64_opt\x12\x1f.google.protobuf.MessageOptions\x18\xff\x82\xd6\x03 \x01(\x12:7\n\x0b\x66ixed32_opt\x12\x1f.google.protobuf.MessageOptions\x18\xd3\xfe\xd5\x03 \x01(\x07:7\n\x0b\x66ixed64_opt\x12\x1f.google.protobuf.MessageOptions\x18\xe2\xfd\xd5\x03 \x01(\x06:8\n\x0csfixed32_opt\x12\x1f.google.protobuf.MessageOptions\x18\xd5\xf1\xd5\x03 \x01(\x0f:8\n\x0csfixed64_opt\x12\x1f.google.protobuf.MessageOptions\x18\xe3\x8a\xd5\x03 \x01(\x10:5\n\tfloat_opt\x12\x1f.google.protobuf.MessageOptions\x18\xfe\xbb\xd4\x03 \x01(\x02:6\n\ndouble_opt\x12\x1f.google.protobuf.MessageOptions\x18\xcd\xab\xd4\x03 \x01(\x01:6\n\nstring_opt\x12\x1f.google.protobuf.MessageOptions\x18\xc5\xab\xd4\x03 \x01(\t:5\n\tbytes_opt\x12\x1f.google.protobuf.MessageOptions\x18\x96\xab\xd4\x03 \x01(\x0c:p\n\x08\x65num_opt\x12\x1f.google.protobuf.MessageOptions\x18\x91\xab\xd4\x03 \x01(\x0e\x32:.protobuf_unittest.DummyMessageContainingEnum.TestEnumType:p\n\x10message_type_opt\x12\x1f.google.protobuf.MessageOptions\x18\xaf\xf2\xd3\x03 \x01(\x0b\x32\x32.protobuf_unittest.DummyMessageInvalidAsOptionType:6\n\x04quux\x12%.protobuf_unittest.ComplexOptionType1\x18\xdb\xe0\xd3\x03 \x01(\x05:^\n\x05\x63orge\x12%.protobuf_unittest.ComplexOptionType1\x18\xd2\xde\xd3\x03 \x01(\x0b\x32%.protobuf_unittest.ComplexOptionType3:8\n\x06grault\x12%.protobuf_unittest.ComplexOptionType2\x18\xef\xfc\xd2\x03 \x01(\x05:_\n\x06garply\x12%.protobuf_unittest.ComplexOptionType2\x18\xc8\xf5\xd2\x03 \x01(\x0b\x32%.protobuf_unittest.ComplexOptionType1:_\n\x0c\x63omplex_opt1\x12\x1f.google.protobuf.MessageOptions\x18\xa4\xdc\xd2\x03 \x01(\x0b\x32%.protobuf_unittest.ComplexOptionType1:_\n\x0c\x63omplex_opt2\x12\x1f.google.protobuf.MessageOptions\x18\xd5\x8f\xd2\x03 \x01(\x0b\x32%.protobuf_unittest.ComplexOptionType2:_\n\x0c\x63omplex_opt3\x12\x1f.google.protobuf.MessageOptions\x18\xef\x8b\xd2\x03 \x01(\x0b\x32%.protobuf_unittest.ComplexOptionType3:W\n\x0b\x63omplexopt6\x12\x1f.google.protobuf.MessageOptions\x18\xcc\xcb\xcf\x03 \x01(\n2\x1e.protobuf_unittest.ComplexOpt6:N\n\x07\x66ileopt\x12\x1c.google.protobuf.FileOptions\x18\xcf\xdd\xb0\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:P\n\x06msgopt\x12\x1f.google.protobuf.MessageOptions\x18\x98\xea\xb0\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:P\n\x08\x66ieldopt\x12\x1d.google.protobuf.FieldOptions\x18\x9e\xf4\xb0\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:N\n\x07\x65numopt\x12\x1c.google.protobuf.EnumOptions\x18\xd2\x82\xb1\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:V\n\nenumvalopt\x12!.google.protobuf.EnumValueOptions\x18\xc9\x9f\xb1\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:T\n\nserviceopt\x12\x1f.google.protobuf.ServiceOptions\x18\xb9\xef\xb1\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:R\n\tmethodopt\x12\x1e.google.protobuf.MethodOptions\x18\x89\xe9\xb2\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:_\n\x11required_enum_opt\x12\x1f.google.protobuf.MessageOptions\x18\x8f\xcd\xcf\x32 \x01(\x0b\x32 .protobuf_unittest.OldOptionTypeB\x87\x01\x80\x01\x01\x88\x01\x01\x90\x01\x01\xf0\xe8\xc1\x1d\xea\xad\xc0\xe5$\xfa\xec\x85;p\x08\x64\x12\x0e\x46ileAnnotation\x1a\x16\x12\x14NestedFileAnnotation\"\x1e\xfa\xec\x85;\x19\x12\x17\x46ileExtensionAnnotation*$\x0b\x10\xf6\xeb\xae\x07\x1a\x1b\n\x19\x45mbeddedMessageSetElement\x0c')
+  serialized_pb=_b('\n-google/protobuf/unittest_custom_options.proto\x12\x11protobuf_unittest\x1a google/protobuf/descriptor.proto\"\xbf\x01\n\x1cTestMessageWithCustomOptions\x12\x1e\n\x06\x66ield1\x18\x01 \x01(\tB\x0e\x08\x01\xc1\xe0\xc3\x1d-\xe1u\n\x02\x00\x00\x00\x12\x15\n\x0boneof_field\x18\x02 \x01(\x05H\x00\";\n\x06\x41nEnum\x12\x0f\n\x0b\x41NENUM_VAL1\x10\x01\x12\x16\n\x0b\x41NENUM_VAL2\x10\x02\x1a\x05\xb0\x86\xfa\x05{\x1a\x08\xc5\xf6\xc9\x1d\xeb\xfc\xff\xff:\x10\x08\x00\xe0\xe9\xc2\x1d\xc8\xff\xff\xff\xff\xff\xff\xff\xff\x01\x42\x19\n\x07\x41nOneof\x12\x0e\xf8\xac\xc3\x1d\x9d\xff\xff\xff\xff\xff\xff\xff\xff\x01\"\x18\n\x16\x43ustomOptionFooRequest\"\x19\n\x17\x43ustomOptionFooResponse\"\x1e\n\x1c\x43ustomOptionFooClientMessage\"\x1e\n\x1c\x43ustomOptionFooServerMessage\"m\n\x1a\x44ummyMessageContainingEnum\"O\n\x0cTestEnumType\x12\x1a\n\x16TEST_OPTION_ENUM_TYPE1\x10\x16\x12#\n\x16TEST_OPTION_ENUM_TYPE2\x10\xe9\xff\xff\xff\xff\xff\xff\xff\xff\x01\"!\n\x1f\x44ummyMessageInvalidAsOptionType\"\x8a\x01\n\x1c\x43ustomOptionMinIntegerValues:j\xd0\xde\xb2\x1d\x00\xe8\xc6\xb2\x1d\x80\x80\x80\x80\xf8\xff\xff\xff\xff\x01\xb0\xbc\xb2\x1d\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01\x80\x93\xb2\x1d\x00\xf8\xf5\xb0\x1d\x00\x80\xc4\xb0\x1d\xff\xff\xff\xff\x0f\xf8\x97\xb0\x1d\xff\xff\xff\xff\xff\xff\xff\xff\xff\x01\x9d\xf5\xaf\x1d\x00\x00\x00\x00\x91\xee\xaf\x1d\x00\x00\x00\x00\x00\x00\x00\x00\xad\x8d\xaf\x1d\x00\x00\x00\x80\x99\xd6\xa8\x1d\x00\x00\x00\x00\x00\x00\x00\x80\"\x91\x01\n\x1c\x43ustomOptionMaxIntegerValues:q\xd0\xde\xb2\x1d\x01\xe8\xc6\xb2\x1d\xff\xff\xff\xff\x07\xb0\xbc\xb2\x1d\xff\xff\xff\xff\xff\xff\xff\xff\x7f\x80\x93\xb2\x1d\xff\xff\xff\xff\x0f\xf8\xf5\xb0\x1d\xff\xff\xff\xff\xff\xff\xff\xff\xff\x01\x80\xc4\xb0\x1d\xfe\xff\xff\xff\x0f\xf8\x97\xb0\x1d\xfe\xff\xff\xff\xff\xff\xff\xff\xff\x01\x9d\xf5\xaf\x1d\xff\xff\xff\xff\x91\xee\xaf\x1d\xff\xff\xff\xff\xff\xff\xff\xff\xad\x8d\xaf\x1d\xff\xff\xff\x7f\x99\xd6\xa8\x1d\xff\xff\xff\xff\xff\xff\xff\x7f\"n\n\x17\x43ustomOptionOtherValues:S\xe8\xc6\xb2\x1d\x9c\xff\xff\xff\xff\xff\xff\xff\xff\x01\xf5\xdf\xa3\x1d\xe7\x87\x45\x41\xe9\xdc\xa2\x1d\xfbY\x8c\x42\xca\xc0\xf3?\xaa\xdc\xa2\x1d\x0eHello, \"World\"\xb2\xd9\xa2\x1d\x0bHello\x00World\x88\xd9\xa2\x1d\xe9\xff\xff\xff\xff\xff\xff\xff\xff\x01\"4\n\x1cSettingRealsFromPositiveInts:\x14\xf5\xdf\xa3\x1d\x00\x00@A\xe9\xdc\xa2\x1d\x00\x00\x00\x00\x00@c@\"4\n\x1cSettingRealsFromNegativeInts:\x14\xf5\xdf\xa3\x1d\x00\x00@\xc1\xe9\xdc\xa2\x1d\x00\x00\x00\x00\x00@c\xc0\"U\n\x12\x43omplexOptionType1\x12\x0b\n\x03\x66oo\x18\x01 \x01(\x05\x12\x0c\n\x04\x66oo2\x18\x02 \x01(\x05\x12\x0c\n\x04\x66oo3\x18\x03 \x01(\x05\x12\x0c\n\x04\x66oo4\x18\x04 \x03(\x05*\x08\x08\x64\x10\x80\x80\x80\x80\x02\"\x8b\x03\n\x12\x43omplexOptionType2\x12\x32\n\x03\x62\x61r\x18\x01 \x01(\x0b\x32%.protobuf_unittest.ComplexOptionType1\x12\x0b\n\x03\x62\x61z\x18\x02 \x01(\x05\x12\x46\n\x04\x66red\x18\x03 \x01(\x0b\x32\x38.protobuf_unittest.ComplexOptionType2.ComplexOptionType4\x12H\n\x06\x62\x61rney\x18\x04 \x03(\x0b\x32\x38.protobuf_unittest.ComplexOptionType2.ComplexOptionType4\x1a\x97\x01\n\x12\x43omplexOptionType4\x12\r\n\x05waldo\x18\x01 \x01(\x05\x32r\n\x0c\x63omplex_opt4\x12\x1f.google.protobuf.MessageOptions\x18\x8a\xf5\xd1\x03 \x01(\x0b\x32\x38.protobuf_unittest.ComplexOptionType2.ComplexOptionType4*\x08\x08\x64\x10\x80\x80\x80\x80\x02\"\x9c\x01\n\x12\x43omplexOptionType3\x12\x0b\n\x03qux\x18\x01 \x01(\x05\x12T\n\x12\x63omplexoptiontype5\x18\x02 \x01(\n28.protobuf_unittest.ComplexOptionType3.ComplexOptionType5\x1a#\n\x12\x43omplexOptionType5\x12\r\n\x05plugh\x18\x03 \x01(\x05\"\x1f\n\x0b\x43omplexOpt6\x12\x10\n\x05xyzzy\x18\xdf\xbf\xcf\x03 \x01(\x05\"\xf1\x01\n\x15VariousComplexOptions:\xd7\x01\xa2\xe2\x95\x1d\x02\x08*\xa2\xe2\x95\x1d\x06\xd8\x85\x9e\x1d\xc4\x02\xa2\xe2\x95\x1d\x08\x92\xf5\x9d\x1d\x03\x08\xec\x06\xa2\xe2\x95\x1d\x02 c\xa2\xe2\x95\x1d\x02 X\xaa\xfd\x90\x1d\x03\x10\xdb\x07\xaa\xfd\x90\x1d\x06\xf8\xe6\x97\x1d\x8e\x05\xaa\xfd\x90\x1d\x05\n\x03\x08\xe7\x05\xaa\xfd\x90\x1d\x08\n\x06\xd8\x85\x9e\x1d\xcf\x0f\xaa\xfd\x90\x1d\n\n\x08\x92\xf5\x9d\x1d\x03\x08\xd8\x0f\xaa\xfd\x90\x1d\x08\xc2\xac\x97\x1d\x03\x08\xe5\x05\xaa\xfd\x90\x1d\x0b\xc2\xac\x97\x1d\x06\xd8\x85\x9e\x1d\xce\x0f\xaa\xfd\x90\x1d\r\xc2\xac\x97\x1d\x08\x92\xf5\x9d\x1d\x03\x08\xc9\x10\xd2\xa8\x8f\x1d\x03\x08\xb3\x0f\xaa\xfd\x90\x1d\x05\x1a\x03\x08\xc1\x02\xaa\xfd\x90\x1d\x04\"\x02\x08\x65\xaa\xfd\x90\x1d\x05\"\x03\x08\xd4\x01\xfa\xde\x90\x1d\x02\x08\t\xfa\xde\x90\x1d\x04\x13\x18\x16\x14\xe3\xdc\xfc\x1c\xf8\xfd\xfb\x1c\x18\xe4\xdc\xfc\x1c\"#\n\x13\x41ggregateMessageSet*\x08\x08\x04\x10\xff\xff\xff\xff\x07:\x02\x08\x01\"\xa0\x01\n\x1a\x41ggregateMessageSetElement\x12\t\n\x01s\x18\x01 \x01(\t2w\n\x15message_set_extension\x12&.protobuf_unittest.AggregateMessageSet\x18\xf6\xeb\xae\x07 \x01(\x0b\x32-.protobuf_unittest.AggregateMessageSetElement\"\xfd\x01\n\tAggregate\x12\t\n\x01i\x18\x01 \x01(\x05\x12\t\n\x01s\x18\x02 \x01(\t\x12)\n\x03sub\x18\x03 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate\x12*\n\x04\x66ile\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.FileOptions\x12\x34\n\x04mset\x18\x05 \x01(\x0b\x32&.protobuf_unittest.AggregateMessageSet2M\n\x06nested\x12\x1c.google.protobuf.FileOptions\x18\xa7\xd1\xb0\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate\"Y\n\x10\x41ggregateMessage\x12)\n\tfieldname\x18\x01 \x01(\x05\x42\x16\xf2\xa1\x87;\x11\x12\x0f\x46ieldAnnotation:\x1a\xc2\xd1\x86;\x15\x08\x65\x12\x11MessageAnnotation\"\xc9\x01\n\x10NestedOptionType\x1a;\n\rNestedMessage\x12\"\n\x0cnested_field\x18\x01 \x01(\x05\x42\x0c\xc1\xe0\xc3\x1d\xea\x03\x00\x00\x00\x00\x00\x00:\x06\xe0\xe9\xc2\x1d\xe9\x07\"5\n\nNestedEnum\x12\x1d\n\x11NESTED_ENUM_VALUE\x10\x01\x1a\x06\xb0\x86\xfa\x05\xec\x07\x1a\x08\xc5\xf6\xc9\x1d\xeb\x03\x00\x00\x32\x41\n\x10nested_extension\x12\x1c.google.protobuf.FileOptions\x18\xfd\xf8\xe2\x03 \x01(\x05\x42\x06\xc8\x8b\xca\x1d\xed\x07\"d\n\rOldOptionType\x12\x38\n\x05value\x18\x01 \x02(\x0e\x32).protobuf_unittest.OldOptionType.TestEnum\"\x19\n\x08TestEnum\x12\r\n\tOLD_VALUE\x10\x00\"s\n\rNewOptionType\x12\x38\n\x05value\x18\x01 \x02(\x0e\x32).protobuf_unittest.NewOptionType.TestEnum\"(\n\x08TestEnum\x12\r\n\tOLD_VALUE\x10\x00\x12\r\n\tNEW_VALUE\x10\x01\"-\n!TestMessageWithRequiredEnumOption:\x08\xfa\xe8\xfc\x94\x03\x02\x08\x00*6\n\nMethodOpt1\x12\x13\n\x0fMETHODOPT1_VAL1\x10\x01\x12\x13\n\x0fMETHODOPT1_VAL2\x10\x02*M\n\rAggregateEnum\x12%\n\x05VALUE\x10\x01\x1a\x1a\xca\xfc\x89;\x15\x12\x13\x45numValueAnnotation\x1a\x15\x92\x95\x88;\x10\x12\x0e\x45numAnnotation2\x8e\x01\n\x1cTestServiceWithCustomOptions\x12\x63\n\x03\x46oo\x12).protobuf_unittest.CustomOptionFooRequest\x1a*.protobuf_unittest.CustomOptionFooResponse\"\x05\xe0\xfa\x8c\x1e\x02\x1a\t\x90\xb2\x8b\x1e\xd3\xdb\x80\xcbI2\x99\x01\n\x10\x41ggregateService\x12k\n\x06Method\x12#.protobuf_unittest.AggregateMessage\x1a#.protobuf_unittest.AggregateMessage\"\x17\xca\xc8\x96;\x12\x12\x10MethodAnnotation\x1a\x18\xca\xfb\x8e;\x13\x12\x11ServiceAnnotation:2\n\tfile_opt1\x12\x1c.google.protobuf.FileOptions\x18\x8e\x9d\xd8\x03 \x01(\x04:8\n\x0cmessage_opt1\x12\x1f.google.protobuf.MessageOptions\x18\x9c\xad\xd8\x03 \x01(\x05:4\n\nfield_opt1\x12\x1d.google.protobuf.FieldOptions\x18\x88\xbc\xd8\x03 \x01(\x06:8\n\nfield_opt2\x12\x1d.google.protobuf.FieldOptions\x18\xb9\xa1\xd9\x03 \x01(\x05:\x02\x34\x32:4\n\noneof_opt1\x12\x1d.google.protobuf.OneofOptions\x18\xcf\xb5\xd8\x03 \x01(\x05:2\n\tenum_opt1\x12\x1c.google.protobuf.EnumOptions\x18\xe8\x9e\xd9\x03 \x01(\x0f:<\n\x0f\x65num_value_opt1\x12!.google.protobuf.EnumValueOptions\x18\xe6\xa0_ \x01(\x05:8\n\x0cservice_opt1\x12\x1f.google.protobuf.ServiceOptions\x18\xa2\xb6\xe1\x03 \x01(\x12:U\n\x0bmethod_opt1\x12\x1e.google.protobuf.MethodOptions\x18\xac\xcf\xe1\x03 \x01(\x0e\x32\x1d.protobuf_unittest.MethodOpt1:4\n\x08\x62ool_opt\x12\x1f.google.protobuf.MessageOptions\x18\xea\xab\xd6\x03 \x01(\x08:5\n\tint32_opt\x12\x1f.google.protobuf.MessageOptions\x18\xed\xa8\xd6\x03 \x01(\x05:5\n\tint64_opt\x12\x1f.google.protobuf.MessageOptions\x18\xc6\xa7\xd6\x03 \x01(\x03:6\n\nuint32_opt\x12\x1f.google.protobuf.MessageOptions\x18\xb0\xa2\xd6\x03 \x01(\r:6\n\nuint64_opt\x12\x1f.google.protobuf.MessageOptions\x18\xdf\x8e\xd6\x03 \x01(\x04:6\n\nsint32_opt\x12\x1f.google.protobuf.MessageOptions\x18\xc0\x88\xd6\x03 \x01(\x11:6\n\nsint64_opt\x12\x1f.google.protobuf.MessageOptions\x18\xff\x82\xd6\x03 \x01(\x12:7\n\x0b\x66ixed32_opt\x12\x1f.google.protobuf.MessageOptions\x18\xd3\xfe\xd5\x03 \x01(\x07:7\n\x0b\x66ixed64_opt\x12\x1f.google.protobuf.MessageOptions\x18\xe2\xfd\xd5\x03 \x01(\x06:8\n\x0csfixed32_opt\x12\x1f.google.protobuf.MessageOptions\x18\xd5\xf1\xd5\x03 \x01(\x0f:8\n\x0csfixed64_opt\x12\x1f.google.protobuf.MessageOptions\x18\xe3\x8a\xd5\x03 \x01(\x10:5\n\tfloat_opt\x12\x1f.google.protobuf.MessageOptions\x18\xfe\xbb\xd4\x03 \x01(\x02:6\n\ndouble_opt\x12\x1f.google.protobuf.MessageOptions\x18\xcd\xab\xd4\x03 \x01(\x01:6\n\nstring_opt\x12\x1f.google.protobuf.MessageOptions\x18\xc5\xab\xd4\x03 \x01(\t:5\n\tbytes_opt\x12\x1f.google.protobuf.MessageOptions\x18\x96\xab\xd4\x03 \x01(\x0c:p\n\x08\x65num_opt\x12\x1f.google.protobuf.MessageOptions\x18\x91\xab\xd4\x03 \x01(\x0e\x32:.protobuf_unittest.DummyMessageContainingEnum.TestEnumType:p\n\x10message_type_opt\x12\x1f.google.protobuf.MessageOptions\x18\xaf\xf2\xd3\x03 \x01(\x0b\x32\x32.protobuf_unittest.DummyMessageInvalidAsOptionType:6\n\x04quux\x12%.protobuf_unittest.ComplexOptionType1\x18\xdb\xe0\xd3\x03 \x01(\x05:^\n\x05\x63orge\x12%.protobuf_unittest.ComplexOptionType1\x18\xd2\xde\xd3\x03 \x01(\x0b\x32%.protobuf_unittest.ComplexOptionType3:8\n\x06grault\x12%.protobuf_unittest.ComplexOptionType2\x18\xef\xfc\xd2\x03 \x01(\x05:_\n\x06garply\x12%.protobuf_unittest.ComplexOptionType2\x18\xc8\xf5\xd2\x03 \x01(\x0b\x32%.protobuf_unittest.ComplexOptionType1:_\n\x0c\x63omplex_opt1\x12\x1f.google.protobuf.MessageOptions\x18\xa4\xdc\xd2\x03 \x01(\x0b\x32%.protobuf_unittest.ComplexOptionType1:_\n\x0c\x63omplex_opt2\x12\x1f.google.protobuf.MessageOptions\x18\xd5\x8f\xd2\x03 \x01(\x0b\x32%.protobuf_unittest.ComplexOptionType2:_\n\x0c\x63omplex_opt3\x12\x1f.google.protobuf.MessageOptions\x18\xef\x8b\xd2\x03 \x01(\x0b\x32%.protobuf_unittest.ComplexOptionType3:W\n\x0b\x63omplexopt6\x12\x1f.google.protobuf.MessageOptions\x18\xcc\xcb\xcf\x03 \x01(\n2\x1e.protobuf_unittest.ComplexOpt6:N\n\x07\x66ileopt\x12\x1c.google.protobuf.FileOptions\x18\xcf\xdd\xb0\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:P\n\x06msgopt\x12\x1f.google.protobuf.MessageOptions\x18\x98\xea\xb0\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:P\n\x08\x66ieldopt\x12\x1d.google.protobuf.FieldOptions\x18\x9e\xf4\xb0\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:N\n\x07\x65numopt\x12\x1c.google.protobuf.EnumOptions\x18\xd2\x82\xb1\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:V\n\nenumvalopt\x12!.google.protobuf.EnumValueOptions\x18\xc9\x9f\xb1\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:T\n\nserviceopt\x12\x1f.google.protobuf.ServiceOptions\x18\xb9\xef\xb1\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:R\n\tmethodopt\x12\x1e.google.protobuf.MethodOptions\x18\x89\xe9\xb2\x07 \x01(\x0b\x32\x1c.protobuf_unittest.Aggregate:_\n\x11required_enum_opt\x12\x1f.google.protobuf.MessageOptions\x18\x8f\xcd\xcf\x32 \x01(\x0b\x32 .protobuf_unittest.OldOptionTypeB\x87\x01\x80\x01\x01\x88\x01\x01\x90\x01\x01\xf0\xe8\xc1\x1d\xea\xad\xc0\xe5$\xfa\xec\x85;p\x08\x64\x12\x0e\x46ileAnnotation\x1a\x16\x12\x14NestedFileAnnotation\"\x1e\xfa\xec\x85;\x19\x12\x17\x46ileExtensionAnnotation*$\x0b\x10\xf6\xeb\xae\x07\x1a\x1b\n\x19\x45mbeddedMessageSetElement\x0c')
   ,
   dependencies=[google_dot_protobuf_dot_descriptor__pb2.DESCRIPTOR,])
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -45,8 +45,8 @@ _METHODOPT1 = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2956,
-  serialized_end=3010,
+  serialized_start=3006,
+  serialized_end=3060,
 )
 _sym_db.RegisterEnumDescriptor(_METHODOPT1)
 
@@ -64,8 +64,8 @@ _AGGREGATEENUM = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=_descriptor._ParseOptions(descriptor_pb2.EnumOptions(), _b('\222\225\210;\020\022\016EnumAnnotation')),
-  serialized_start=3012,
-  serialized_end=3089,
+  serialized_start=3062,
+  serialized_end=3139,
 )
 _sym_db.RegisterEnumDescriptor(_AGGREGATEENUM)
 
@@ -106,9 +106,17 @@ field_opt2 = _descriptor.FieldDescriptor(
   message_type=None, enum_type=None, containing_type=None,
   is_extension=True, extension_scope=None,
   options=None)
+ONEOF_OPT1_FIELD_NUMBER = 7740111
+oneof_opt1 = _descriptor.FieldDescriptor(
+  name='oneof_opt1', full_name='protobuf_unittest.oneof_opt1', index=4,
+  number=7740111, type=5, cpp_type=1, label=1,
+  has_default_value=False, default_value=0,
+  message_type=None, enum_type=None, containing_type=None,
+  is_extension=True, extension_scope=None,
+  options=None)
 ENUM_OPT1_FIELD_NUMBER = 7753576
 enum_opt1 = _descriptor.FieldDescriptor(
-  name='enum_opt1', full_name='protobuf_unittest.enum_opt1', index=4,
+  name='enum_opt1', full_name='protobuf_unittest.enum_opt1', index=5,
   number=7753576, type=15, cpp_type=1, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -116,7 +124,7 @@ enum_opt1 = _descriptor.FieldDescriptor(
   options=None)
 ENUM_VALUE_OPT1_FIELD_NUMBER = 1560678
 enum_value_opt1 = _descriptor.FieldDescriptor(
-  name='enum_value_opt1', full_name='protobuf_unittest.enum_value_opt1', index=5,
+  name='enum_value_opt1', full_name='protobuf_unittest.enum_value_opt1', index=6,
   number=1560678, type=5, cpp_type=1, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -124,7 +132,7 @@ enum_value_opt1 = _descriptor.FieldDescriptor(
   options=None)
 SERVICE_OPT1_FIELD_NUMBER = 7887650
 service_opt1 = _descriptor.FieldDescriptor(
-  name='service_opt1', full_name='protobuf_unittest.service_opt1', index=6,
+  name='service_opt1', full_name='protobuf_unittest.service_opt1', index=7,
   number=7887650, type=18, cpp_type=2, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -132,7 +140,7 @@ service_opt1 = _descriptor.FieldDescriptor(
   options=None)
 METHOD_OPT1_FIELD_NUMBER = 7890860
 method_opt1 = _descriptor.FieldDescriptor(
-  name='method_opt1', full_name='protobuf_unittest.method_opt1', index=7,
+  name='method_opt1', full_name='protobuf_unittest.method_opt1', index=8,
   number=7890860, type=14, cpp_type=8, label=1,
   has_default_value=False, default_value=1,
   message_type=None, enum_type=None, containing_type=None,
@@ -140,7 +148,7 @@ method_opt1 = _descriptor.FieldDescriptor(
   options=None)
 BOOL_OPT_FIELD_NUMBER = 7706090
 bool_opt = _descriptor.FieldDescriptor(
-  name='bool_opt', full_name='protobuf_unittest.bool_opt', index=8,
+  name='bool_opt', full_name='protobuf_unittest.bool_opt', index=9,
   number=7706090, type=8, cpp_type=7, label=1,
   has_default_value=False, default_value=False,
   message_type=None, enum_type=None, containing_type=None,
@@ -148,7 +156,7 @@ bool_opt = _descriptor.FieldDescriptor(
   options=None)
 INT32_OPT_FIELD_NUMBER = 7705709
 int32_opt = _descriptor.FieldDescriptor(
-  name='int32_opt', full_name='protobuf_unittest.int32_opt', index=9,
+  name='int32_opt', full_name='protobuf_unittest.int32_opt', index=10,
   number=7705709, type=5, cpp_type=1, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -156,7 +164,7 @@ int32_opt = _descriptor.FieldDescriptor(
   options=None)
 INT64_OPT_FIELD_NUMBER = 7705542
 int64_opt = _descriptor.FieldDescriptor(
-  name='int64_opt', full_name='protobuf_unittest.int64_opt', index=10,
+  name='int64_opt', full_name='protobuf_unittest.int64_opt', index=11,
   number=7705542, type=3, cpp_type=2, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -164,7 +172,7 @@ int64_opt = _descriptor.FieldDescriptor(
   options=None)
 UINT32_OPT_FIELD_NUMBER = 7704880
 uint32_opt = _descriptor.FieldDescriptor(
-  name='uint32_opt', full_name='protobuf_unittest.uint32_opt', index=11,
+  name='uint32_opt', full_name='protobuf_unittest.uint32_opt', index=12,
   number=7704880, type=13, cpp_type=3, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -172,7 +180,7 @@ uint32_opt = _descriptor.FieldDescriptor(
   options=None)
 UINT64_OPT_FIELD_NUMBER = 7702367
 uint64_opt = _descriptor.FieldDescriptor(
-  name='uint64_opt', full_name='protobuf_unittest.uint64_opt', index=12,
+  name='uint64_opt', full_name='protobuf_unittest.uint64_opt', index=13,
   number=7702367, type=4, cpp_type=4, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -180,7 +188,7 @@ uint64_opt = _descriptor.FieldDescriptor(
   options=None)
 SINT32_OPT_FIELD_NUMBER = 7701568
 sint32_opt = _descriptor.FieldDescriptor(
-  name='sint32_opt', full_name='protobuf_unittest.sint32_opt', index=13,
+  name='sint32_opt', full_name='protobuf_unittest.sint32_opt', index=14,
   number=7701568, type=17, cpp_type=1, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -188,7 +196,7 @@ sint32_opt = _descriptor.FieldDescriptor(
   options=None)
 SINT64_OPT_FIELD_NUMBER = 7700863
 sint64_opt = _descriptor.FieldDescriptor(
-  name='sint64_opt', full_name='protobuf_unittest.sint64_opt', index=14,
+  name='sint64_opt', full_name='protobuf_unittest.sint64_opt', index=15,
   number=7700863, type=18, cpp_type=2, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -196,7 +204,7 @@ sint64_opt = _descriptor.FieldDescriptor(
   options=None)
 FIXED32_OPT_FIELD_NUMBER = 7700307
 fixed32_opt = _descriptor.FieldDescriptor(
-  name='fixed32_opt', full_name='protobuf_unittest.fixed32_opt', index=15,
+  name='fixed32_opt', full_name='protobuf_unittest.fixed32_opt', index=16,
   number=7700307, type=7, cpp_type=3, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -204,7 +212,7 @@ fixed32_opt = _descriptor.FieldDescriptor(
   options=None)
 FIXED64_OPT_FIELD_NUMBER = 7700194
 fixed64_opt = _descriptor.FieldDescriptor(
-  name='fixed64_opt', full_name='protobuf_unittest.fixed64_opt', index=16,
+  name='fixed64_opt', full_name='protobuf_unittest.fixed64_opt', index=17,
   number=7700194, type=6, cpp_type=4, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -212,7 +220,7 @@ fixed64_opt = _descriptor.FieldDescriptor(
   options=None)
 SFIXED32_OPT_FIELD_NUMBER = 7698645
 sfixed32_opt = _descriptor.FieldDescriptor(
-  name='sfixed32_opt', full_name='protobuf_unittest.sfixed32_opt', index=17,
+  name='sfixed32_opt', full_name='protobuf_unittest.sfixed32_opt', index=18,
   number=7698645, type=15, cpp_type=1, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -220,7 +228,7 @@ sfixed32_opt = _descriptor.FieldDescriptor(
   options=None)
 SFIXED64_OPT_FIELD_NUMBER = 7685475
 sfixed64_opt = _descriptor.FieldDescriptor(
-  name='sfixed64_opt', full_name='protobuf_unittest.sfixed64_opt', index=18,
+  name='sfixed64_opt', full_name='protobuf_unittest.sfixed64_opt', index=19,
   number=7685475, type=16, cpp_type=2, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -228,7 +236,7 @@ sfixed64_opt = _descriptor.FieldDescriptor(
   options=None)
 FLOAT_OPT_FIELD_NUMBER = 7675390
 float_opt = _descriptor.FieldDescriptor(
-  name='float_opt', full_name='protobuf_unittest.float_opt', index=19,
+  name='float_opt', full_name='protobuf_unittest.float_opt', index=20,
   number=7675390, type=2, cpp_type=6, label=1,
   has_default_value=False, default_value=float(0),
   message_type=None, enum_type=None, containing_type=None,
@@ -236,7 +244,7 @@ float_opt = _descriptor.FieldDescriptor(
   options=None)
 DOUBLE_OPT_FIELD_NUMBER = 7673293
 double_opt = _descriptor.FieldDescriptor(
-  name='double_opt', full_name='protobuf_unittest.double_opt', index=20,
+  name='double_opt', full_name='protobuf_unittest.double_opt', index=21,
   number=7673293, type=1, cpp_type=5, label=1,
   has_default_value=False, default_value=float(0),
   message_type=None, enum_type=None, containing_type=None,
@@ -244,7 +252,7 @@ double_opt = _descriptor.FieldDescriptor(
   options=None)
 STRING_OPT_FIELD_NUMBER = 7673285
 string_opt = _descriptor.FieldDescriptor(
-  name='string_opt', full_name='protobuf_unittest.string_opt', index=21,
+  name='string_opt', full_name='protobuf_unittest.string_opt', index=22,
   number=7673285, type=9, cpp_type=9, label=1,
   has_default_value=False, default_value=_b("").decode('utf-8'),
   message_type=None, enum_type=None, containing_type=None,
@@ -252,7 +260,7 @@ string_opt = _descriptor.FieldDescriptor(
   options=None)
 BYTES_OPT_FIELD_NUMBER = 7673238
 bytes_opt = _descriptor.FieldDescriptor(
-  name='bytes_opt', full_name='protobuf_unittest.bytes_opt', index=22,
+  name='bytes_opt', full_name='protobuf_unittest.bytes_opt', index=23,
   number=7673238, type=12, cpp_type=9, label=1,
   has_default_value=False, default_value=_b(""),
   message_type=None, enum_type=None, containing_type=None,
@@ -260,7 +268,7 @@ bytes_opt = _descriptor.FieldDescriptor(
   options=None)
 ENUM_OPT_FIELD_NUMBER = 7673233
 enum_opt = _descriptor.FieldDescriptor(
-  name='enum_opt', full_name='protobuf_unittest.enum_opt', index=23,
+  name='enum_opt', full_name='protobuf_unittest.enum_opt', index=24,
   number=7673233, type=14, cpp_type=8, label=1,
   has_default_value=False, default_value=22,
   message_type=None, enum_type=None, containing_type=None,
@@ -268,7 +276,7 @@ enum_opt = _descriptor.FieldDescriptor(
   options=None)
 MESSAGE_TYPE_OPT_FIELD_NUMBER = 7665967
 message_type_opt = _descriptor.FieldDescriptor(
-  name='message_type_opt', full_name='protobuf_unittest.message_type_opt', index=24,
+  name='message_type_opt', full_name='protobuf_unittest.message_type_opt', index=25,
   number=7665967, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -276,7 +284,7 @@ message_type_opt = _descriptor.FieldDescriptor(
   options=None)
 QUUX_FIELD_NUMBER = 7663707
 quux = _descriptor.FieldDescriptor(
-  name='quux', full_name='protobuf_unittest.quux', index=25,
+  name='quux', full_name='protobuf_unittest.quux', index=26,
   number=7663707, type=5, cpp_type=1, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -284,7 +292,7 @@ quux = _descriptor.FieldDescriptor(
   options=None)
 CORGE_FIELD_NUMBER = 7663442
 corge = _descriptor.FieldDescriptor(
-  name='corge', full_name='protobuf_unittest.corge', index=26,
+  name='corge', full_name='protobuf_unittest.corge', index=27,
   number=7663442, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -292,7 +300,7 @@ corge = _descriptor.FieldDescriptor(
   options=None)
 GRAULT_FIELD_NUMBER = 7650927
 grault = _descriptor.FieldDescriptor(
-  name='grault', full_name='protobuf_unittest.grault', index=27,
+  name='grault', full_name='protobuf_unittest.grault', index=28,
   number=7650927, type=5, cpp_type=1, label=1,
   has_default_value=False, default_value=0,
   message_type=None, enum_type=None, containing_type=None,
@@ -300,7 +308,7 @@ grault = _descriptor.FieldDescriptor(
   options=None)
 GARPLY_FIELD_NUMBER = 7649992
 garply = _descriptor.FieldDescriptor(
-  name='garply', full_name='protobuf_unittest.garply', index=28,
+  name='garply', full_name='protobuf_unittest.garply', index=29,
   number=7649992, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -308,7 +316,7 @@ garply = _descriptor.FieldDescriptor(
   options=None)
 COMPLEX_OPT1_FIELD_NUMBER = 7646756
 complex_opt1 = _descriptor.FieldDescriptor(
-  name='complex_opt1', full_name='protobuf_unittest.complex_opt1', index=29,
+  name='complex_opt1', full_name='protobuf_unittest.complex_opt1', index=30,
   number=7646756, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -316,7 +324,7 @@ complex_opt1 = _descriptor.FieldDescriptor(
   options=None)
 COMPLEX_OPT2_FIELD_NUMBER = 7636949
 complex_opt2 = _descriptor.FieldDescriptor(
-  name='complex_opt2', full_name='protobuf_unittest.complex_opt2', index=30,
+  name='complex_opt2', full_name='protobuf_unittest.complex_opt2', index=31,
   number=7636949, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -324,7 +332,7 @@ complex_opt2 = _descriptor.FieldDescriptor(
   options=None)
 COMPLEX_OPT3_FIELD_NUMBER = 7636463
 complex_opt3 = _descriptor.FieldDescriptor(
-  name='complex_opt3', full_name='protobuf_unittest.complex_opt3', index=31,
+  name='complex_opt3', full_name='protobuf_unittest.complex_opt3', index=32,
   number=7636463, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -332,7 +340,7 @@ complex_opt3 = _descriptor.FieldDescriptor(
   options=None)
 COMPLEXOPT6_FIELD_NUMBER = 7595468
 complexopt6 = _descriptor.FieldDescriptor(
-  name='complexopt6', full_name='protobuf_unittest.complexopt6', index=32,
+  name='complexopt6', full_name='protobuf_unittest.complexopt6', index=33,
   number=7595468, type=10, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -340,7 +348,7 @@ complexopt6 = _descriptor.FieldDescriptor(
   options=None)
 FILEOPT_FIELD_NUMBER = 15478479
 fileopt = _descriptor.FieldDescriptor(
-  name='fileopt', full_name='protobuf_unittest.fileopt', index=33,
+  name='fileopt', full_name='protobuf_unittest.fileopt', index=34,
   number=15478479, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -348,7 +356,7 @@ fileopt = _descriptor.FieldDescriptor(
   options=None)
 MSGOPT_FIELD_NUMBER = 15480088
 msgopt = _descriptor.FieldDescriptor(
-  name='msgopt', full_name='protobuf_unittest.msgopt', index=34,
+  name='msgopt', full_name='protobuf_unittest.msgopt', index=35,
   number=15480088, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -356,7 +364,7 @@ msgopt = _descriptor.FieldDescriptor(
   options=None)
 FIELDOPT_FIELD_NUMBER = 15481374
 fieldopt = _descriptor.FieldDescriptor(
-  name='fieldopt', full_name='protobuf_unittest.fieldopt', index=35,
+  name='fieldopt', full_name='protobuf_unittest.fieldopt', index=36,
   number=15481374, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -364,7 +372,7 @@ fieldopt = _descriptor.FieldDescriptor(
   options=None)
 ENUMOPT_FIELD_NUMBER = 15483218
 enumopt = _descriptor.FieldDescriptor(
-  name='enumopt', full_name='protobuf_unittest.enumopt', index=36,
+  name='enumopt', full_name='protobuf_unittest.enumopt', index=37,
   number=15483218, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -372,7 +380,7 @@ enumopt = _descriptor.FieldDescriptor(
   options=None)
 ENUMVALOPT_FIELD_NUMBER = 15486921
 enumvalopt = _descriptor.FieldDescriptor(
-  name='enumvalopt', full_name='protobuf_unittest.enumvalopt', index=37,
+  name='enumvalopt', full_name='protobuf_unittest.enumvalopt', index=38,
   number=15486921, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -380,7 +388,7 @@ enumvalopt = _descriptor.FieldDescriptor(
   options=None)
 SERVICEOPT_FIELD_NUMBER = 15497145
 serviceopt = _descriptor.FieldDescriptor(
-  name='serviceopt', full_name='protobuf_unittest.serviceopt', index=38,
+  name='serviceopt', full_name='protobuf_unittest.serviceopt', index=39,
   number=15497145, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -388,7 +396,7 @@ serviceopt = _descriptor.FieldDescriptor(
   options=None)
 METHODOPT_FIELD_NUMBER = 15512713
 methodopt = _descriptor.FieldDescriptor(
-  name='methodopt', full_name='protobuf_unittest.methodopt', index=39,
+  name='methodopt', full_name='protobuf_unittest.methodopt', index=40,
   number=15512713, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -396,7 +404,7 @@ methodopt = _descriptor.FieldDescriptor(
   options=None)
 REQUIRED_ENUM_OPT_FIELD_NUMBER = 106161807
 required_enum_opt = _descriptor.FieldDescriptor(
-  name='required_enum_opt', full_name='protobuf_unittest.required_enum_opt', index=40,
+  name='required_enum_opt', full_name='protobuf_unittest.required_enum_opt', index=41,
   number=106161807, type=11, cpp_type=10, label=1,
   has_default_value=False, default_value=None,
   message_type=None, enum_type=None, containing_type=None,
@@ -420,8 +428,8 @@ _TESTMESSAGEWITHCUSTOMOPTIONS_ANENUM = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=_descriptor._ParseOptions(descriptor_pb2.EnumOptions(), _b('\305\366\311\035\353\374\377\377')),
-  serialized_start=167,
-  serialized_end=226,
+  serialized_start=190,
+  serialized_end=249,
 )
 _sym_db.RegisterEnumDescriptor(_TESTMESSAGEWITHCUSTOMOPTIONS_ANENUM)
 
@@ -442,8 +450,8 @@ _DUMMYMESSAGECONTAININGENUM_TESTENUMTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=393,
-  serialized_end=472,
+  serialized_start=443,
+  serialized_end=522,
 )
 _sym_db.RegisterEnumDescriptor(_DUMMYMESSAGECONTAININGENUM_TESTENUMTYPE)
 
@@ -460,8 +468,8 @@ _NESTEDOPTIONTYPE_NESTEDENUM = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=_descriptor._ParseOptions(descriptor_pb2.EnumOptions(), _b('\305\366\311\035\353\003\000\000')),
-  serialized_start=2568,
-  serialized_end=2621,
+  serialized_start=2618,
+  serialized_end=2671,
 )
 _sym_db.RegisterEnumDescriptor(_NESTEDOPTIONTYPE_NESTEDENUM)
 
@@ -478,8 +486,8 @@ _OLDOPTIONTYPE_TESTENUM = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2765,
-  serialized_end=2790,
+  serialized_start=2815,
+  serialized_end=2840,
 )
 _sym_db.RegisterEnumDescriptor(_OLDOPTIONTYPE_TESTENUM)
 
@@ -500,8 +508,8 @@ _NEWOPTIONTYPE_TESTENUM = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2867,
-  serialized_end=2907,
+  serialized_start=2917,
+  serialized_end=2957,
 )
 _sym_db.RegisterEnumDescriptor(_NEWOPTIONTYPE_TESTENUM)
 
@@ -520,6 +528,13 @@ _TESTMESSAGEWITHCUSTOMOPTIONS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=_descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\010\001\301\340\303\035-\341u\n\002\000\000\000'))),
+    _descriptor.FieldDescriptor(
+      name='oneof_field', full_name='protobuf_unittest.TestMessageWithCustomOptions.oneof_field', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -532,9 +547,12 @@ _TESTMESSAGEWITHCUSTOMOPTIONS = _descriptor.Descriptor(
   syntax='proto2',
   extension_ranges=[],
   oneofs=[
+    _descriptor.OneofDescriptor(
+      name='AnOneof', full_name='protobuf_unittest.TestMessageWithCustomOptions.AnOneof',
+      index=0, containing_type=None, fields=[], options=_descriptor._ParseOptions(descriptor_pb2.OneofOptions(), _b('\370\254\303\035\235\377\377\377\377\377\377\377\377\001'))),
   ],
   serialized_start=103,
-  serialized_end=244,
+  serialized_end=294,
 )
 
 
@@ -557,8 +575,8 @@ _CUSTOMOPTIONFOOREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=246,
-  serialized_end=270,
+  serialized_start=296,
+  serialized_end=320,
 )
 
 
@@ -581,8 +599,8 @@ _CUSTOMOPTIONFOORESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=272,
-  serialized_end=297,
+  serialized_start=322,
+  serialized_end=347,
 )
 
 
@@ -605,8 +623,8 @@ _CUSTOMOPTIONFOOCLIENTMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=299,
-  serialized_end=329,
+  serialized_start=349,
+  serialized_end=379,
 )
 
 
@@ -629,8 +647,8 @@ _CUSTOMOPTIONFOOSERVERMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=331,
-  serialized_end=361,
+  serialized_start=381,
+  serialized_end=411,
 )
 
 
@@ -654,8 +672,8 @@ _DUMMYMESSAGECONTAININGENUM = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=363,
-  serialized_end=472,
+  serialized_start=413,
+  serialized_end=522,
 )
 
 
@@ -678,8 +696,8 @@ _DUMMYMESSAGEINVALIDASOPTIONTYPE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=474,
-  serialized_end=507,
+  serialized_start=524,
+  serialized_end=557,
 )
 
 
@@ -702,8 +720,8 @@ _CUSTOMOPTIONMININTEGERVALUES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=510,
-  serialized_end=648,
+  serialized_start=560,
+  serialized_end=698,
 )
 
 
@@ -726,8 +744,8 @@ _CUSTOMOPTIONMAXINTEGERVALUES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=651,
-  serialized_end=796,
+  serialized_start=701,
+  serialized_end=846,
 )
 
 
@@ -750,8 +768,8 @@ _CUSTOMOPTIONOTHERVALUES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=798,
-  serialized_end=908,
+  serialized_start=848,
+  serialized_end=958,
 )
 
 
@@ -774,8 +792,8 @@ _SETTINGREALSFROMPOSITIVEINTS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=910,
-  serialized_end=962,
+  serialized_start=960,
+  serialized_end=1012,
 )
 
 
@@ -798,8 +816,8 @@ _SETTINGREALSFROMNEGATIVEINTS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=964,
-  serialized_end=1016,
+  serialized_start=1014,
+  serialized_end=1066,
 )
 
 
@@ -850,8 +868,8 @@ _COMPLEXOPTIONTYPE1 = _descriptor.Descriptor(
   extension_ranges=[(100, 536870912), ],
   oneofs=[
   ],
-  serialized_start=1018,
-  serialized_end=1103,
+  serialized_start=1068,
+  serialized_end=1153,
 )
 
 
@@ -888,8 +906,8 @@ _COMPLEXOPTIONTYPE2_COMPLEXOPTIONTYPE4 = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1340,
-  serialized_end=1491,
+  serialized_start=1390,
+  serialized_end=1541,
 )
 
 _COMPLEXOPTIONTYPE2 = _descriptor.Descriptor(
@@ -939,8 +957,8 @@ _COMPLEXOPTIONTYPE2 = _descriptor.Descriptor(
   extension_ranges=[(100, 536870912), ],
   oneofs=[
   ],
-  serialized_start=1106,
-  serialized_end=1501,
+  serialized_start=1156,
+  serialized_end=1551,
 )
 
 
@@ -970,8 +988,8 @@ _COMPLEXOPTIONTYPE3_COMPLEXOPTIONTYPE5 = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1625,
-  serialized_end=1660,
+  serialized_start=1675,
+  serialized_end=1710,
 )
 
 _COMPLEXOPTIONTYPE3 = _descriptor.Descriptor(
@@ -1007,8 +1025,8 @@ _COMPLEXOPTIONTYPE3 = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1504,
-  serialized_end=1660,
+  serialized_start=1554,
+  serialized_end=1710,
 )
 
 
@@ -1038,8 +1056,8 @@ _COMPLEXOPT6 = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1662,
-  serialized_end=1693,
+  serialized_start=1712,
+  serialized_end=1743,
 )
 
 
@@ -1062,8 +1080,8 @@ _VARIOUSCOMPLEXOPTIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1696,
-  serialized_end=1937,
+  serialized_start=1746,
+  serialized_end=1987,
 )
 
 
@@ -1086,8 +1104,8 @@ _AGGREGATEMESSAGESET = _descriptor.Descriptor(
   extension_ranges=[(4, 2147483647), ],
   oneofs=[
   ],
-  serialized_start=1939,
-  serialized_end=1974,
+  serialized_start=1989,
+  serialized_end=2024,
 )
 
 
@@ -1124,8 +1142,8 @@ _AGGREGATEMESSAGESETELEMENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1977,
-  serialized_end=2137,
+  serialized_start=2027,
+  serialized_end=2187,
 )
 
 
@@ -1190,8 +1208,8 @@ _AGGREGATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2140,
-  serialized_end=2393,
+  serialized_start=2190,
+  serialized_end=2443,
 )
 
 
@@ -1221,8 +1239,8 @@ _AGGREGATEMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2395,
-  serialized_end=2484,
+  serialized_start=2445,
+  serialized_end=2534,
 )
 
 
@@ -1252,8 +1270,8 @@ _NESTEDOPTIONTYPE_NESTEDMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2507,
-  serialized_end=2566,
+  serialized_start=2557,
+  serialized_end=2616,
 )
 
 _NESTEDOPTIONTYPE = _descriptor.Descriptor(
@@ -1283,8 +1301,8 @@ _NESTEDOPTIONTYPE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2487,
-  serialized_end=2688,
+  serialized_start=2537,
+  serialized_end=2738,
 )
 
 
@@ -1315,8 +1333,8 @@ _OLDOPTIONTYPE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2690,
-  serialized_end=2790,
+  serialized_start=2740,
+  serialized_end=2840,
 )
 
 
@@ -1347,8 +1365,8 @@ _NEWOPTIONTYPE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2792,
-  serialized_end=2907,
+  serialized_start=2842,
+  serialized_end=2957,
 )
 
 
@@ -1371,11 +1389,14 @@ _TESTMESSAGEWITHREQUIREDENUMOPTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2909,
-  serialized_end=2954,
+  serialized_start=2959,
+  serialized_end=3004,
 )
 
 _TESTMESSAGEWITHCUSTOMOPTIONS_ANENUM.containing_type = _TESTMESSAGEWITHCUSTOMOPTIONS
+_TESTMESSAGEWITHCUSTOMOPTIONS.oneofs_by_name['AnOneof'].fields.append(
+  _TESTMESSAGEWITHCUSTOMOPTIONS.fields_by_name['oneof_field'])
+_TESTMESSAGEWITHCUSTOMOPTIONS.fields_by_name['oneof_field'].containing_oneof = _TESTMESSAGEWITHCUSTOMOPTIONS.oneofs_by_name['AnOneof']
 _DUMMYMESSAGECONTAININGENUM_TESTENUMTYPE.containing_type = _DUMMYMESSAGECONTAININGENUM
 _COMPLEXOPTIONTYPE2_COMPLEXOPTIONTYPE4.containing_type = _COMPLEXOPTIONTYPE2
 _COMPLEXOPTIONTYPE2.fields_by_name['bar'].message_type = _COMPLEXOPTIONTYPE1
@@ -1423,6 +1444,7 @@ DESCRIPTOR.extensions_by_name['file_opt1'] = file_opt1
 DESCRIPTOR.extensions_by_name['message_opt1'] = message_opt1
 DESCRIPTOR.extensions_by_name['field_opt1'] = field_opt1
 DESCRIPTOR.extensions_by_name['field_opt2'] = field_opt2
+DESCRIPTOR.extensions_by_name['oneof_opt1'] = oneof_opt1
 DESCRIPTOR.extensions_by_name['enum_opt1'] = enum_opt1
 DESCRIPTOR.extensions_by_name['enum_value_opt1'] = enum_value_opt1
 DESCRIPTOR.extensions_by_name['service_opt1'] = service_opt1
@@ -1664,6 +1686,7 @@ google_dot_protobuf_dot_descriptor__pb2.FileOptions.RegisterExtension(file_opt1)
 google_dot_protobuf_dot_descriptor__pb2.MessageOptions.RegisterExtension(message_opt1)
 google_dot_protobuf_dot_descriptor__pb2.FieldOptions.RegisterExtension(field_opt1)
 google_dot_protobuf_dot_descriptor__pb2.FieldOptions.RegisterExtension(field_opt2)
+google_dot_protobuf_dot_descriptor__pb2.OneofOptions.RegisterExtension(oneof_opt1)
 google_dot_protobuf_dot_descriptor__pb2.EnumOptions.RegisterExtension(enum_opt1)
 google_dot_protobuf_dot_descriptor__pb2.EnumValueOptions.RegisterExtension(enum_value_opt1)
 google_dot_protobuf_dot_descriptor__pb2.ServiceOptions.RegisterExtension(service_opt1)
@@ -1732,6 +1755,8 @@ _AGGREGATEENUM.has_options = True
 _AGGREGATEENUM._options = _descriptor._ParseOptions(descriptor_pb2.EnumOptions(), _b('\222\225\210;\020\022\016EnumAnnotation'))
 _AGGREGATEENUM.values_by_name["VALUE"].has_options = True
 _AGGREGATEENUM.values_by_name["VALUE"]._options = _descriptor._ParseOptions(descriptor_pb2.EnumValueOptions(), _b('\312\374\211;\025\022\023EnumValueAnnotation'))
+_TESTMESSAGEWITHCUSTOMOPTIONS.oneofs_by_name['AnOneof'].has_options = True
+_TESTMESSAGEWITHCUSTOMOPTIONS.oneofs_by_name['AnOneof']._options = _descriptor._ParseOptions(descriptor_pb2.OneofOptions(), _b('\370\254\303\035\235\377\377\377\377\377\377\377\377\001'))
 _TESTMESSAGEWITHCUSTOMOPTIONS_ANENUM.has_options = True
 _TESTMESSAGEWITHCUSTOMOPTIONS_ANENUM._options = _descriptor._ParseOptions(descriptor_pb2.EnumOptions(), _b('\305\366\311\035\353\374\377\377'))
 _TESTMESSAGEWITHCUSTOMOPTIONS_ANENUM.values_by_name["ANENUM_VAL2"].has_options = True
@@ -1777,8 +1802,8 @@ _TESTSERVICEWITHCUSTOMOPTIONS = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=_descriptor._ParseOptions(descriptor_pb2.ServiceOptions(), _b('\220\262\213\036\323\333\200\313I')),
-  serialized_start=3092,
-  serialized_end=3234,
+  serialized_start=3142,
+  serialized_end=3284,
   methods=[
   _descriptor.MethodDescriptor(
     name='Foo',
@@ -1809,8 +1834,8 @@ _AGGREGATESERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=1,
   options=_descriptor._ParseOptions(descriptor_pb2.ServiceOptions(), _b('\312\373\216;\023\022\021ServiceAnnotation')),
-  serialized_start=3237,
-  serialized_end=3390,
+  serialized_start=3287,
+  serialized_end=3440,
   methods=[
   _descriptor.MethodDescriptor(
     name='Method',
