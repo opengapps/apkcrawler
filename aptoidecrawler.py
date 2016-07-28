@@ -46,11 +46,11 @@ logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
 
 class AptoideCrawler(object):
-    def __init__(self, report, dlFiles=[], dlFilesBeta=[], aptoideIds=[0]):
+    def __init__(self, report, dlFiles=[], dlFilesBeta=[], runInfo={}):
         self.report      = report
         self.dlFiles     = dlFiles
         self.dlFilesBeta = dlFilesBeta
-        self.aptoideIds  = aptoideIds
+        self.runInfo     = runInfo
 
     def logIdAndDate(self, itemApk):
         if itemApk['package'] not in list(self.report.dAllApks.keys()):
@@ -70,7 +70,12 @@ class AptoideCrawler(object):
         url       = 'http://webservices.aptoide.com/webservices/2/getApkInfo/id:{0}/json'.format(aptoideId)
         data      = Debug.readFromFile(file_name)
 
-        filenames = []
+        run = {}
+        run['id']       = aptoideId
+        run['status']   = 'fail'  # 'fail', 'empty', 'good'
+        run['time']     = ''
+        run['filename'] = ''
+
         if data == '':
             session = requests.Session()
 
@@ -84,12 +89,13 @@ class AptoideCrawler(object):
 
                     if resp.status_code == http.client.OK:
                         # Append ID on good http response
-                        filenames.append('id:' + str(aptoideId))
+                        run['status'] = 'empty'
 
                         data = resp.json()
                         if 'status' in data and data['status'] == 'OK':
                             # Found an APK update the Max. ID
-                            filenames[-1] = filenames[-1].replace('id:', 'max:')
+                            run['status'] = 'good'
+                            run['time']   = data['apk']['added']
 
                             avi = ApkVersionInfo(name        =data['apk']['package'],
                                                  arch        =data['apk'].get('cpu', 'all'),
@@ -125,19 +131,20 @@ class AptoideCrawler(object):
                                 else:
                                     # Are we sure we still need it after the additional info?
                                     if self.report.isThisApkNeeded(avi):
-                                        filenames.append(self.downloadApk(avi))
+                                        run['filename'] = self.downloadApk(avi)
                                 # END: if avi.malware
                         else:
                             pass  # logging.error('data2[\'status\']: {0}, when fetching {1}, try {2}'.format(data.get('status', 'null'), file_name, x))
 
-                        return filenames
+                        return run
                     else:
+                        run['missingIds']
                         logging.error('HTTPStatus2: {0}, when fetching {1}, try {2}'.format(resp.status_code, file_name, x))
                 except:
                     logging.exception('!!! Invalid JSON from: "{0}", retry in: {1}s'.format(url, wait))
             # END: for x
         # END: if data
-        return filenames
+        return run
     # END: def checkOneId
 
     def downloadApk(self, avi, isBeta=False):
@@ -217,42 +224,90 @@ class AptoideCrawler(object):
             path += '/'
         storesfile = path + os.path.splitext(os.path.basename(__file__))[0] + '.config'
 
-        self.aptoideIds = sorted(getStoredIds(storesfile))
-        minId           = int(self.aptoideIds[0])
-        maxId           = int(self.aptoideIds[-1])
+        self.runInfo      = getStoredIds(storesfile)  # Get the last runInfo from file (lastId, lastIdTime, missingIds)
+        tmpEmptyResultIds = []                        # List of empty results from crawling used to create "last 500 entries"
 
-        # Generate IDs missing from range
-        storeIds = sorted(set(range(minId, maxId + 1)).difference(self.aptoideIds))
-        logging.debug('Missing IDs: {0}'.format(storeIds))
+        # Date/Time info to know when to stop crawling...
+        delta    = datetime.timedelta(hours=1, minutes=-3)  # TODO: watch or determine aptoids DST situation (hoping for just UTC+1)
+        currTime = datetime.datetime.utcnow()
+        lastTime = datetime.datetime.strptime(self.runInfo['lastIdTime'], '%Y-%m-%d %H:%M:%S.%f')
+        logging.debug('currTime: {0}, lastTime: {1}, delta: {2}'.format(str(currTime), str(lastTime), str((currTime + delta) - lastTime)))
 
-        # Extend missing to look for new ones
+        bFoundNewMax = True  # Flag to stop crawling when we do not appear caught up based on date/time
+                             # This happens when aptoide 'stops' uploading for a period of time...
 
-        # This could be tuned, but for now a seem reasonable
-        # If we are current, it will search 3000 AptoideIDs (they are  all
-        # be empty, then no new Max. ID will be logged)
-        # Additionally, search back 500 for slow adding  entries???
-        storeIds.extend([x for x in range(maxId - 500, maxId + 2500)])
+        # Loop over crawler while we are not caught up and are finding new entries
+        while bFoundNewMax and ((currTime + delta) > lastTime):
+            maxId = self.runInfo['lastId']
 
-        logging.info('Looking for {0} IDs from {1} to {2}'.format(len(storeIds), minId, maxId))
+            # Generate IDs missing from range
+            storeIds = self.runInfo['missingIds']
+            if len(storeIds) > 0:
+                logging.debug('Missing IDs: {0}'.format(storeIds))
 
-        # Start checking AptoideIDs ...
-        p = multiprocessing.Pool(processes=threads, maxtasksperchild=5)  # Run only 5 tasks before re-placing the process; a lot of sequential requests from one IP still trigger 503, but the delay mechanism then kicks and in general fixes a retry
-        r = p.map_async(unwrap_self_checkOneId, list(zip([self] * len(storeIds), storeIds)), callback=unwrap_callback)
-        r.wait()
+            # Clear missing
+            self.runInfo['missingIds'] = []
 
-        localNewIds    = []
-        localNewMaxIds = []
-        (self.dlFiles, self.dlFilesBeta, localNewIds, localNewMaxIds) = unwrap_getresults()
+            # Extend missing to look for new ones
 
-        localNewMaxId = max(max(localNewMaxIds), maxId)
+            # This could be tuned, but for now a seem reasonable
+            # If we are current, it will search 500 AptoideIDs (if they
+            # are all empty, then no new Max. ID will be logged)
+            storeIds.extend([x for x in range(maxId, maxId + 500)])
 
-        # Merge original and new
-        temp = [x for x in localNewIds if x <= localNewMaxId]  # Don't keep > max found
-        temp.extend(self.aptoideIds)                           # Extend existing from file
+            logging.info('Looking for {0} IDs from {1}'.format(len(storeIds), maxId))
 
-        logging.info('Found for {0} IDs from {1} to {2}'.format(len(set(temp)), minId, localNewMaxId))
+            # Start checking AptoideIDs ...
+            p = multiprocessing.Pool(processes=threads, maxtasksperchild=5)  # Run only 5 tasks before re-placing the process; a lot of sequential requests from one IP still trigger 503, but the delay mechanism then kicks and in general fixes a retry
+            r = p.map_async(unwrap_self_checkOneId, list(zip([self] * len(storeIds), storeIds)), callback=unwrap_callback)
+            r.wait()
+            p.close()
 
-        setStoreIds(storesfile, sorted(set(temp)))             # Store the New Unique sorted list!
+            # Proces this run's results
+            localAllResults = unwrap_getresults()
+            unwrap_clearresults()
+
+            logging.debug('localALlResults: {0}, cleared: {1}'.format(len(localAllResults), len(unwrap_getresults())))
+
+            bFoundNewMax = False
+            for r in localAllResults:
+                # If we have 'good' entries, look for new maxId and update beta/non-beta file names
+                if r['status'] == 'good':
+                    if self.runInfo['lastId'] < int(r['id']):
+                        bFoundNewMax = True
+                        self.runInfo['lastId'] = int(r['id'])        # Get LastID
+                        self.runInfo['lastIdTime'] = r['time']       # Get LastID's Time
+
+                    # Update Filenames Found
+                    if r['filename']:
+                        if r['filename'].startswith('beta:'):
+                            self.dlFilesBeta.append(r['filename'][5:])
+                        else:
+                            self.dlFiles.append(r['filename'])
+                # Add 'fail' entries to missingIds for recrawling later (next run or next loop)
+                elif r['status'] == 'fail':
+                    self.runInfo['missingIds'].append(int(r['id']))  # Get Missing IDs
+                # Add 'empty' entries to temp list so we can recrawl within last 500 empties next run (but not next loop)
+                elif r['status'] == 'empty':
+                    tmpEmptyResultIds.append(int(r['id']))
+            # END: for r in localAllResults:
+
+            # Refresh Date/Time status for loop
+            currTime = datetime.datetime.utcnow()
+            lastTime = datetime.datetime.strptime(self.runInfo['lastIdTime'], '%Y-%m-%d %H:%M:%S.%f')
+
+            logging.debug('currTime: {0}, lastTime: {1}, delta: {2}'.format(str(currTime), str(lastTime), str((currTime + delta) - lastTime)))
+        # END: while bNewMaxIdFound:
+
+        # Get Empty Entries within 500 of MaxId (search back 500 for slow adding entries???)
+        for emptyId in tmpEmptyResultIds:
+            if (emptyId + 500) > self.runInfo['lastId'] > emptyId:
+                self.runInfo['missingIds'].append(emptyId)
+
+        # Dedupe and sort missing list
+        self.runInfo['missingIds'] = sorted(set(self.runInfo['missingIds']))
+
+        setStoreIds(storesfile, self.runInfo)  # Store the New Unique sorted list!
     # END: crawl():
 # END: class AptoideCrawler
 
@@ -264,83 +319,74 @@ class StoresException(Exception):
 
 def getStoredIds(storesfile):
     '''
-    getStoredIds(): Retrieve Highest Aptoide ID crawled from the file
+    getStoredIds(): Retrieve latest crawl information from the file
     '''
-    aptoideIds = []  # Default start
+    run = {}
+    run['lastId']     = 0
+    run['lastIdTime'] = str(datetime.datetime.utcnow())
+    run['missingIds'] = []
+
     if os.path.isfile(storesfile):
-        with open(storesfile, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#'):
-                    try:
-                        idRange = line.split('-')
-                        if len(idRange) == 1:
-                            aptoideIds.append(int(idRange[0]))
-                        elif len(idRange) == 2:
-                            aptoideIds.extend(list(range(int(idRange[0]), int(idRange[1])+1)))
-                        else:
-                            raise StoresException('Malformed line in Stores file', storesfile)
-                    except:
-                        raise StoresException('Malformed line in Stores file', storesfile)
+        with open(storesfile, 'r') as data_file:
+            try:
+                data = json.load(data_file)
+                run  = data['runs'][-1]
+                run['missingIds'] = data['missingIds']
+            except:
+                raise StoresException('Malformed Stores file', storesfile)
     else:
         raise StoresException('Stores file does not exist', storesfile)
 
-    return aptoideIds
+    return run
 # END: def getStoredIds
 
 
-def setStoreIds(storesfile, aptoideIds):
+def setStoreIds(storesfile, runInfo):
     '''
     setStoreIds(): Append Highest Aptoide ID crawled to the file
     '''
-    from itertools import groupby
-    from operator import itemgetter
 
-    idRanges = []
-    for k, g in groupby(enumerate(aptoideIds), lambda x: x[0]-x[1]):
-        idRanges.append(list(map(itemgetter(1), g)))
+    data = {}
+    data['runs'] = []
 
     if os.path.isfile(storesfile):
-        try:
-            with open(storesfile, "a") as f:
-                sep  = '#- {0} ({1}) '.format(datetime.datetime.utcnow(), os.environ['LOGNAME'])
-                sep += '-' * (80-len(sep))
-                f.write(sep + '\n')
-                for idRange in idRanges:
-                    if len(idRange) == 1:
-                        f.write(str(idRange[0]) + '\n')
-                    else:
-                        f.write(str(idRange[0]) + '-' + str(idRange[-1]) + '\n')
-        except:
-            raise StoresException('Error appending line to Stores file', storesfile)
+        # Read current file
+        with open(storesfile, 'r') as data_file:
+            try:
+                data = json.load(data_file)
+            except:
+                raise StoresException('Malformed Stores file', storesfile)
+
+        # Add this run to the JSON 'runs' list
+        data['missingIds'] = runInfo['missingIds']
+        del runInfo['missingIds']
+        runInfo['runBy'] = os.environ['LOGNAME']
+        data['runs'].append(runInfo)
+
+        # Write updated file
+        with open(storesfile, "w") as data_file:
+            try:
+                json.dump(data, data_file, sort_keys=True, indent=4, separators=(',', ': '))
+            except:
+                raise StoresException('Error appending line to Stores file', storesfile)
     else:
         raise StoresException('Stores file does not exist', storesfile)
 # END: def setStoreIds
 
-nonbeta   = []
-beta      = []
-newIds    = []
-newMaxIds = []
+allresults = []
 
 def unwrap_callback(results):
-    for resultlist in results:
-        if resultlist:
-            for result in resultlist:
-                if result:
-                    if result.startswith('id:'):
-                        newIds.append(int(result[3:]))
-                    elif result.startswith('max:'):
-                        tmpMax = int(result[4:])
-                        newIds.append(tmpMax)
-                        newMaxIds.append(tmpMax)
-                    elif result.startswith('beta:'):
-                        beta.append(result[5:])
-                    else:
-                        nonbeta.append(result)
+    for result in results:
+        if result:
+            allresults.append(result)
 
 
 def unwrap_getresults():
-    return (nonbeta, beta, newIds, newMaxIds)
+    return (allresults)
+
+
+def unwrap_clearresults():
+    allresults = []
 
 
 def unwrap_self_checkOneId(arg, **kwarg):

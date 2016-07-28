@@ -1,5 +1,1 @@
-# Aptoide ID Ranges
-# xxxxxxxx          (single ID)
-# xxxxxxxx-yyyyyyyy (range of IDs)
-#-------------------------------------------------------------------------------
-18668900-18694000
+{"missingIds": [], "runs": [{"lastId": 20270094, "lastIdTime": "2016-07-28 15:53:36.479293", "runBy": "you!"}]}
