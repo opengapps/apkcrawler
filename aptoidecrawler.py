@@ -217,14 +217,14 @@ class AptoideCrawler(object):
 
     def crawl(self, threads=5):
         """
-        crawl(): check all aptoide stores
+        crawl(): check all aptoideIds
         """
         path = os.path.dirname(__file__)
         if path:
             path += '/'
-        storesfile = path + os.path.splitext(os.path.basename(__file__))[0] + '.config'
+        configfile = path + os.path.splitext(os.path.basename(__file__))[0] + '.config'
 
-        self.runInfo      = getStoredIds(storesfile)  # Get the last runInfo from file (lastId, lastIdTime, missingIds)
+        self.runInfo      = getStoredIds(configfile)  # Get the last runInfo from file (lastId, lastIdTime, missingIds)
         tmpEmptyResultIds = []                        # List of empty results from crawling used to create "last 500 entries"
 
         # Date/Time info to know when to stop crawling...
@@ -307,7 +307,7 @@ class AptoideCrawler(object):
         # Dedupe and sort missing list
         self.runInfo['missingIds'] = sorted(set(self.runInfo['missingIds']))
 
-        setStoreIds(storesfile, self.runInfo)  # Store the New Unique sorted list!
+        setStoreIds(configfile, self.runInfo)  # Store the New Unique sorted list!
     # END: crawl():
 # END: class AptoideCrawler
 
@@ -317,7 +317,7 @@ class StoresException(Exception):
         Exception.__init__(self, *args, **kwargs)
 
 
-def getStoredIds(storesfile):
+def getStoredIds(configfile):
     '''
     getStoredIds(): Retrieve latest crawl information from the file
     '''
@@ -326,22 +326,22 @@ def getStoredIds(storesfile):
     run['lastIdTime'] = str(datetime.datetime.utcnow())
     run['missingIds'] = []
 
-    if os.path.isfile(storesfile):
-        with open(storesfile, 'r') as data_file:
+    if os.path.isfile(configfile):
+        with open(configfile, 'r') as data_file:
             try:
                 data = json.load(data_file)
                 run  = data['runs'][-1]
                 run['missingIds'] = data['missingIds']
             except:
-                raise StoresException('Malformed Stores file', storesfile)
+                raise StoresException('Malformed Stores file', configfile)
     else:
-        raise StoresException('Stores file does not exist', storesfile)
+        raise StoresException('Stores file does not exist', configfile)
 
     return run
 # END: def getStoredIds
 
 
-def setStoreIds(storesfile, runInfo):
+def setStoreIds(configfile, runInfo):
     '''
     setStoreIds(): Append Highest Aptoide ID crawled to the file
     '''
@@ -349,13 +349,13 @@ def setStoreIds(storesfile, runInfo):
     data = {}
     data['runs'] = []
 
-    if os.path.isfile(storesfile):
+    if os.path.isfile(configfile):
         # Read current file
-        with open(storesfile, 'r') as data_file:
+        with open(configfile, 'r') as data_file:
             try:
                 data = json.load(data_file)
             except:
-                raise StoresException('Malformed Stores file', storesfile)
+                raise StoresException('Malformed Stores file', configfile)
 
         # Add this run to the JSON 'runs' list
         data['missingIds'] = runInfo['missingIds']
@@ -364,13 +364,13 @@ def setStoreIds(storesfile, runInfo):
         data['runs'].append(runInfo)
 
         # Write updated file
-        with open(storesfile, "w") as data_file:
+        with open(configfile, "w") as data_file:
             try:
                 json.dump(data, data_file, sort_keys=True, indent=4, separators=(',', ': '))
             except:
-                raise StoresException('Error appending line to Stores file', storesfile)
+                raise StoresException('Error appending line to Stores file', configfile)
     else:
-        raise StoresException('Stores file does not exist', storesfile)
+        raise StoresException('Stores file does not exist', configfile)
 # END: def setStoreIds
 
 allresults = []
