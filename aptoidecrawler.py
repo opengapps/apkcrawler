@@ -265,7 +265,6 @@ class AptoideCrawler(object):
 
             # Proces this run's results
             localAllResults = unwrap_getresults()
-            unwrap_clearresults()
 
             logging.debug('localALlResults: {0}, cleared: {1}'.format(len(localAllResults), len(unwrap_getresults())))
 
@@ -280,10 +279,14 @@ class AptoideCrawler(object):
 
                     # Update Filenames Found
                     if r['filename']:
+                        tmpfn = r['filename']
                         if r['filename'].startswith('beta:'):
-                            self.dlFilesBeta.append(r['filename'][5:])
+                            tmpfn = tmpfn[5:]  # remove 'beta:'
+                            if tmpfn not in self.dlFilesBeta:
+                                self.dlFilesBeta.append(tmpfn)
                         else:
-                            self.dlFiles.append(r['filename'])
+                            if tmpfn not in self.dlFiles:
+                                self.dlFiles.append(tmpfn)
                 # Add 'fail' entries to missingIds for recrawling later (next run or next loop)
                 elif r['status'] == 'fail':
                     self.runInfo['missingIds'].append(int(r['id']))  # Get Missing IDs
@@ -383,10 +386,6 @@ def unwrap_callback(results):
 
 def unwrap_getresults():
     return (allresults)
-
-
-def unwrap_clearresults():
-    allresults = []
 
 
 def unwrap_self_checkOneId(arg, **kwarg):
