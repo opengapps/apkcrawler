@@ -187,7 +187,7 @@ class UptodownCrawler(object):
                             downloadresp     = session.get(avi.scrape_src)
                             downloadhtml     = unicodedata.normalize('NFKD', downloadresp.text).encode('ascii', 'ignore')
                             downloaddom      = BeautifulSoup(downloadhtml, 'html5lib')
-                            avi.download_src = 'http:' + downloaddom.find('iframe', {'id': 'iframe_download'})['src']  # note that this url will still result in a redirect 302
+                            avi.download_src = 'http:' + downloaddom.find('iframe', {'class': 'hidden'})['src']  # note that this url will still result in a redirect 302
                             filenames.append(self.downloadApk(avi))
                         except:
                             logging.exception('!!! Error parsing html from: "{0}"'.format(avi.scrape_src))
