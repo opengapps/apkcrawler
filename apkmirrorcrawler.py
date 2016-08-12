@@ -240,7 +240,7 @@ class ApkMirrorCrawler(object):
                         avitarget = m.group('Target')
                 # DPI
                 if appspec.find('svg', {'class': 'apkm-icon-dpi'}):
-                    avidpi = appspec.find('div', {'class': 'appspec-value'}).get_text()
+                    avidpi = appspec.find('div', {'class': 'appspec-value'}).get_text().replace(', ', '-')
 
             return ApkVersionInfo(name=avi.name,
                                   ver=avivername,
