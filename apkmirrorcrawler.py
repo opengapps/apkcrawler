@@ -67,6 +67,7 @@ allApkMirrorNames = {
     'com.google.android.apps.photos'              : 'photos',
     'com.google.android.apps.plus'                : 'google',
     'com.google.android.apps.translate'           : 'translate',
+    'com.google.android.apps.tachyon'             : 'duo-by-google',
     'com.google.android.apps.tycho'               : 'project-fi',
     'com.google.android.apps.walletnfcrel'        : 'android-pay',
     'com.google.android.backdrop'                 : 'backdrop-daydream',
