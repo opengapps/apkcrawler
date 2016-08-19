@@ -340,9 +340,11 @@ def unwrap_callback(results):
             for result in resultlist:
                 if result:
                     if result.startswith('beta:'):
-                        beta.append(result[5:])
+                        if result[5:] not in beta:
+                            beta.append(result[5:])
                     else:
-                        nonbeta.append(result)
+                        if result not in nonbeta:
+                            nonbeta.append(result)
 
 
 def unwrap_getresults():
