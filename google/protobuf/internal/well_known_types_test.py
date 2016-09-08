@@ -267,39 +267,39 @@ class TimeUtilTest(TimeUtilTestBase):
 
   def testInvalidTimestamp(self):
     message = timestamp_pb2.Timestamp()
-    self.assertRaisesRegex(
+    self.assertRaisesRegexp(
         ValueError,
         'time data \'10000-01-01T00:00:00\' does not match'
         ' format \'%Y-%m-%dT%H:%M:%S\'',
         message.FromJsonString, '10000-01-01T00:00:00.00Z')
-    self.assertRaisesRegex(
+    self.assertRaisesRegexp(
         well_known_types.ParseError,
         'nanos 0123456789012 more than 9 fractional digits.',
         message.FromJsonString,
         '1970-01-01T00:00:00.0123456789012Z')
-    self.assertRaisesRegex(
+    self.assertRaisesRegexp(
         well_known_types.ParseError,
         (r'Invalid timezone offset value: \+08.'),
         message.FromJsonString,
         '1972-01-01T01:00:00.01+08',)
-    self.assertRaisesRegex(
+    self.assertRaisesRegexp(
         ValueError,
         'year is out of range',
         message.FromJsonString,
         '0000-01-01T00:00:00Z')
     message.seconds = 253402300800
-    self.assertRaisesRegex(
+    self.assertRaisesRegexp(
         OverflowError,
         'date value out of range',
         message.ToJsonString)
 
   def testInvalidDuration(self):
     message = duration_pb2.Duration()
-    self.assertRaisesRegex(
+    self.assertRaisesRegexp(
         well_known_types.ParseError,
         'Duration must end with letter "s": 1.',
         message.FromJsonString, '1')
-    self.assertRaisesRegex(
+    self.assertRaisesRegexp(
         well_known_types.ParseError,
         'Couldn\'t parse duration: 1...2s.',
         message.FromJsonString, '1...2s')
@@ -529,13 +529,13 @@ class StructTest(unittest.TestCase):
     struct_list.add_struct()['subkey2'] = 9
 
     self.assertTrue(isinstance(struct, well_known_types.Struct))
-    self.assertEqual(5, struct['key1'])
-    self.assertEqual('abc', struct['key2'])
+    self.assertEquals(5, struct['key1'])
+    self.assertEquals('abc', struct['key2'])
     self.assertIs(True, struct['key3'])
-    self.assertEqual(11, struct['key4']['subkey'])
+    self.assertEquals(11, struct['key4']['subkey'])
     inner_struct = struct_class()
     inner_struct['subkey2'] = 9
-    self.assertEqual([6, 'seven', True, False, None, inner_struct],
+    self.assertEquals([6, 'seven', True, False, None, inner_struct],
                       list(struct['key5'].items()))
 
     serialized = struct.SerializeToString()
@@ -543,38 +543,38 @@ class StructTest(unittest.TestCase):
     struct2 = struct_pb2.Struct()
     struct2.ParseFromString(serialized)
 
-    self.assertEqual(struct, struct2)
+    self.assertEquals(struct, struct2)
 
     self.assertTrue(isinstance(struct2, well_known_types.Struct))
-    self.assertEqual(5, struct2['key1'])
-    self.assertEqual('abc', struct2['key2'])
+    self.assertEquals(5, struct2['key1'])
+    self.assertEquals('abc', struct2['key2'])
     self.assertIs(True, struct2['key3'])
-    self.assertEqual(11, struct2['key4']['subkey'])
-    self.assertEqual([6, 'seven', True, False, None, inner_struct],
+    self.assertEquals(11, struct2['key4']['subkey'])
+    self.assertEquals([6, 'seven', True, False, None, inner_struct],
                       list(struct2['key5'].items()))
 
     struct_list = struct2['key5']
-    self.assertEqual(6, struct_list[0])
-    self.assertEqual('seven', struct_list[1])
-    self.assertEqual(True, struct_list[2])
-    self.assertEqual(False, struct_list[3])
-    self.assertEqual(None, struct_list[4])
-    self.assertEqual(inner_struct, struct_list[5])
+    self.assertEquals(6, struct_list[0])
+    self.assertEquals('seven', struct_list[1])
+    self.assertEquals(True, struct_list[2])
+    self.assertEquals(False, struct_list[3])
+    self.assertEquals(None, struct_list[4])
+    self.assertEquals(inner_struct, struct_list[5])
 
     struct_list[1] = 7
-    self.assertEqual(7, struct_list[1])
+    self.assertEquals(7, struct_list[1])
 
     struct_list.add_list().extend([1, 'two', True, False, None])
-    self.assertEqual([1, 'two', True, False, None],
+    self.assertEquals([1, 'two', True, False, None],
                       list(struct_list[6].items()))
 
     text_serialized = str(struct)
     struct3 = struct_pb2.Struct()
     text_format.Merge(text_serialized, struct3)
-    self.assertEqual(struct, struct3)
+    self.assertEquals(struct, struct3)
 
     struct.get_or_create_struct('key3')['replace'] = 12
-    self.assertEqual(12, struct['key3']['replace'])
+    self.assertEquals(12, struct['key3']['replace'])
 
 
 class AnyTest(unittest.TestCase):
@@ -585,7 +585,7 @@ class AnyTest(unittest.TestCase):
     msg_descriptor = msg.DESCRIPTOR
     all_types = unittest_pb2.TestAllTypes()
     all_descriptor = all_types.DESCRIPTOR
-    all_types.repeated_string.append('\u00fc\ua71f')
+    all_types.repeated_string.append(u'\u00fc\ua71f')
     # Packs to Any.
     msg.value.Pack(all_types)
     self.assertEqual(msg.value.type_url,

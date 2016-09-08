@@ -151,7 +151,7 @@ class SymbolDatabase(message_factory.MessageFactory):
     result = {}
     for file_name in files:
       file_desc = self.pool.FindFileByName(file_name)
-      for msg_desc in list(file_desc.message_types_by_name.values()):
+      for msg_desc in file_desc.message_types_by_name.values():
         for full_name in _GetAllMessageNames(msg_desc):
           try:
             result[full_name] = self._classes[full_name]

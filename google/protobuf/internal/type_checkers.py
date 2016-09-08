@@ -187,7 +187,7 @@ class UnicodeValueChecker(object):
     return proposed_value
 
   def DefaultValue(self):
-    return ""
+    return u""
 
 
 class Int32ValueChecker(IntValueChecker):
@@ -207,13 +207,13 @@ class Uint32ValueChecker(IntValueChecker):
 class Int64ValueChecker(IntValueChecker):
   _MIN = -(1 << 63)
   _MAX = (1 << 63) - 1
-  _TYPE = int
+  _TYPE = long
 
 
 class Uint64ValueChecker(IntValueChecker):
   _MIN = 0
   _MAX = (1 << 64) - 1
-  _TYPE = int
+  _TYPE = long
 
 
 # Type-checkers for all scalar CPPTYPEs.
@@ -223,9 +223,9 @@ _VALUE_CHECKERS = {
     _FieldDescriptor.CPPTYPE_UINT32: Uint32ValueChecker(),
     _FieldDescriptor.CPPTYPE_UINT64: Uint64ValueChecker(),
     _FieldDescriptor.CPPTYPE_DOUBLE: TypeCheckerWithDefault(
-        0.0, float, int, int),
+        0.0, float, int, long),
     _FieldDescriptor.CPPTYPE_FLOAT: TypeCheckerWithDefault(
-        0.0, float, int, int),
+        0.0, float, int, long),
     _FieldDescriptor.CPPTYPE_BOOL: TypeCheckerWithDefault(
         False, bool, int),
     _FieldDescriptor.CPPTYPE_STRING: TypeCheckerWithDefault(b'', bytes),

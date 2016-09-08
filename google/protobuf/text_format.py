@@ -1397,7 +1397,7 @@ def _ParseAbstractInteger(text, is_long=False):
     # alternate implementations where the distinction is more significant
     # (e.g. the C++ implementation) simpler.
     if is_long:
-      return int(text, 0)
+      return long(text, 0)
     else:
       return int(text, 0)
   except ValueError:

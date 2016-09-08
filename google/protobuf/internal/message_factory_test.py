@@ -65,8 +65,8 @@ class MessageFactoryTest(unittest.TestCase):
     msg.factory_1_message.nested_factory_1_message.value = (
         'nested message value')
     msg.factory_1_message.scalar_value = 22
-    msg.factory_1_message.list_value.extend(['one', 'two', 'three'])
-    msg.factory_1_message.list_value.append('four')
+    msg.factory_1_message.list_value.extend([u'one', u'two', u'three'])
+    msg.factory_1_message.list_value.append(u'four')
     msg.factory_1_enum = 1
     msg.nested_factory_1_enum = 0
     msg.nested_factory_1_message.value = 'nested message value'
@@ -74,8 +74,8 @@ class MessageFactoryTest(unittest.TestCase):
     msg.circular_message.circular_message.mandatory = 2
     msg.circular_message.scalar_value = 'one deep'
     msg.scalar_value = 'zero deep'
-    msg.list_value.extend(['four', 'three', 'two'])
-    msg.list_value.append('one')
+    msg.list_value.extend([u'four', u'three', u'two'])
+    msg.list_value.append(u'one')
     msg.grouped.add()
     msg.grouped[0].part_1 = 'hello'
     msg.grouped[0].part_2 = 'world'

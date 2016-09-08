@@ -84,7 +84,7 @@ def MakeSimpleProtoClass(fields, full_name=None, pool=None):
   # Get a list of (name, field_type) tuples from the fields dict. If fields was
   # an OrderedDict we keep the order, but otherwise we sort the field to ensure
   # consistent ordering.
-  field_items = list(fields.items())
+  field_items = fields.items()
   if not isinstance(fields, OrderedDict):
     field_items = sorted(field_items)
 

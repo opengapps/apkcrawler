@@ -181,7 +181,7 @@ def _NonStringIterable(obj):
 def _FormatParameterList(testcase_params):
   if isinstance(testcase_params, collections.Mapping):
     return ', '.join('%s=%s' % (argname, _CleanRepr(value))
-                     for argname, value in list(testcase_params.items()))
+                     for argname, value in testcase_params.items())
   elif _NonStringIterable(testcase_params):
     return ', '.join(map(_CleanRepr, testcase_params))
   else:
@@ -265,7 +265,7 @@ def _ModifyClass(class_object, testcases, naming_type):
   class_object._id_suffix = id_suffix = {}
   # We change the size of __dict__ while we iterate over it, 
   # which Python 3.x will complain about, so use copy().
-  for name, obj in list(class_object.__dict__.copy().items()):
+  for name, obj in class_object.__dict__.copy().items():
     if (name.startswith(unittest.TestLoader.testMethodPrefix)
         and isinstance(obj, types.FunctionType)):
       delattr(class_object, name)
@@ -273,7 +273,7 @@ def _ModifyClass(class_object, testcases, naming_type):
       _UpdateClassDictForParamTestCase(
           methods, id_suffix, name,
           _ParameterizedTestIter(obj, testcases, naming_type))
-      for name, meth in list(methods.items()):
+      for name, meth in methods.items():
         setattr(class_object, name, meth)
 
 
@@ -353,7 +353,7 @@ class TestGeneratorMetaclass(type):
 
   def __new__(mcs, class_name, bases, dct):
     dct['_id_suffix'] = id_suffix = {}
-    for name, obj in list(dct.items()):
+    for name, obj in dct.items():
       if (name.startswith(unittest.TestLoader.testMethodPrefix) and
           _NonStringIterable(obj)):
         iterator = iter(obj)
@@ -373,7 +373,7 @@ def _UpdateClassDictForParamTestCase(dct, id_suffix, name, iterator):
     iterator: The iterator generating the individual test cases.
   """
   for idx, func in enumerate(iterator):
-    assert isinstance(func, collections.Callable), 'Test generators must yield callables, got %r' % (
+    assert callable(func), 'Test generators must yield callables, got %r' % (
         func,)
     if getattr(func, '__x_use_name__', False):
       new_name = func.__name__
@@ -385,8 +385,9 @@ def _UpdateClassDictForParamTestCase(dct, id_suffix, name, iterator):
     id_suffix[new_name] = getattr(func, '__x_extra_id__', '')
 
 
-class ParameterizedTestCase(unittest.TestCase, metaclass=TestGeneratorMetaclass):
+class ParameterizedTestCase(unittest.TestCase):
   """Base class for test cases using the Parameters decorator."""
+  __metaclass__ = TestGeneratorMetaclass
 
   def _OriginalName(self):
     return self._testMethodName.split(_SEPARATOR)[0]

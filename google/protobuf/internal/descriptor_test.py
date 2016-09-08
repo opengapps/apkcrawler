@@ -482,21 +482,21 @@ class GeneratedDescriptorTest(unittest.TestCase):
     self.assertGreater(len(mapping), 0)  # Sized
     self.assertEqual(len(mapping), len(list(mapping)))  # Iterable
     if sys.version_info >= (3,):
-      key, item = next(iter(list(mapping.items())))
+      key, item = next(iter(mapping.items()))
     else:
-      key, item = list(mapping.items())[0]
+      key, item = mapping.items()[0]
     self.assertIn(key, mapping)  # Container
     self.assertEqual(mapping.get(key), item)
     # keys(), iterkeys() &co
-    item = (next(iter(list(mapping.keys()))), next(iter(list(mapping.values()))))
-    self.assertEqual(item, next(iter(list(mapping.items()))))
+    item = (next(iter(mapping.keys())), next(iter(mapping.values())))
+    self.assertEqual(item, next(iter(mapping.items())))
     if sys.version_info < (3,):
       def CheckItems(seq, iterator):
         self.assertEqual(next(iterator), seq[0])
         self.assertEqual(list(iterator), seq[1:])
-      CheckItems(list(mapping.keys()), iter(mapping.keys()))
-      CheckItems(list(mapping.values()), iter(mapping.values()))
-      CheckItems(list(mapping.items()), iter(mapping.items()))
+      CheckItems(mapping.keys(), mapping.iterkeys())
+      CheckItems(mapping.values(), mapping.itervalues())
+      CheckItems(mapping.items(), mapping.iteritems())
 
   def testDescriptor(self):
     message_descriptor = unittest_pb2.TestAllTypes.DESCRIPTOR

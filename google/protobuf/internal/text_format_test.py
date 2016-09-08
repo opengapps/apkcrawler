@@ -107,7 +107,7 @@ class TextFormatTest(TextFormatBase):
     message.repeated_double.append(1.23e22)
     message.repeated_double.append(1.23e-18)
     message.repeated_string.append('\000\001\a\b\f\n\r\t\v\\\'"')
-    message.repeated_string.append('\u00fc\ua71f')
+    message.repeated_string.append(u'\u00fc\ua71f')
     self.CompareToGoldenText(
         self.RemoveRedundantZeros(text_format.MessageToString(message)),
         'repeated_int64: -9223372036854775808\n'
@@ -125,7 +125,7 @@ class TextFormatTest(TextFormatBase):
       pass
 
     message = message_module.TestAllTypes()
-    message.repeated_string.append(UnicodeSub('\u00fc\ua71f'))
+    message.repeated_string.append(UnicodeSub(u'\u00fc\ua71f'))
     self.CompareToGoldenText(
         text_format.MessageToString(message),
         'repeated_string: "\\303\\274\\352\\234\\237"\n')
@@ -165,7 +165,7 @@ class TextFormatTest(TextFormatBase):
     message.repeated_double.append(1.23e22)
     message.repeated_double.append(1.23e-18)
     message.repeated_string.append('\000\001\a\b\f\n\r\t\v\\\'"')
-    message.repeated_string.append('\u00fc\ua71f')
+    message.repeated_string.append(u'\u00fc\ua71f')
     self.CompareToGoldenText(
         self.RemoveRedundantZeros(text_format.MessageToString(
             message, as_one_line=True)),
@@ -186,7 +186,7 @@ class TextFormatTest(TextFormatBase):
     message.repeated_double.append(1.23e22)
     message.repeated_double.append(1.23e-18)
     message.repeated_string.append('\000\001\a\b\f\n\r\t\v\\\'"')
-    message.repeated_string.append('\u00fc\ua71f')
+    message.repeated_string.append(u'\u00fc\ua71f')
 
     # Test as_utf8 = False.
     wire_text = text_format.MessageToString(message,
@@ -209,7 +209,7 @@ class TextFormatTest(TextFormatBase):
 
   def testPrintRawUtf8String(self, message_module):
     message = message_module.TestAllTypes()
-    message.repeated_string.append('\u00fc\ua71f')
+    message.repeated_string.append(u'\u00fc\ua71f')
     text = text_format.MessageToString(message, as_utf8=True)
     self.CompareToGoldenText(text, 'repeated_string: "\303\274\352\234\237"\n')
     parsed_message = message_module.TestAllTypes()
@@ -318,8 +318,8 @@ class TextFormatTest(TextFormatBase):
     self.assertEqual(1.23e-18, message.repeated_double[2])
     self.assertEqual('\000\001\a\b\f\n\r\t\v\\\'"', message.repeated_string[0])
     self.assertEqual('foocorgegrault', message.repeated_string[1])
-    self.assertEqual('\u00fc\ua71f', message.repeated_string[2])
-    self.assertEqual('\u00fc', message.repeated_string[3])
+    self.assertEqual(u'\u00fc\ua71f', message.repeated_string[2])
+    self.assertEqual(u'\u00fc', message.repeated_string[3])
 
   def testParseTrailingCommas(self, message_module):
     message = message_module.TestAllTypes()
@@ -333,8 +333,8 @@ class TextFormatTest(TextFormatBase):
     self.assertEqual(100, message.repeated_int64[0])
     self.assertEqual(200, message.repeated_int64[1])
     self.assertEqual(300, message.repeated_int64[2])
-    self.assertEqual('one', message.repeated_string[0])
-    self.assertEqual('two', message.repeated_string[1])
+    self.assertEqual(u'one', message.repeated_string[0])
+    self.assertEqual(u'two', message.repeated_string[1])
 
   def testParseRepeatedScalarShortFormat(self, message_module):
     message = message_module.TestAllTypes()
@@ -346,8 +346,8 @@ class TextFormatTest(TextFormatBase):
     self.assertEqual(100, message.repeated_int64[0])
     self.assertEqual(200, message.repeated_int64[1])
     self.assertEqual(300, message.repeated_int64[2])
-    self.assertEqual('one', message.repeated_string[0])
-    self.assertEqual('two', message.repeated_string[1])
+    self.assertEqual(u'one', message.repeated_string[0])
+    self.assertEqual(u'two', message.repeated_string[1])
 
   def testParseRepeatedMessageShortFormat(self, message_module):
     message = message_module.TestAllTypes()
@@ -455,7 +455,7 @@ class TextFormatTest(TextFormatBase):
     m_string = '\n'.join(['oneof_uint32: 11', 'oneof_string: "foo"'])
     m2 = message_module.TestAllTypes()
     if message_module is unittest_pb2:
-      with self.assertRaisesRegex(text_format.ParseError,
+      with self.assertRaisesRegexp(text_format.ParseError,
                                    ' is specified along with field '):
         text_format.Parse(m_string, m2)
     else:

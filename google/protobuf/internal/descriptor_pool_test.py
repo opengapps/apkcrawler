@@ -321,11 +321,11 @@ class DescriptorPoolTest(unittest.TestCase):
 
     def _CheckDefaultValues(msg):
       try:
-        int64 = int
+        int64 = long
       except NameError:  # Python3
         int64 = int
       try:
-        unicode_type = str
+        unicode_type = unicode
       except NameError:  # Python3
         unicode_type = str
       _CheckValueAndType(msg.optional_int32, 0, int)
@@ -333,7 +333,7 @@ class DescriptorPoolTest(unittest.TestCase):
       _CheckValueAndType(msg.optional_float, 0, (float, int))
       _CheckValueAndType(msg.optional_double, 0, (float, int))
       _CheckValueAndType(msg.optional_bool, False, bool)
-      _CheckValueAndType(msg.optional_string, '', unicode_type)
+      _CheckValueAndType(msg.optional_string, u'', unicode_type)
       _CheckValueAndType(msg.optional_bytes, b'', bytes)
       _CheckValueAndType(msg.optional_nested_enum, msg.FOO, int)
     # First for the generated message
@@ -370,7 +370,7 @@ class ProtoFile(object):
     test.assertEqual(self.dependencies, dependencies_names)
     public_dependencies_names = [f.name for f in file_desc.public_dependencies]
     test.assertEqual(self.public_dependencies, public_dependencies_names)
-    for name, msg_type in list(self.messages.items()):
+    for name, msg_type in self.messages.items():
       msg_type.CheckType(test, None, name, file_desc)
 
 
@@ -417,7 +417,7 @@ class MessageType(object):
     test.assertEqual(containing_type_desc, desc.containing_type)
     test.assertEqual(desc.file, file_desc)
     test.assertEqual(self.is_extendable, desc.is_extendable)
-    for name, subtype in list(self.type_dict.items()):
+    for name, subtype in self.type_dict.items():
       subtype.CheckType(test, desc, name, file_desc)
 
     for index, (name, field) in enumerate(self.field_list):
