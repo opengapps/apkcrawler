@@ -1,6 +1,10 @@
 # APK Crawler
 APK Crawler is a tool to automatically retrieve APKs from various internet sources
 
+## License
+**Take note that APKCrawler's GNU Affero General Public License v3.0 is strict concerning application service providers**.
+If you use apkcrawler for a (web)service you need to open source your changes!
+
 ## Usage
 Fetch all Open GApps [supported](https://github.com/opengapps/opengapps/wiki/Advanced-Features-and-Options#include-and-exclude-google-applications) APKs from a given source
 ```sh
