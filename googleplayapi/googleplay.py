@@ -72,10 +72,10 @@ class GooglePlayAPI(object):
         # The number is a string of the Play Store app Version Name
         # The api is the play store protocol api (probably)
         # The versionCode is the vercode of the Play Store app
-        self.downloadUserAgent = "AndroidDownloadManager/6.0.1 (Linux; U; Android 6.0.1; Nexus 6P Build/MTC19T)"
+        self.downloadUserAgent = "AndroidDownloadManager/7.1 (Linux; U; Android 7.1; Pixel Build/NZZ99Z)"
         self.regionCookie = "US"
-        self.defaultAgentvername="6.7.13.E-all [0] 2920566"
-        self.defaultAgentvercode="80671300"
+        self.defaultAgentvername="7.0.12.H-all [0]"
+        self.defaultAgentvercode="80701200"
         # self.proxy_dict = {
         #         "http"  : "http://81.137.100.158:8080",
         #         "https" : "http://81.137.100.158:8080",
@@ -175,7 +175,7 @@ class GooglePlayAPI(object):
             agentvername = self.defaultAgentvername
         if not agentvercode:
             agentvercode = self.defaultAgentvercode
-        user_agent = "Android-Finsky/" + agentvername + " (api=3,versionCode=" + agentvercode + ",sdk=23,device=angler,hardware=angler,product=angler,build=MTC19T:user)"
+        user_agent = "Android-Finsky/" + agentvername + " (api=3,versionCode=" + agentvercode + ",sdk=23,device=sailfish,hardware=sailfish,product=sailfish,build=NZZ99Z:user)"
 
         if (datapost is None and path in self.preFetch):
             data = self.preFetch[path]
