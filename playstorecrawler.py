@@ -110,27 +110,29 @@ class PlayStoreCrawler(object):
             else:
                 logging.debug('{0} vending apk not in report'.format(credentials.androidId))
  
-            logging.debug('{0}'.format(self.report.getAllApkIds(playstoreCaps=True)))
-            res = playstore.bulkDetails(self.report.getAllApkIds(playstoreCaps=True))
-            if res and res.status_code == http.client.OK and res.body:
-                for app in res.body.entry:
-                    if app.doc and app.doc.docid:
-                        avi = ApkVersionInfo(name        =app.doc.docid,
-                                             vercode     =app.doc.details.appDetails.versionCode,
-                                             download_src=playstore,
-                                             crawler_name=self.__class__.__name__
-                                             )
-                        if self.report.isThisApkNeeded(avi):
-                            logging.debug('{0} Update {1}-{2} (Uploaddate {3})'.format(playstore.androidId, avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
-                            filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay)))
+            for sdk in [19, 21, 22, 23, 24]:
+                logging.debug('{0} - {1}'.format(sdk, self.report.getAllApkIds(playstoreCaps=True)))
+                res = playstore.bulkDetails(self.report.getAllApkIds(playstoreCaps=True), sdk)
+                if res and res.status_code == http.client.OK and res.body:
+                    for app in res.body.entry:
+                        if app.doc and app.doc.docid:
+                            avi = ApkVersionInfo(name        =app.doc.docid,
+                                                 vercode     =app.doc.details.appDetails.versionCode,
+                                                 download_src=playstore,
+                                                 crawler_name=self.__class__.__name__
+                                                 )
+                            if self.report.isThisApkNeeded(avi):
+                                logging.debug('{0} Update {1}-{2} (Uploaddate {3})'.format(playstore.androidId, avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
+                                filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay)))
+                            else:
+                                logging.debug('{0} Skip {1}-{2} (Uploaddate {3})'.format(playstore.androidId, avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
                         else:
-                            logging.debug('{0} Skip {1}-{2} (Uploaddate {3})'.format(playstore.androidId, avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
-                    else:
-                        logging.debug('{0} Empty search entry'.format(playstore.androidId))
-                        continue
-            else:
-                logging.error('{0} Error querying Play Store, status {1}: {2}'.format(playstore.androidId, apkid, res.status_code))
-                return None  # Not found, return empty
+                            logging.debug('{0} Empty search entry'.format(playstore.androidId))
+                            continue
+                else:
+                    logging.error('{0} Error querying Play Store, status {1}: {2}'.format(playstore.androidId, sdk, res.status_code))
+                    return None  # Not found, return empty
+            # END: for sdk
         else:
             logging.error('Play Store login failed for {0}'.format(credentials.androidId))
         # END: if playstore.login()
