@@ -170,12 +170,12 @@ class GooglePlayAPI(object):
                         logging.error('{0} Play Store returned no auth token'.format(self.androidId))
         return ret
 
-    def executeRequestApi2(self, path, agentvername=None, agentvercode=None, datapost=None, post_content_type="application/x-www-form-urlencoded; charset=UTF-8"):
+    def executeRequestApi2(self, path, sdk=23, agentvername=None, agentvercode=None, datapost=None, post_content_type="application/x-www-form-urlencoded; charset=UTF-8"):
         if not agentvername:
             agentvername = self.defaultAgentvername
         if not agentvercode:
             agentvercode = self.defaultAgentvercode
-        user_agent = "Android-Finsky/" + agentvername + " (api=3,versionCode=" + agentvercode + ",sdk=23,device=sailfish,hardware=sailfish,product=sailfish,build=NZZ99Z:user)"
+        user_agent = "Android-Finsky/" + agentvername + " (api=3,versionCode=" + agentvercode + ",sdk=" + str(sdk) + ",device=sailfish,hardware=sailfish,product=sailfish,build=NZZ99Z:user)"
 
         if (datapost is None and path in self.preFetch):
             data = self.preFetch[path]
@@ -235,7 +235,7 @@ class GooglePlayAPI(object):
             return RequestResult(status_code, message.payload.detailsResponse)
         return RequestResult(status_code, None)
 
-    def bulkDetails(self, packageNames):
+    def bulkDetails(self, packageNames, sdk):
         """Get several apps details from a list of package names.
 
         This is much more efficient than calling N times details() since it
@@ -246,7 +246,7 @@ class GooglePlayAPI(object):
         req = googleplayapi.googleplay_pb2.BulkDetailsRequest()
         req.docid.extend(packageNames)
         data = req.SerializeToString()
-        (status_code, message) = self.executeRequestApi2(path, datapost=data, post_content_type="application/x-protobuf")
+        (status_code, message) = self.executeRequestApi2(path, sdk=sdk, datapost=data, post_content_type="application/x-protobuf")
         if status_code == http.client.OK:
             return RequestResult(status_code, message.payload.bulkDetailsResponse)
         return RequestResult(status_code, None)
