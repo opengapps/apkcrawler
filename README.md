@@ -54,17 +54,19 @@ or
 
 ## Requirements
 - [python3](https://www.python.org/downloads/)
-- [requests](https://pypi.python.org/pypi/requests)
 - [beautifulsoup4](https://pypi.python.org/pypi/beautifulsoup4/)
 - [html5lib](https://pypi.python.org/pypi/html5lib)
+- [protobuf >=3](https://pypi.python.org/pypi/protobuf)
+- [requests](https://pypi.python.org/pypi/requests)
 
 ## Installation
+You can use [mfonville's protobuf PPA](https://launchpad.net/~maarten-fonville/+archive/ubuntu/protobuf) for `python3-protobuf`
 ```sh
-sudo apt-get install python3-requests python3-bs4 python3-html5lib
+sudo apt install python3-bs4 python3-html5lib python3-protobuf python3-requests
 ```
 or
 ```sh
-pip3 install requests beautifulsoup4 html5lib
+pip3 install beautifulsoup4 html5lib protobuf requests
 ```
 
 ## Known Issues
