@@ -95,7 +95,11 @@ class PlayStoreCrawler(object):
 
             if 'com.android.vending' in self.report.getAllApkIds():
                 for storeApk in self.report.dAllApks['com.android.vending']:
-                    logging.debug('{0} VendingAPK: vername={1}, vercode={2}'.format(credentials.androidId, storeApk.ver, storeApk.vercode))
+                    if storeApk.extraname == "leanback":
+                        devicename = 'fugu'
+                    else:
+                        devicename = 'sailfish'
+                    logging.debug('{0} VendingAPK: vername={1}, vercode={2}, devicename={3}'.format(credentials.androidId, storeApk.ver, storeApk.vercode, devicename))
                     playvercode = playstore.playUpdate(storeApk.ver, str(storeApk.vercode))
                     if playvercode:
                         logging.debug('{0} Play Store update {1}'.format(credentials.androidId, playvercode))
@@ -104,12 +108,12 @@ class PlayStoreCrawler(object):
                                              download_src=playstore,
                                              crawler_name=self.__class__.__name__
                                              )
-                        filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay), agentvername=storeApk.ver, agentvercode=str(storeApk.vercode)))
+                        filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay), agentvername=storeApk.ver, agentvercode=str(storeApk.vercode), devicename=devicename))
                         logging.info('{0} pauses {1} seconds before continuing'.format(credentials.androidId, credentials.delay))
                         time.sleep(credentials.delay)
             else:
                 logging.debug('{0} vending apk not in report'.format(credentials.androidId))
- 
+
             for sdk in [19, 21, 22, 23, 24]:
                 logging.debug('{0} - {1}'.format(sdk, self.report.getAllApkIds(playstoreCaps=True)))
                 res = playstore.bulkDetails(self.report.getAllApkIds(playstoreCaps=True), sdk)
@@ -174,7 +178,7 @@ class PlayStoreCrawler(object):
         # END: for x
     # END: def getApkInfo
 
-    def downloadApk(self, avi, delay, isBeta=False, agentvername=None, agentvercode=None):
+    def downloadApk(self, avi, delay, isBeta=False, agentvername=None, agentvercode=None, devicename="sailfish"):
         """
         downloadApk(avi, delay, isBeta): Download the specified ApkInfo from the Play Store to APK file name
         """
@@ -210,7 +214,7 @@ class PlayStoreCrawler(object):
                 return
 
             for x in range(1, 4):  # up to three tries
-                res = avi.download_src.download(avi.name, avi.vercode, Global.offerType, agentvername, agentvercode)
+                res = avi.download_src.download(avi.name, avi.vercode, Global.offerType, agentvername, agentvercode, devicename)
                 if res.body:
                     with open(apkname, 'wb') as local_file:
                         local_file.write(res.body)

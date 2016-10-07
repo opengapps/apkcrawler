@@ -170,12 +170,12 @@ class GooglePlayAPI(object):
                         logging.error('{0} Play Store returned no auth token'.format(self.androidId))
         return ret
 
-    def executeRequestApi2(self, path, sdk=23, agentvername=None, agentvercode=None, datapost=None, post_content_type="application/x-www-form-urlencoded; charset=UTF-8"):
+    def executeRequestApi2(self, path, sdk=23, agentvername=None, agentvercode=None, devicename="sailfish", datapost=None, post_content_type="application/x-www-form-urlencoded; charset=UTF-8"):
         if not agentvername:
             agentvername = self.defaultAgentvername
         if not agentvercode:
             agentvercode = self.defaultAgentvercode
-        user_agent = "Android-Finsky/" + agentvername + " (api=3,versionCode=" + agentvercode + ",sdk=" + str(sdk) + ",device=sailfish,hardware=sailfish,product=sailfish,build=NZZ99Z:user)"
+        user_agent = "Android-Finsky/" + agentvername + " (api=3,versionCode=" + agentvercode + ",sdk=" + str(sdk) + ",device=" + devicename + ",hardware=" + devicename + ",product=" + devicename + ",build=NZZ99Z:user)"
 
         if (datapost is None and path in self.preFetch):
             data = self.preFetch[path]
@@ -309,7 +309,7 @@ class GooglePlayAPI(object):
             return RequestResult(status_code, message.payload.listResponse)
         return RequestResult(status_code, None)
 
-    def download(self, packageName, versionCode, offerType=1, agentvername=None, agentvercode=None):
+    def download(self, packageName, versionCode, offerType=1, agentvername=None, agentvercode=None, devicename="sailfish"):
         """Download an app and return its raw data (APK file).
 
         packageName is the app unique ID (usually starting with 'com.').
@@ -317,7 +317,7 @@ class GooglePlayAPI(object):
         versionCode can be grabbed by using the details() method on the given
         app."""
         if packageName == "com.android.vending":
-            (status_code, message) = self.executeRequestApi2(path="delivery?ot=%d&doc=%s&vc=%d&shh=%s" % (offerType, packageName, versionCode, "1"), agentvername=agentvername, agentvercode=agentvercode)
+            (status_code, message) = self.executeRequestApi2(path="delivery?ot=%d&doc=%s&vc=%d&shh=%s" % (offerType, packageName, versionCode, "1"), agentvername=agentvername, agentvercode=agentvercode, devicename=devicename)
         else:
             (status_code, message) = self.executeRequestApi2(path="purchase", datapost="ot=%d&doc=%s&vc=%d" % (offerType, packageName, versionCode))
 
