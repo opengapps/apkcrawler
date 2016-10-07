@@ -95,7 +95,7 @@ class PlayStoreCrawler(object):
 
             if 'com.android.vending' in self.report.getAllApkIds():
                 for storeApk in self.report.dAllApks['com.android.vending']:
-                    if storeApk.extraname == "leanback":
+                    if storeApk.extraname and storeApk.extraname.endswith('leanback'):
                         devicename = 'fugu'
                     else:
                         devicename = 'sailfish'
