@@ -71,6 +71,7 @@ allApkMirrorNames = {
     'com.google.android.apps.tachyon'             : 'duo-by-google',
     'com.google.android.apps.tycho'               : 'project-fi',
     'com.google.android.apps.walletnfcrel'        : 'android-pay',
+    'com.google.android.apps.wallpaper'           : 'google-wallpaper-picker',
     'com.google.android.backdrop'                 : 'backdrop-daydream',
     'com.google.android.backuptransport'          : 'google-backup-transport',
     'com.google.android.calculator'               : 'google-calculator',
