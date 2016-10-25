@@ -53,7 +53,9 @@ class AptoideCrawler(object):
         self.runInfo     = runInfo
 
     def logIdAndDate(self, itemApk):
-        if itemApk['package'] not in list(self.report.dAllApks.keys()):
+        if itemApk['package'] == 'org.opengapps.app':
+            logging.info('*** HEY IT IS OPENGAPPS ON APTOIDE *** {0}|{1}|{2}'.format(itemApk['id'], itemApk['added'], itemApk['package']))
+        elif itemApk['package'] not in list(self.report.dAllApks.keys()):
             logging.debug('{0}|{1}|{2}'.format(itemApk['id'], itemApk['added'], itemApk['package']))
         else:
             logging.info('{0}|{1}|{2}'.format(itemApk['id'], itemApk['added'], itemApk['package']))
