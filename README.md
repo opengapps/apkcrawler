@@ -62,11 +62,11 @@ or
 ## Installation
 You can use [mfonville's protobuf PPA](https://launchpad.net/~maarten-fonville/+archive/ubuntu/protobuf) for `python3-protobuf`
 ```sh
-sudo apt install python3-bs4 python3-html5lib python3-protobuf python3-requests
+sudo apt install python3-bs4 python3-html5lib python3-protobuf python3-requests python3-tz
 ```
 or
 ```sh
-pip3 install beautifulsoup4 html5lib protobuf requests
+pip3 install beautifulsoup4 html5lib protobuf requests pytz
 ```
 
 ## Known Issues

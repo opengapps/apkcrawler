@@ -5,7 +5,8 @@
 # - requests
 #
 
-import datetime
+from datetime import datetime, timedelta
+import pytz
 import http.client
 import json
 import logging
@@ -135,6 +136,9 @@ class AptoideCrawler(object):
                                     if self.report.isThisApkNeeded(avi):
                                         run['filename'] = self.downloadApk(avi)
                                 # END: if avi.malware
+
+                            if avi.name == 'org.opengapps.app':
+                                run['filename'] = '{0}-{1}_aptoideId-{2}.stub.apk'.format(avi.name, avi.vercode, aptoideId)
                         else:
                             pass  # logging.error('data2[\'status\']: {0}, when fetching {1}, try {2}'.format(data.get('status', 'null'), file_name, x))
 
@@ -217,6 +221,8 @@ class AptoideCrawler(object):
         return delim.join(sorted(dpis.keys()))
     # END: def doDpiStuff
 
+
+
     def crawl(self, threads=5):
         """
         crawl(): check all aptoideIds
@@ -230,9 +236,11 @@ class AptoideCrawler(object):
         tmpEmptyResultIds = []                        # List of empty results from crawling used to create "last 500 entries"
 
         # Date/Time info to know when to stop crawling...
-        delta    = datetime.timedelta(hours=1, minutes=-3)  # TODO: watch or determine aptoids DST situation (hoping for just UTC+1)
-        currTime = datetime.datetime.utcnow()
-        lastTime = datetime.datetime.strptime(self.runInfo['lastIdTime'], '%Y-%m-%d %H:%M:%S.%f')
+        isdst_now_in = lambda zonename: bool(datetime.now(pytz.timezone(zonename)).dst())
+
+        delta    = timedelta(hours=(1 if isdst_now_in('Europe/Lisbon') else 0), minutes=-3)
+        currTime = datetime.utcnow()
+        lastTime = datetime.strptime(self.runInfo['lastIdTime'], '%Y-%m-%d %H:%M:%S.%f')
         logging.debug('currTime: {0}, lastTime: {1}, delta: {2}'.format(str(currTime), str(lastTime), str((currTime + delta) - lastTime)))
 
         bFoundNewMax = True  # Flag to stop crawling when we do not appear caught up based on date/time
@@ -298,8 +306,8 @@ class AptoideCrawler(object):
             # END: for r in localAllResults:
 
             # Refresh Date/Time status for loop
-            currTime = datetime.datetime.utcnow()
-            lastTime = datetime.datetime.strptime(self.runInfo['lastIdTime'], '%Y-%m-%d %H:%M:%S.%f')
+            currTime = datetime.utcnow()
+            lastTime = datetime.strptime(self.runInfo['lastIdTime'], '%Y-%m-%d %H:%M:%S.%f')
 
             logging.debug('currTime: {0}, lastTime: {1}, delta: {2}'.format(str(currTime), str(lastTime), str((currTime + delta) - lastTime)))
         # END: while bNewMaxIdFound:
@@ -328,7 +336,7 @@ def getStoredIds(configfile):
     '''
     run = {}
     run['lastId']     = 0
-    run['lastIdTime'] = str(datetime.datetime.utcnow())
+    run['lastIdTime'] = str(datetime.utcnow())
     run['missingIds'] = []
 
     if os.path.isfile(configfile):
