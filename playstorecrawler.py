@@ -95,22 +95,27 @@ class PlayStoreCrawler(object):
 
             if 'com.android.vending' in self.report.getAllApkIds():
                 for storeApk in self.report.dAllApks['com.android.vending']:
-                    if storeApk.extraname and storeApk.extraname.endswith('leanback'):
-                        devicename = 'fugu'
-                    else:
-                        devicename = 'sailfish'
-                    logging.debug('{0} VendingAPK: vername={1}, vercode={2}, devicename={3}'.format(credentials.androidId, storeApk.ver, storeApk.vercode, devicename))
-                    playvercode = playstore.playUpdate(storeApk.ver, str(storeApk.vercode))
-                    if playvercode:
-                        logging.debug('{0} Play Store update {1}'.format(credentials.androidId, playvercode))
-                        avi = ApkVersionInfo(name        ='com.android.vending',
-                                             vercode     =playvercode,
-                                             download_src=playstore,
-                                             crawler_name=self.__class__.__name__
-                                             )
-                        filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay), agentvername=storeApk.ver, agentvercode=str(storeApk.vercode), devicename=devicename))
-                        logging.info('{0} pauses {1} seconds before continuing'.format(credentials.androidId, credentials.delay))
-                        time.sleep(credentials.delay)
+                    try:
+                        if storeApk.extraname and storeApk.extraname.endswith('leanback'):
+                            devicename = 'fugu'
+                        else:
+                            devicename = 'sailfish'
+                        logging.debug('{0} VendingAPK: vername={1}, vercode={2}, devicename={3}'.format(credentials.androidId, storeApk.ver, storeApk.vercode, devicename))
+                        playvercode = playstore.playUpdate(storeApk.ver, str(storeApk.vercode))
+                        if playvercode:
+                            logging.debug('{0} Play Store update {1}'.format(credentials.androidId, playvercode))
+                            avi = ApkVersionInfo(name        ='com.android.vending',
+                                                 vercode     =playvercode,
+                                                 download_src=playstore,
+                                                 crawler_name=self.__class__.__name__
+                                                 )
+                            filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay), agentvername=storeApk.ver, agentvercode=str(storeApk.vercode), devicename=devicename))
+                            logging.info('{0} pauses {1} seconds before continuing'.format(credentials.androidId, credentials.delay))
+                            time.sleep(credentials.delay)
+                    except:
+                        logging.exception('!!! playstore.playUpdate({0}, {1}) exception ...'.format(storeApk.ver, storeApk.vercode))
+                    # END: try
+                # END: for storeApk
             else:
                 logging.debug('{0} vending apk not in report'.format(credentials.androidId))
 
