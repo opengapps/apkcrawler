@@ -91,7 +91,7 @@ allApkMirrorNames = {
     'com.google.android.gsf.login'                : 'google-account-manager',
     'com.google.android.inputmethod.japanese'     : 'google-japanese-input',
     'com.google.android.inputmethod.korean'       : 'google-korean-input',
-    'com.google.android.inputmethod.latin'        : 'google-keyboard',
+    'com.google.android.inputmethod.latin'        : 'gboard',
     'com.google.android.inputmethod.pinyin'       : 'google-pinyin-input',
     'com.google.android.katniss'                  : 'google-app-for-android-tv',
     'com.google.android.keep'                     : 'keep',
