@@ -148,41 +148,6 @@ class PlayStoreCrawler(object):
         return filenames
     # END: def checkPlayStore
 
-    def getApkInfo(self, playstore, apkid, delay):
-        """
-        getApkInfo(playstore, apkid): Get APK specific information from the Play Store
-                                             and return it as an ApkVersionInfo object
-        """
-        for x in range(1, 4):  # up to three tries
-            res = playstore.details(apkid)
-            if res.body:
-                if res.body.docV2.details.appDetails.versionCode:  # if the versioncode does not exist; it is not offered as a valid download for this device by the Play Store
-                    avi = ApkVersionInfo(name        =res.body.docV2.docid,
-                                         ver         =res.body.docV2.details.appDetails.versionString.split(' ')[0],  # not sure if we need the split here
-                                         vercode     =res.body.docV2.details.appDetails.versionCode,
-                                         download_src=playstore,
-                                         crawler_name=self.__class__.__name__
-                                         )
-                    logging.info('{0} found details {0} {1}-{2}'.format(playstore.androidId, avi.name, avi.ver, avi.vercode))
-                    return avi
-                else:
-                    logging.info('{0} incompatible with {1}'.format(playstore.androidId, apkid))
-            elif res.status_code == http.client.NOT_FOUND:
-                logging.debug('{0} cannot find {1}'.format(playstore.androidId, apkid))
-            elif res.status_code == http.client.SERVICE_UNAVAILABLE:
-                wait = delay * x
-                logging.info('{0} too many sequential requests for {1}, wait {2} seconds'.format(playstore.androidId, apkid, wait))
-                time.sleep(wait)  # wait longer with each failed try
-                continue
-            else:
-                logging.error('{0} unknown HTTP status for {1}: {2}'.format(playstore.androidId, apkid, res.status_code))
-            return None  # Not found, return empty
-        else:
-            logging.error('{0} repetitive error 503 for {1}'.format(playstore.androidId, apkid))
-            return None  # Kept receiving 503, return empty
-        # END: for x
-    # END: def getApkInfo
-
     def downloadApk(self, avi, delay, isBeta=False, agentvername=None, agentvercode=None, devicename="sailfish"):
         """
         downloadApk(avi, delay, isBeta): Download the specified ApkInfo from the Play Store to APK file name
