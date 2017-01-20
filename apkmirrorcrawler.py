@@ -135,6 +135,8 @@ class ApkMirrorCrawler(object):
         self.sReTargetInfo = 'Target:\s.*API\s(?P<Target>\w*)\)'
         self.reTarget      = re.compile(self.sReTargetInfo)
 
+        self.headers     = {'User-Agent': 'OpenGApps APKMirrorCrawler/1.0'}
+
     def downloadApk(self, avi, isBeta=False):
         """
         downloadApk(avi): downloads the give APK
@@ -155,6 +157,7 @@ class ApkMirrorCrawler(object):
 
             # Open the url
             session = requests.Session()
+            session.headers.update(self.headers)
             r = session.get(avi.download_src)
 
             with open(apkname, 'wb') as local_file:
@@ -175,6 +178,7 @@ class ApkMirrorCrawler(object):
             url = 'http://www.apkmirror.com' + avi.scrape_src
 
             session = requests.Session()
+            session.headers.update(self.headers)
             logging.debug('Requesting3: ' + url)
 
             resp    = session.get(url)
@@ -216,6 +220,7 @@ class ApkMirrorCrawler(object):
             url = 'http://www.apkmirror.com' + avi.scrape_src
 
             session = requests.Session()
+            session.headers.update(self.headers)
             logging.debug('Requesting2: ' + url)
 
             resp    = session.get(url)
@@ -282,6 +287,7 @@ class ApkMirrorCrawler(object):
             url = 'http://www.apkmirror.com/uploads/?q={0}'.format(apkMirrorName)
 
             session = requests.Session()
+            session.headers.update(self.headers)
             logging.debug('Requesting1: ' + url)
             try:
                 resp = session.get(url)
