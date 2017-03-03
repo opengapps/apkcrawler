@@ -70,6 +70,7 @@ allApkMirrorNames = {
     'com.google.android.apps.messaging.watch'       : 'android-messages-android-wear',
     'com.google.android.apps.nexuslauncher'         : 'pixel-launcher',
     'com.google.android.apps.photos'                : 'photos',
+    'com.google.android.apps.photos.vrmode'         : 'google-photos-daydream',
     'com.google.android.apps.plus'                  : 'google',
     'com.google.android.apps.translate'             : 'translate',
     'com.google.android.apps.fireball'              : 'allo-by-google',
@@ -123,11 +124,12 @@ allApkMirrorNames = {
     'com.google.android.tv'                         : 'live-channels',
     'com.google.android.tv.remote'                  : 'remote-control',
     'com.google.android.videos'                     : 'google-play-movies',
+    'com.google.android.videos.vrmode'              : 'google-play-movies-tv-daydream',
     'com.google.android.webview'                    : 'android-system-webview',
     'com.google.android.youtube'                    : 'youtube',
     'com.google.android.youtube.tv'                 : 'youtube-for-android-tv',
     'com.google.earth'                              : 'earth',
-    'com.google.vr.vrcore'                          : 'google-vr-services'}
+    'com.google.vr.vrcore'                          : 'google-vr-services-daydream'}
 
 
 class ApkMirrorCrawler(object):
