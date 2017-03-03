@@ -82,6 +82,7 @@ allApkMirrorNames = {
     'com.google.android.backdrop'                   : 'backdrop-daydream-android-tv',
     'com.google.android.backuptransport'            : 'google-backup-transport',
     'com.google.android.calculator'                 : 'google-calculator',
+    'com.google.android.calculator.watch'           : 'calculator-android-wear',
     'com.google.android.calendar'                   : 'calendar',
     'com.google.android.configupdater'              : 'configupdater',
     'com.google.android.contacts'                   : 'google-contacts',
