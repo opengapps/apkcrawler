@@ -105,13 +105,7 @@ class ApkVersionInfo(object):
     # END: def fullString
 
     def getFilename(self):
-        return '{0}{1}-{2}{3}{4}{5}.apk'.format(self.lowername,
-                                                '' if not self.realver else '_{0}'.format('_'.join(self.realver.split(' '))),
-                                                '[{0}]'.format(self.crawler_name) if self.vercode == 0 else '{0}'.format(self.vercode),
-                                                '' if not self.sdk else '(minAPI{0})'.format(self.sdk),
-                                                '' if not self.arch else '({0})'.format(self.arch),
-                                                '' if not self.dpi else '({0}{1})'.format(self.dpi, '' if self.dpi.endswith('dpi') else 'dpi')
-                                                )
+        return '{0}-{1}.apk'.format(self.lowername, '[{0}]'.format(self.crawler_name) if self.vercode == 0 else str(self.vercode))
     # END: def getFilename
 
     def isRealverAbsolute(self):
