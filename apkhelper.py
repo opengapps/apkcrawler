@@ -34,6 +34,7 @@ oneVercodePerRealver = {'com.google.android.apps.docs',
                         'com.google.android.inputmethod.korean',
                         'com.google.android.inputmethod.latin',
                         'com.google.android.inputmethod.pinyin',
+                        'com.google.android.keep',
                         'com.google.android.play.games',
                         'com.google.android.tv'}
 
@@ -86,7 +87,7 @@ class ApkVersionInfo(object):
         if m:
             self.ver = m.group('ver')
 
-        if 'com.google.android.apps.docs' in self.name:
+        if 'com.google.android.apps.docs' in self.name or 'com.google.android.keep' in self.name:
             self.ver = '.'.join(self.ver.split('.')[0:4])
     # END: def init
 
