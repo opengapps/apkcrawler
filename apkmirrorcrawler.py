@@ -110,6 +110,8 @@ allApkMirrorNames = {
     'com.google.android.launcher'                   : 'google-now-launcher',
     'com.google.android.leanbacklauncher'           : 'android-tv-launcher-android-tv',
     'com.google.android.marvin.talkback'            : 'talkback',
+    'com.google.android.marvin.talkback.leanback'   : 'google-talkback-android-tv',
+    'com.google.android.marvin.talkback.watch'      : 'google-talkback-android-wear',
     'com.google.android.music'                      : 'google-play-music',
     'com.google.android.music.watch'                : 'google-play-music-android-wear',
     'com.google.android.nexusicons'                 : 'pixel-launcher-icons',
