@@ -87,7 +87,13 @@ class ApkVersionInfo(object):
         if m:
             self.ver = m.group('ver')
 
-        if 'com.google.android.apps.docs' in self.name or 'com.google.android.keep' in self.name:
+        if ('com.google.android.projection.gearhead' in self.name):
+            self.ver = '.'.join(self.ver.split('.')[0:2])
+
+        if ('com.google.android.apps.classroom' in self.name or
+            'com.google.android.apps.docs'      in self.name or
+            'com.google.android.apps.pdfviewer' in self.name or
+            'com.google.android.keep'           in self.name):
             self.ver = '.'.join(self.ver.split('.')[0:4])
     # END: def init
 
