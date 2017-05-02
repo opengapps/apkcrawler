@@ -358,7 +358,6 @@ def setStoreIds(configfile, runInfo):
     '''
     setStoreIds(): Append Highest Aptoide ID crawled to the file
     '''
-
     data = {}
     data['runs'] = []
 
@@ -405,6 +404,20 @@ if __name__ == "__main__":
     """
     main(): single parameter for report_sources.sh output
     """
+    # Wait for lock file
+    lockfile = logFile + '.lock'
+    killfile = logFile + '.kill'
+    while os.path.isfile(lockfile):
+        time.sleep(60.0)
+        # Check for kill file to end wait lock
+        if os.path.isfile(killfile):
+            os.remove(killfile)
+            exit(1)
+
+    # Grab lock file
+    with open(lockfile, 'w') as lock_file:
+        lock_file.write('lock')
+
     logging.basicConfig(filename=logFile, filemode='w', level=logLevel, format=logFormat)
     logging.getLogger("requests").setLevel(logging.WARNING)
 
@@ -436,3 +449,6 @@ if __name__ == "__main__":
         sys.stdout.flush()
 
     logging.debug('Done ...')
+
+    # Release lock file
+    os.remove(lockfile)
