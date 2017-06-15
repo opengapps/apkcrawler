@@ -136,7 +136,7 @@ allApkMirrorNames = {
     'com.google.android.youtube'                    : 'youtube',
     'com.google.android.youtube.tv'                 : 'youtube-for-android-tv-android-tv',
     'com.google.earth'                              : 'earth',
-    'com.google.vr.vrcore'                          : 'google-vr-services-daydream'}
+    'com.google.vr.vrcore'                          : 'google-vr-services'}
 
 
 class ApkMirrorCrawler(object):
