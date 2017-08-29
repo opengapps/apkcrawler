@@ -1,2 +1,2 @@
-#AndroidId,       Delay, Email,                                   Password,           Token
-XXXXXXXXXXXXXXXX, 60,    user@example.org,                        supersecret,        optional_token_instead
+#AndroidId,       SDK, Delay, Email,                                   Password,           Token
+XXXXXXXXXXXXXXXX, 24,  60,    user@example.org,                        supersecret,        optional_token_instead

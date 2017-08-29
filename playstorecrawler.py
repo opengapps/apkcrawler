@@ -51,9 +51,13 @@ logFormat = '%(asctime)s %(levelname)s/%(funcName)s(%(process)-5d): %(message)s'
 
 class PlayStoreCredentials(object):
     """PlayStoreCredentials"""
-    def __init__(self, androidId, delay=60, email=None, password=None, authSubToken=None):
+    def __init__(self, androidId, sdk=24, delay=60, email=None, password=None, authSubToken=None):
         super(PlayStoreCredentials, self).__init__()
         self.androidId = androidId.strip()
+        if sdk:
+            self.sdk = int(sdk)
+        else:
+            self.sdk = 24
         if delay:
             self.delay = int(delay)
         else:
@@ -119,29 +123,28 @@ class PlayStoreCrawler(object):
             else:
                 logging.debug('{0} vending apk not in report'.format(credentials.androidId))
 
-            for sdk in [19, 21, 22, 23, 24]:
-                logging.debug('{0} - {1}'.format(sdk, self.report.getAllApkIds(playstoreCaps=True)))
-                res = playstore.bulkDetails(self.report.getAllApkIds(playstoreCaps=True), sdk)
-                if res and res.status_code == http.client.OK and res.body:
-                    for app in res.body.entry:
-                        if app.doc and app.doc.docid:
-                            avi = ApkVersionInfo(name        =app.doc.docid,
-                                                 vercode     =app.doc.details.appDetails.versionCode,
-                                                 download_src=playstore,
-                                                 crawler_name=self.__class__.__name__
-                                                 )
-                            if self.report.isThisApkNeeded(avi):
-                                logging.debug('{0} Update {1}-{2} (Uploaddate {3})'.format(playstore.androidId, avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
-                                filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay)))
-                            else:
-                                logging.debug('{0} Skip {1}-{2} (Uploaddate {3})'.format(playstore.androidId, avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
+            logging.debug('{0} - {1}'.format(credentials.sdk, self.report.getAllApkIds(playstoreCaps=True)))
+            res = playstore.bulkDetails(self.report.getAllApkIds(playstoreCaps=True), credentials.sdk)
+
+            if res and res.status_code == http.client.OK and res.body:
+                for app in res.body.entry:
+                    if app.doc and app.doc.docid:
+                        avi = ApkVersionInfo(name        =app.doc.docid,
+                                             vercode     =app.doc.details.appDetails.versionCode,
+                                             download_src=playstore,
+                                             crawler_name=self.__class__.__name__
+                                             )
+                        if self.report.isThisApkNeeded(avi):
+                            logging.debug('{0} Update {1}-{2} (Uploaddate {3})'.format(playstore.androidId, avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
+                            filenames.append(self.downloadApk(avi, credentials.delay + random.randint(0, credentials.delay)))
                         else:
-                            logging.debug('{0} Empty search entry'.format(playstore.androidId))
-                            continue
-                else:
-                    logging.error('{0} Error querying Play Store, status {1}: {2}'.format(playstore.androidId, sdk, res.status_code))
-                    return None  # Not found, return empty
-            # END: for sdk
+                            logging.debug('{0} Skip {1}-{2} (Uploaddate {3})'.format(playstore.androidId, avi.name, avi.vercode, app.doc.details.appDetails.uploadDate))
+                    else:
+                        logging.debug('{0} Empty search entry'.format(playstore.androidId))
+                        continue
+            else:
+                logging.error('{0} Error querying Play Store, status {1}: {2}'.format(playstore.androidId, credentials.sdk, res.status_code))
+                return None  # Not found, return empty
         else:
             logging.error('Play Store login failed for {0}'.format(credentials.androidId))
         # END: if playstore.login()
@@ -237,7 +240,7 @@ def getCredentials(credentialsfile):
     '''
     getCredentials(): Retrieve Play Store credentials from the file
     '''
-    sReCredentials = '^\s*(?P<ANDROIDID>[^#,]*),\s*(?P<DELAY>[^#,]*),\s*(?P<EMAIL>[^#,]*),\s*(?P<PASSWORD>[^#,]*),\s*(?P<TOKEN>[^\s]*)(\s*#.*)?$'
+    sReCredentials = '^\s*(?P<ANDROIDID>[^#,]*),\s*(?P<SDK>[^#,]*),\s*(?P<DELAY>[^#,]*),\s*(?P<EMAIL>[^#,]*),\s*(?P<PASSWORD>[^#,]*),\s*(?P<TOKEN>[^\s]*)(\s*#.*)?$'
     reCredentials  = re.compile(sReCredentials)
     tokendelay = 0
     credentials = []
@@ -250,6 +253,7 @@ def getCredentials(credentialsfile):
                     m = reCredentials.match(line)
                     if m:
                         androidId = m.group('ANDROIDID')
+                        sdk       = m.group('SDK')
                         delay     = m.group('DELAY')
                         email     = m.group('EMAIL')
                         password  = m.group('PASSWORD')
@@ -268,7 +272,7 @@ def getCredentials(credentialsfile):
                                 logging.error('{0} authToken retrieval failed'.format(androidId))
                             tokendelay = int(delay)  # we don't want to fetch tokens too quickly after one another
                         if token:
-                            credentials.append(PlayStoreCredentials(androidId, delay, email, password, token))
+                            credentials.append(PlayStoreCredentials(androidId, sdk, delay, email, password, token))
                         else:
                             logging.error('{0} has no valid token and will not be crawled'.format(androidId))
                 except:
@@ -286,12 +290,12 @@ def getToken(androidId, email, password, lang="en_US"):
     return GooglePlayAPI(androidId, lang).login(email, password)
 # END: def getToken
 
-def updateTokenCredentials(credentialsfile, androidId, delay, email, password, token=''):
+def updateTokenCredentials(credentialsfile, androidId, sdk, delay, email, password, token=''):
     '''
     updateTokenCredentials(): update the authToken stored in the Credentialsfile for the original line
      Quickly opens the file, changes the line and writes it. Locking is short and should be safe for intermediary changes.
     '''
-    sReCredentials = '(?P<ID>\s*' + androidId + ',\s*' + delay + ',\s*' + email + ',\s*' + password + ',\s*)(?P<TOKEN>[^\s#]*)(?P<COMMENT>\s*#.*)?'
+    sReCredentials = '(?P<ID>\s*' + androidId + ',\s*' + sdk + ',\s*' + delay + ',\s*' + email + ',\s*' + password + ',\s*)(?P<TOKEN>[^\s#]*)(?P<COMMENT>\s*#.*)?'
     reCredentials  = re.compile(sReCredentials)
 
     if os.path.isfile(credentialsfile):
