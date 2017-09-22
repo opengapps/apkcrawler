@@ -105,6 +105,7 @@ allApkMirrorNames = {
     'com.google.android.inputmethod.latin'          : 'gboard',
     'com.google.android.inputmethod.latin.watch'    : 'gboard-the-google-keyboard-android-wear',
     'com.google.android.inputmethod.pinyin'         : 'google-pinyin-input',
+    'com.google.android.instantapps.supervisor'     : 'google-play-services-for-instant-apps',
     'com.google.android.katniss'                    : 'google-app-for-android-tv-android-tv',
     'com.google.android.keep'                       : 'keep',
     'com.google.android.launcher'                   : 'google-now-launcher',
