@@ -76,6 +76,7 @@ allApkMirrorNames = {
     'com.google.android.apps.translate'             : 'translate',
     'com.google.android.apps.fireball'              : 'allo-by-google',
     'com.google.android.apps.tachyon'               : 'duo-by-google',
+    'com.google.android.apps.turbo'                 : 'device-health-services',
     'com.google.android.apps.tycho'                 : 'project-fi',
     'com.google.android.apps.walletnfcrel'          : 'android-pay',
     'com.google.android.apps.wallpaper'             : 'google-wallpaper-picker',
