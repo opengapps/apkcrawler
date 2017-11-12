@@ -261,7 +261,7 @@ class GooglePlayAPI(object):
                 "X-DFE-Device-Id": self.androidId,
                 "X-DFE-Client-Id": "am-android-google",
                 "X-DFE-Device-Config-Token": "1",
-                "X-DFE-Cookie": base64.standard_b64encode(b'\x08\xa9\x0f\x10\x01\x18\x00"\x02' + self.regionCookie.encode('utf-8')).decode('utf-8').replace('=', ''),
+                "X-DFE-Cookie": base64.standard_b64encode(b'\x08\xa9\x0f\x10\x01\x18\x00"\x02' + self.regionCookie.encode('utf-8') + '(\x012<CisaKQoTMzcxNzUwNjQ2MzkzMzkzMjA1NBISChAxNTEwMTM0ODU0NTE4MDU2'.encode('utf-8')).decode('utf-8').replace('=', ''),
                 "User-Agent": user_agent,
                 "X-DFE-SmallestScreenWidthDp": "320",
                 "X-DFE-Filter-Level": "3",
