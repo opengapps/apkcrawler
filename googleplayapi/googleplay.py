@@ -391,18 +391,23 @@ class GooglePlayAPI(object):
 
         versionCode can be grabbed by using the details() method on the given
         app."""
-        if packageName == "com.android.vending":
-            (status_code, message) = self.executeRequestApi2(path="delivery?ot=%d&doc=%s&vc=%d&shh=%s" % (offerType, packageName, versionCode, "1"), agentvername=agentvername, agentvercode=agentvercode, devicename=devicename)
-        else:
-            (status_code, message) = self.executeRequestApi2(path="purchase", datapost="ot=%d&doc=%s&vc=%d" % (offerType, packageName, versionCode))
+        (status_code, message) = self.executeRequestApi2(path="delivery?ot=%d&doc=%s&vc=%d&shh=%s" % (offerType, packageName, versionCode, "1"), agentvername=agentvername, agentvercode=agentvercode, devicename=devicename)
 
         if status_code == http.client.OK:
-            if packageName == "com.android.vending":
-                url = message.payload.deliveryResponse.appDeliveryData.downloadUrl
-                cookie = message.payload.deliveryResponse.appDeliveryData.downloadAuthCookie[0]
-            else:
-                url = message.payload.buyResponse.purchaseStatusResponse.appDeliveryData.downloadUrl
-                cookie = message.payload.buyResponse.purchaseStatusResponse.appDeliveryData.downloadAuthCookie[0]
+            # app is not in user library
+            if message.payload.deliveryResponse.status == 3:
+                (status_code, message) = self.executeRequestApi2(path="purchase", datapost="ot=%d&doc=%s&vc=%d" % (offerType, packageName, versionCode))
+                if status_code != http.client.OK:
+                    return RequestResult(status_code, None)
+
+            # wrong version code
+            if message.payload.deliveryResponse.status == 5:
+                logging.warning(" Wrong version code {0} for app {1}".format(versionCode, packageName))
+                return RequestResult(status_code, None)
+
+            url = message.payload.deliveryResponse.appDeliveryData.downloadUrl
+            cookie = message.payload.deliveryResponse.appDeliveryData.downloadAuthCookie[0]
+
             cookies = {
                 str(cookie.name): str(cookie.value)  # python-requests #459 fixes this
             }
