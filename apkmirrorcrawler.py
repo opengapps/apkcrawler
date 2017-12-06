@@ -196,7 +196,7 @@ class ApkMirrorCrawler(object):
                                      arch/dpi variants
         """
         try:
-            url = 'http://www.apkmirror.com' + avi.scrape_src
+            url = 'https://www.apkmirror.com' + avi.scrape_src
 
             session = requests.Session()
             session.headers.update(self.headers)
@@ -238,7 +238,7 @@ class ApkMirrorCrawler(object):
         getOneVersionInfo(avi): Determines each versions information
         """
         try:
-            url = 'http://www.apkmirror.com' + avi.scrape_src
+            url = 'https://www.apkmirror.com' + avi.scrape_src
 
             session = requests.Session()
             session.headers.update(self.headers)
@@ -284,7 +284,7 @@ class ApkMirrorCrawler(object):
                                   dpi=avidpi,
                                   arch=avi.arch,
                                   scrape_src=avi.scrape_src,
-                                  download_src='http://www.apkmirror.com' + dl_button['href'],
+                                  download_src='https://www.apkmirror.com' + dl_button['href'],
                                   crawler_name=self.__class__.__name__)
 
         except:
@@ -305,7 +305,7 @@ class ApkMirrorCrawler(object):
             # Using the "uploads/?q=" page sorts newest first but is slower
             # Using the "apk/google-inc/" page is faster loading
             # For now favor slow load and skip checking all versions (below)
-            url = 'http://www.apkmirror.com/uploads/?q={0}'.format(apkMirrorName)
+            url = 'https://www.apkmirror.com/uploads/?q={0}'.format(apkMirrorName)
 
             session = requests.Session()
             session.headers.update(self.headers)
