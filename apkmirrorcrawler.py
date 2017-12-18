@@ -125,7 +125,7 @@ allApkMirrorNames = {
     'com.google.android.storagemanager'             : 'storage-manager',
     'com.google.android.street'                     : 'street-view',
     'com.google.android.syncadapters.contacts'      : 'google-contacts-sync',
-    'com.google.android.tag'                        : 'tags',
+    'com.google.android.tag'                        : 'tags-google',
     'com.google.android.talk'                       : 'hangouts',
     'com.google.android.talk.watch'                 : 'hangouts-android-wear',
     'com.google.android.tts'                        : 'google-text-to-speech-engine',
