@@ -90,6 +90,9 @@ class ApkVersionInfo(object):
         if ('com.google.android.projection.gearhead' in self.name):
             self.ver = '.'.join(self.ver.split('.')[0:2])
 
+        if ('com.google.android.googlequicksearchbox' in self.name):
+            self.ver = '.'.join(self.ver.split('.')[0:3])
+ 
         if ('com.google.android.apps.classroom' in self.name or
             'com.google.android.apps.docs'      in self.name or
             'com.google.android.apps.pdfviewer' in self.name or
