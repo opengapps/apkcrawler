@@ -131,6 +131,8 @@ allApkMirrorNames = {
     'com.google.android.tts'                        : 'google-text-to-speech-engine',
     'com.google.android.tv'                         : 'live-channels-android-tv',
     'com.google.android.tv.remote'                  : 'remote-control',
+    'com.google.android.tvlauncher'                 : 'android-tv-home-android-tv',
+    'com.google.android.tvrecommendations'          : 'android-tv-core-services-android-tv',
     'com.google.android.videos'                     : 'google-play-movies',
     'com.google.android.videos.leanback'            : 'google-play-movies-tv-android-tv',
     'com.google.android.videos.vrmode'              : 'google-play-movies-tv-daydream',
