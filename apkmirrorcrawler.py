@@ -101,6 +101,7 @@ allApkMirrorNames = {
     'com.google.android.googlequicksearchbox.watch' : 'google-android-wear',
     'com.google.android.gsf'                        : 'google-services-framework',
     'com.google.android.gsf.login'                  : 'google-account-manager',
+    'com.google.android.ims'                        : 'carrier-services-2',
     'com.google.android.inputmethod.japanese'       : 'google-japanese-input',
     'com.google.android.inputmethod.korean'         : 'google-korean-input',
     'com.google.android.inputmethod.latin'          : 'gboard',
