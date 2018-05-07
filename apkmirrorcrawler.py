@@ -150,7 +150,7 @@ class ApkMirrorCrawler(object):
         self.dlFiles     = dlFiles
         self.dlFilesBeta = dlFilesBeta
 
-        self.sReVerInfo = 'Version:\s(?P<VERNAME>.*)\s\((?P<VERCODE>\d*)\)'
+        self.sReVerInfo = 'Version:\s(?P<VERNAME>.*)\s\((?P<VERCODE>\d*)\s?\)'
         self.reVersion  = re.compile(self.sReVerInfo)
 
         self.sReSdkInfo = 'Min:\s[^)]*API\s(?P<SDK>\w*)\)'
