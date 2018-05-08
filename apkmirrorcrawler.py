@@ -63,7 +63,7 @@ allApkMirrorNames = {
     'com.google.android.apps.inbox'                 : 'inbox',
     'com.google.android.apps.inputmethod.hindi'     : 'google-indic-keyboard',
     'com.google.android.apps.inputmethod.zhuyin'    : 'google-zhuyin-input',
-    'com.google.android.apps.magazines'             : 'google-play-newsstand',
+    'com.google.android.apps.magazines'             : 'google-news',
     'com.google.android.apps.maps'                  : 'maps',
     'com.google.android.apps.maps.watch'            : 'maps-navigation-transit-android-wear',
     'com.google.android.apps.mediashell'            : 'google-cast-receiver-android-tv',
@@ -150,7 +150,7 @@ class ApkMirrorCrawler(object):
         self.dlFiles     = dlFiles
         self.dlFilesBeta = dlFilesBeta
 
-        self.sReVerInfo = 'Version:\s(?P<VERNAME>.*)\s\((?P<VERCODE>\d*)\s?\)'
+        self.sReVerInfo = 'Version:\s(?P<VERNAME>.*)\s\((?P<VERCODE>\d*)[^)]*\)'
         self.reVersion  = re.compile(self.sReVerInfo)
 
         self.sReSdkInfo = 'Min:\s[^)]*API\s(?P<SDK>\w*)\)'
@@ -267,6 +267,9 @@ class ApkMirrorCrawler(object):
                     if m:
                         avivername = m.group('VERNAME')
                         avivercode = m.group('VERCODE')
+                        logging.debug('debug: "{}" - "{}"'.format(avivername, avivercode))
+                    else:
+                        logging.debug('debug: "{}"'.format(appspec.find('div', {'class': 'appspec-value'}).get_text()))
                 # SDK & Target
                 if appspec.find('svg', {'class': 'apkm-icon-sdk'}):
                     m = self.reSdk.search(appspec.find('div', {'class': 'appspec-value'}).get_text())
