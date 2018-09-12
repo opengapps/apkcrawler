@@ -80,6 +80,7 @@ allApkMirrorNames = {
     'com.google.android.apps.tycho'                 : 'project-fi',
     'com.google.android.apps.walletnfcrel'          : 'google-pay',
     'com.google.android.apps.wallpaper'             : 'google-wallpaper-picker',
+    'com.google.android.as'                         : 'google-actions-services',
     'com.google.android.backdrop'                   : 'backdrop-daydream-android-tv',
     'com.google.android.backuptransport'            : 'google-backup-transport',
     'com.google.android.calculator'                 : 'google-calculator',
