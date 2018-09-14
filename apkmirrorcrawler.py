@@ -66,7 +66,7 @@ allApkMirrorNames = {
     'com.google.android.apps.magazines'             : 'google-news',
     'com.google.android.apps.maps'                  : 'maps',
     'com.google.android.apps.maps.watch'            : 'maps-navigation-transit-android-wear',
-    'com.google.android.apps.mediashell'            : 'google-cast-receiver-android-tv',
+    'com.google.android.apps.mediashell'            : 'chromecast-built-in',
     'com.google.android.apps.messaging'             : 'messenger-google-inc',
     'com.google.android.apps.messaging.watch'       : 'android-messages-android-wear',
     'com.google.android.apps.nexuslauncher'         : 'pixel-launcher',
@@ -324,8 +324,6 @@ class ApkMirrorCrawler(object):
                 dom      = BeautifulSoup(html, 'html5lib')
                 versions = dom.findAll('div', {'class': 'infoSlide'})
 
-                hasVariants = dom.find('svg', {'class': 'tag-icon'})
-
                 avis = []
 
                 # Skip all version since it is sorted (above)
@@ -339,6 +337,7 @@ class ApkMirrorCrawler(object):
                 appNameLink = appNameRow.find('a', {'class': 'fontBlack'})
                 appName     = appNameLink.get_text()
                 appUrl      = appNameLink['href']
+                hasVariants = appUrl.endswith('-release/')
 
                 if 'preview' in appName.lower():
                     logging.info('!!! Preview Found: ' + appName)
