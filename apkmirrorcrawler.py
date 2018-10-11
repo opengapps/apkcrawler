@@ -123,6 +123,7 @@ allApkMirrorNames = {
     'com.google.android.partnersetup'               : 'google-partner-setup',
     'com.google.android.play.games'                 : 'google-play-games',
     'com.google.android.play.games.leanback'        : 'google-play-games-android-tv',
+    'com.google.android.settings.intelligence'      : 'settings-suggestions',
     'com.google.android.setupwizard'                : 'setup-wizard',
     'com.google.android.storagemanager'             : 'storage-manager',
     'com.google.android.street'                     : 'street-view',

@@ -48,7 +48,7 @@ class ApkVersionInfo(object):
         sName  = '^(?P<name>.*)(?P<extra>\.(leanback|beta|stub|vrmode|default|tablet|watch))$'
         reName = re.compile(sName)
 
-        sVer   = '^(?P<ver>[^(\s-]*)(?P<extra>([(\s-].*|(\.(arm|arm\.arm_neon|arm64|x86|large|small))))$'  # .release?
+        sVer   = '^(?P<ver>[^(\s-]*)(?P<extra>([(\s-].*|(\.(arm|arm\.arm_neon|arm64|x86|large|small|storeRelease))))$'  # .release?
         reVer  = re.compile(sVer)
 
         self.name         = name
