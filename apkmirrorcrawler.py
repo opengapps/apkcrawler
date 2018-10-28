@@ -59,7 +59,6 @@ allApkMirrorNames = {
     'com.google.android.apps.fitness'               : 'fit',
     'com.google.android.apps.fitness.watch'         : 'google-fit-fitness-tracking-android-wear',
     'com.google.android.apps.gcs'                   : 'google-connectivity-services',
-    'com.google.android.apps.genie.geniewidget'     : 'news-weather',
     'com.google.android.apps.inbox'                 : 'inbox',
     'com.google.android.apps.inputmethod.hindi'     : 'google-indic-keyboard',
     'com.google.android.apps.inputmethod.zhuyin'    : 'google-zhuyin-input',
