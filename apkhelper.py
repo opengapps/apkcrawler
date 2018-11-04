@@ -37,6 +37,7 @@ oneVercodePerRealver = {'com.google.android.apps.docs',
                         'com.google.android.inputmethod.pinyin',
                         'com.google.android.keep',
                         'com.google.android.play.games',
+                        'com.google.android.projection.gearhead',
                         'com.google.android.tv'}
 
 @total_ordering
