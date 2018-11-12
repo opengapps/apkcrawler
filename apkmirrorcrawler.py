@@ -72,6 +72,7 @@ allApkMirrorNames = {
     'com.google.android.apps.photos'                : 'photos',
     'com.google.android.apps.photos.vrmode'         : 'google-photos-daydream',
     'com.google.android.apps.plus'                  : 'google',
+    'com.google.android.apps.restore'               : 'android-setup',
     'com.google.android.apps.translate'             : 'translate',
     'com.google.android.apps.fireball'              : 'allo-by-google',
     'com.google.android.apps.tachyon'               : 'duo-by-google',
