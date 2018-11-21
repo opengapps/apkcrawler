@@ -255,7 +255,7 @@ class ApkMirrorCrawler(object):
 
             dom         = BeautifulSoup(html, 'html5lib')
             contentArea = dom.findAll('div', {'class': 'tab-content'})[0]
-            dl_button   = contentArea.findAll('a', {'type': 'button'})[0]
+            dl_button   = contentArea.findAll('a', {'class': 'downloadButton'})[0]
             appspecs    = contentArea.findAll('div', {'class': 'appspec-row'})
 
             avivername = ''
