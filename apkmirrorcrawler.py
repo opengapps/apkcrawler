@@ -126,6 +126,7 @@ allApkMirrorNames = {
     'com.google.android.projection.gearhead'        : 'android-auto',
     'com.google.android.settings.intelligence'      : 'settings-suggestions',
     'com.google.android.setupwizard'                : 'setup-wizard',
+    'com.google.android.soundpicker'                : 'sounds',
     'com.google.android.storagemanager'             : 'storage-manager',
     'com.google.android.street'                     : 'street-view',
     'com.google.android.syncadapters.contacts'      : 'google-contacts-sync',
