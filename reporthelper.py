@@ -47,7 +47,7 @@ class ReportHelper(object):
                                       vercode=code)
 
                 # Check if supported and add if it is
-                if avi.vercode in [1, 19, 21, 22, 23, 24, 25, 26, 27, 28]:  # Ignore factory image files
+                if avi.vercode in [1, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29]:  # Ignore factory image files
                     continue
 
                 if avi.name not in list(self.dAllApks.keys()):
