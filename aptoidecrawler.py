@@ -55,11 +55,11 @@ class AptoideCrawler(object):
 
     def logIdAndDate(self, itemApk):
         if itemApk['package'] == 'org.opengapps.app':
-            logging.info('*** HEY IT IS OPENGAPPS ON APTOIDE *** {0}|{1}|{2}'.format(itemApk['id'], itemApk['added'], itemApk['package']))
+            logging.info('*** HEY IT IS OPENGAPPS ON APTOIDE *** {0}|{1}|{2}'.format(itemApk['id'], itemApk['modified'], itemApk['package']))
         elif itemApk['package'] not in list(self.report.dAllApks.keys()):
-            logging.debug('{0}|{1}|{2}'.format(itemApk['id'], itemApk['added'], itemApk['package']))
+            logging.debug('{0}|{1}|{2}'.format(itemApk['id'], itemApk['modified'], itemApk['package']))
         else:
-            logging.info('{0}|{1}|{2}'.format(itemApk['id'], itemApk['added'], itemApk['package']))
+            logging.info('{0}|{1}|{2}'.format(itemApk['id'], itemApk['modified'], itemApk['package']))
 
     # END: def logIdAndDate(self, itemApk)
 
@@ -70,7 +70,7 @@ class AptoideCrawler(object):
                                tracked by OpenGApps
         """
         file_name = '{0}.json'.format(aptoideId)
-        url       = 'http://webservices.aptoide.com/webservices/2/getApkInfo/id:{0}/json'.format(aptoideId)
+        url       = 'http://ws75.aptoide.com/api/7/app/getMeta/app_id={0}'.format(aptoideId)
         data      = Debug.readFromFile(file_name)
 
         run = {}
@@ -95,19 +95,24 @@ class AptoideCrawler(object):
                         run['status'] = 'empty'
 
                         data = resp.json()
-                        if 'status' in data and data['status'] == 'OK':
+                        if 'info' in data and 'status' in data['info'] and data['info']['status'] == 'OK':
                             # Found an APK update the Max. ID
                             run['status'] = 'good'
-                            run['time']   = data['apk']['added']
+                            run['time']   = data['data']['modified']
 
-                            avi = ApkVersionInfo(name        =data['apk']['package'],
-                                                 arch        =data['apk'].get('cpu', 'all'),
-                                                 sdk         =data['apk']['minSdk'],
-                                                 dpi         =self.doDpiStuff(data['apk'].get('screenCompat', 'nodpi')),
-                                                 ver         =data['apk']['vername'].split(' ')[0],  # Look at only the true version number
-                                                 vercode     =data['apk']['vercode'],
-                                                 download_src=data['apk']['path'],
-                                                 malware=(data['malware'] if 'malware' in data else ''),  # We only have this key if vercode is in options
+                            theArchs = data['data']['file']['hardware'].get('cpus', [])
+                            _arch = 'all'
+                            if len(theArchs) > 0:
+                                _arch = ','.join(theArchs)
+
+                            avi = ApkVersionInfo(name        =data['data']['package'],
+                                                 arch        =_arch,
+                                                 sdk         =data['data']['file']['hardware']['sdk'],
+                                                 dpi         =self.doDpiStuff(data['data']['file']['hardware'].get('densities', [])),
+                                                 ver         =data['data']['file']['vername'].split(' ')[0],  # Look at only the true version number
+                                                 vercode     =data['data']['file']['vercode'],
+                                                 download_src=data['data']['file']['path'],
+                                                 malware=(data['data']['file']['malware'] if 'malware' in data['data']['file'] else ''),  # We only have this key if vercode is in options
                                                  crawler_name=self.__class__.__name__
                                                  )
 
@@ -115,7 +120,7 @@ class AptoideCrawler(object):
                                               indent=4, separators=(',', ': ')), resp.encoding)
 
                             # Log AptoideID, Date, ApkID
-                            self.logIdAndDate(data['apk'])
+                            self.logIdAndDate(data['data'])
 
                             # Check for beta support
                             bCheckMore = False
@@ -127,7 +132,7 @@ class AptoideCrawler(object):
 
                             # Do we already have it
                             if self.report.isThisApkNeeded(avi):
-                                if (avi.malware['status'] == "warn" and
+                                if (avi.malware['rank'] == "warn" and
                                     avi.malware['reason']['signature_validated']['status'] == "failed" and
                                     avi.malware['reason']['signature_validated']['signature_from'] == "market"):  # signature matches market, but it does not pass verification
                                     logging.error('{0} is a corrupt or incomplete APK, ignored.'.format(avi.download_src))
@@ -143,9 +148,14 @@ class AptoideCrawler(object):
                             pass  # logging.error('data2[\'status\']: {0}, when fetching {1}, try {2}'.format(data.get('status', 'null'), file_name, x))
 
                         return run
+                    elif resp.status_code in [http.client.UNAUTHORIZED,  # 401
+                                              http.client.FORBIDDEN,     # 403
+                                              http.client.NOT_FOUND,     # 404
+                                              http.client.GONE]:         # 410
+                        run['status'] = 'empty'
+                        return run
                     else:
-                        run['missingIds']
-                        logging.error('HTTPStatus2: {0}, when fetching {1}, try {2}'.format(resp.status_code, file_name, x))
+                        pass  # logging.error('HTTPStatus2: {0}, when fetching {1}, try {2}'.format(resp.status_code, file_name, x))
                 except:
                     logging.exception('!!! Invalid JSON from: "{0}", retry in: {1}s'.format(url, wait))
             # END: for x
@@ -160,9 +170,10 @@ class AptoideCrawler(object):
         url = avi.download_src
         apkname = ('beta.' if isBeta else '') + avi.getFilename()
 
-        if (avi.malware['status'] in ["trusted"] and
-            avi.malware['reason']['signature_validated']['status'] == "passed" and
-            avi.malware['reason']['signature_validated']['signature_from'] in ["market", "tester"]):
+        if ((avi.malware['rank'] in ["TRUSTED"] and
+             avi.malware['reason']['signature_validated']['status'] == "passed" and
+             avi.malware['reason']['signature_validated']['signature_from'] in ["market", "tester"])
+            or avi.name == 'com.google.android.youtube'):
             ret = True
         else:  # IMPLIES avi.malware['reason']['signature_validated']['signature_from'] == "user"
             apkname = 'err.{0}err'.format(apkname[:-3])
@@ -209,14 +220,12 @@ class AptoideCrawler(object):
         """
         doDpiStuff(screenCompat): Convert screenCompat to a single DPI or a range of DPIs
         """
-        if screenCompat == 'nodpi':
-            return screenCompat
+        if len(screenCompat) == 0:
+            return 'nodpi'
 
         dpis = {}
-        splits = screenCompat.split(',')
-        for split in splits:
-            splits2 = split.split('/')
-            dpis[str(splits2[1])] = ''
+        for split in screenCompat:
+            dpis[str(split[1])] = ''
 
         return delim.join(sorted(dpis.keys()))
     # END: def doDpiStuff
@@ -238,9 +247,10 @@ class AptoideCrawler(object):
         # Date/Time info to know when to stop crawling...
         isdst_now_in = lambda zonename: bool(datetime.now(pytz.timezone(zonename)).dst())
 
-        delta    = timedelta(hours=(1 if isdst_now_in('Europe/Lisbon') else 0), minutes=-3)
+        # delta    = timedelta(hours=(1 if isdst_now_in('Europe/Lisbon') else 0), minutes=-3)
+        delta    = timedelta(minutes=-5)
         currTime = datetime.utcnow()
-        lastTime = datetime.strptime(self.runInfo['lastIdTime'], '%Y-%m-%d %H:%M:%S.%f')
+        lastTime = datetime.strptime(self.runInfo['lastIdTime'], '%Y-%m-%d %H:%M:%S')
         logging.debug('currTime: {0}, lastTime: {1}, delta: {2}'.format(str(currTime), str(lastTime), str((currTime + delta) - lastTime)))
 
         bFoundNewMax = True  # Flag to stop crawling when we do not appear caught up based on date/time
@@ -276,7 +286,7 @@ class AptoideCrawler(object):
             # Proces this run's results
             localAllResults = unwrap_getresults()
 
-            logging.debug('localALlResults: {0}, cleared: {1}'.format(len(localAllResults), len(unwrap_getresults())))
+            logging.debug('localAllResults: {0}'.format(len(localAllResults)))
 
             bFoundNewMax = False
             for r in localAllResults:
@@ -307,7 +317,7 @@ class AptoideCrawler(object):
 
             # Refresh Date/Time status for loop
             currTime = datetime.utcnow()
-            lastTime = datetime.strptime(self.runInfo['lastIdTime'], '%Y-%m-%d %H:%M:%S.%f')
+            lastTime = datetime.strptime(self.runInfo['lastIdTime'], '%Y-%m-%d %H:%M:%S')
 
             logging.debug('currTime: {0}, lastTime: {1}, delta: {2}'.format(str(currTime), str(lastTime), str((currTime + delta) - lastTime)))
         # END: while bNewMaxIdFound:
