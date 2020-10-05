@@ -66,10 +66,12 @@ allApkMirrorNames = {
     'com.google.android.apps.nexuslauncher'         : 'pixel-launcher',
     'com.google.android.apps.photos'                : 'photos',
     'com.google.android.apps.photos.vrmode'         : 'google-photos-daydream',
+    'com.google.android.apps.pixelmigrate'          : 'data-transfer-tool',
     'com.google.android.apps.restore'               : 'android-setup',
     'com.google.android.apps.translate'             : 'translate',
     'com.google.android.apps.tachyon'               : 'duo-by-google',
     'com.google.android.apps.turbo'                 : 'device-health-services',
+    'com.google.android.apps.tv.launcherx'          : 'google-tv-home-android-tv',
     'com.google.android.apps.tycho'                 : 'project-fi',
     'com.google.android.apps.walletnfcrel'          : 'google-pay',
     'com.google.android.apps.wallpaper'             : 'google-wallpaper-picker',
@@ -118,6 +120,7 @@ allApkMirrorNames = {
     'com.google.android.syncadapters.contacts'      : 'google-contacts-sync',
     'com.google.android.tag'                        : 'tags-google',
     'com.google.android.talk'                       : 'hangouts',
+    'com.google.android.trichromelibrary'           : 'trichrome-library',
     'com.google.android.tts'                        : 'google-text-to-speech-engine',
     'com.google.android.tv'                         : 'live-channels-android-tv',
     'com.google.android.tv.remote'                  : 'remote-control',
@@ -162,6 +165,10 @@ class ApkMirrorCrawler(object):
 
             if os.path.exists(os.path.join('.', 'apkcrawler', apkname)):
                 logging.info('{0} already exists (in ./apkcrawler/)'.format(apkname))
+                return
+
+            if os.path.exists(os.path.join('.', 'priv-app', apkname)):
+                logging.info('{0} already exists (in ./priv-app/)'.format(apkname))
                 return
 
             if os.path.exists(os.path.join('..', 'apkcrawler', apkname)):

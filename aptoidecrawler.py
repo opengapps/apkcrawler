@@ -192,6 +192,10 @@ class AptoideCrawler(object):
                 logging.info('{0} already exists (in ./apkcrawler/)'.format(apkname))
                 return
 
+            if os.path.exists(os.path.join('.', 'priv-app', apkname)):
+                logging.info('{0} already exists (in ./priv-app/)'.format(apkname))
+                return
+
             if os.path.exists(os.path.join('..', 'apkcrawler', apkname)):
                 logging.info('{0} already exists (in ../apkcrawler/)'.format(apkname))
                 return
