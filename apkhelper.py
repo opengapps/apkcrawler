@@ -3,7 +3,6 @@ import logging
 import re
 
 oneVariantPerRealver = {'com.google.android.apps.books',
-                        'com.google.android.apps.cloudprint',
                         'com.google.android.apps.enterprise.dmagent',
                         'com.google.android.apps.gcs',
                         'com.google.android.apps.genie.geniewidget',
