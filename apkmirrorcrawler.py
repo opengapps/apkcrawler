@@ -63,6 +63,7 @@ allApkMirrorNames = {
     'com.google.android.apps.maps'                  : 'maps',
     'com.google.android.apps.mediashell'            : 'chromecast-built-in',
     'com.google.android.apps.messaging'             : 'messenger-google-inc',
+    'com.google.android.apps.nbu.files'             : 'files-go',
     'com.google.android.apps.nexuslauncher'         : 'pixel-launcher',
     'com.google.android.apps.photos'                : 'photos',
     'com.google.android.apps.photos.vrmode'         : 'google-photos-daydream',
