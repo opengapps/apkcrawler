@@ -124,6 +124,7 @@ allApkMirrorNames = {
     'com.google.android.talk'                       : 'hangouts',
     'com.google.android.trichromelibrary'           : 'trichrome-library',
     'com.google.android.tts'                        : 'google-text-to-speech-engine',
+    'com.google.android.tungsten.setupwraith'       : 'google-tv-setup-android-tv',
     'com.google.android.tv'                         : 'live-channels-android-tv',
     'com.google.android.tv.remote'                  : 'remote-control',
     'com.google.android.tvlauncher'                 : 'android-tv-home-android-tv',
