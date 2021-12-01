@@ -77,7 +77,7 @@ allApkMirrorNames = {
     'com.google.android.apps.walletnfcrel'          : 'google-pay',
     'com.google.android.apps.wallpaper'             : 'google-wallpaper-picker',
     'com.google.android.apps.youtube.music'         : 'youtube-music',
-    'com.google.android.as'                         : 'google-actions-services',
+    'com.google.android.as'                         : 'device-personalization-services',
     'com.google.android.backdrop'                   : 'backdrop-daydream-android-tv',
     'com.google.android.backuptransport'            : 'google-backup-transport',
     'com.google.android.calculator'                 : 'google-calculator',
@@ -101,7 +101,7 @@ allApkMirrorNames = {
     'com.google.android.inputmethod.latin'          : 'gboard',
     'com.google.android.inputmethod.pinyin'         : 'google-pinyin-input',
     'com.google.android.instantapps.supervisor'     : 'google-play-services-for-instant-apps',
-    'com.google.android.katniss'                    : 'google-app-for-android-tv-android-tv',
+    # 'com.google.android.katniss'                    : 'google-app-for-android-tv-android-tv',
     'com.google.android.keep'                       : 'keep',
     'com.google.android.launcher'                   : 'google-now-launcher',
     'com.google.android.leanbacklauncher'           : 'android-tv-launcher-android-tv',
@@ -328,7 +328,7 @@ class ApkMirrorCrawler(object):
                 # for version in versions:
                 version = versions[0]
 
-                verName = version.findAll('span', {'class': 'infoslide-value'})
+                verName = version.findAll('span', {'class': 'infoSlide-value'})
                 verName = verName[0].get_text()
 
                 appNameRow  = version.find_previous_sibling('div', {'class': 'appRow'})
